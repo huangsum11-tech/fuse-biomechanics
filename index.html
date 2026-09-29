@@ -2835,8 +2835,10 @@
       <!-- Canvas viewport (anchor marks its "home" position; LEFT column) -->
       <div id="anat-canvas-anchor" style="display:none"></div>
       <div id="anat-canvas-viewport" style="grid-column:1;grid-row:1;min-width:0;height:100%;position:relative;overflow:hidden;background:#080c14">
+        <div id="anat-3d-host" style="position:absolute;inset:0;z-index:3"></div>
+        <div id="anat-3d-loading" style="position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--sub);pointer-events:none">🧊 載入3D解剖模型中… <span id="anat-3d-loading-pct">0%</span></div>
         <img id="anat-ref-image" src="" alt="寫實解剖參考圖" />
-        <canvas id="anatomy-canvas" style="display:block"></canvas>
+        <canvas id="anatomy-canvas" style="display:none"></canvas>
         <div class="anat-quiz-feedback" id="anat-quiz-feedback"></div>
         <!-- Hover tooltip -->
         <div id="anat-tooltip" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(10,15,25,.92);border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-family:var(--mono);font-size:10px;color:var(--sub);pointer-events:none;white-space:nowrap;display:none"></div>
@@ -19353,128 +19355,123 @@ function drawBone(id, b, isHovered, isSelected, dimAll) {
   }
 }
 
-// ── Main draw ──────────────────────────────────────────────────
-function draw() {
-  if (!ctx || W <= 0 || H <= 0) return;
-  ctx.clearRect(0, 0, W, H);
+// ── 3D Anatomy Model (BodyParts3D, same engine as the 🧊 modal) ──
+// Replaces the old hand-drawn 2D polygon illustration in this panel
+// with the real anatomy3d.js viewer, mounted inline into
+// #anat-3d-host. currentView/currentRegion/currentLayer/selectedMuscle/
+// selectedBone stay the single source of truth (set by the existing
+// setAnatomyView/filterAnatomyRegion/filterAnatomyLayer/jumpToMuscle
+// functions below) — draw() just syncs whichever of those changed onto
+// the live viewer instance instead of repainting a <canvas>.
+var anat3d = { viewer:null, atlas:null, conceptToMuscle:null, conceptToBone:null, partIdToConceptIds:null, loading:false };
 
-  // Background — subtle vignette
-  var grad = ctx.createRadialGradient(W/2, H*0.42, 0, W/2, H*0.42, Math.max(W,H)*0.85);
-  grad.addColorStop(0, '#111826');
-  grad.addColorStop(0.6, '#0c1420');
-  grad.addColorStop(1, '#060a10');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-
-  // Subtle horizontal centre-line guide
-  ctx.save();
-  ctx.globalAlpha = 0.05;
-  ctx.strokeStyle = '#6a8aaa';
-  ctx.lineWidth = 0.5;
-  ctx.setLineDash([2, 6]);
-  ctx.beginPath();
-  ctx.moveTo(tx(100), ty(0));
-  ctx.lineTo(tx(100), ty(460));
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
-
-  drawBody();
-
-  if (window.anatSkeletonMode) {
-    var hasSelBone = !!selectedBone;
-    Object.keys(BONES).forEach(function(id) {
-      var b = BONES[id];
-      var viewOK   = (currentView === 'all') || (b.view === 'all') || (b.view === currentView);
-      var regionOK = (currentRegion === 'all') || (b.region === currentRegion);
-      if (!viewOK || !regionOK) return;
-      drawBone(id, b, id === hoveredBone, id === selectedBone, hasSelBone);
+function anat3dBuildReverseMaps() {
+  var atlas = anat3d.atlas;
+  var partIdToConceptIds = new Map();
+  atlas.concepts.forEach(function(c) {
+    c.elements.forEach(function(pid) {
+      var list = partIdToConceptIds.get(pid);
+      if (!list) { list = []; partIdToConceptIds.set(pid, list); }
+      list.push(c.id);
     });
+  });
+  var conceptToMuscle = new Map();
+  Object.keys(window.MUSCLE_TO_ATLAS || {}).forEach(function(key) {
+    (window.MUSCLE_TO_ATLAS[key] || []).forEach(function(cid) { if (!conceptToMuscle.has(cid)) conceptToMuscle.set(cid, key); });
+  });
+  var conceptToBone = new Map();
+  Object.keys(window.BONE_TO_ATLAS || {}).forEach(function(key) {
+    (window.BONE_TO_ATLAS[key] || []).forEach(function(cid) { if (!conceptToBone.has(cid)) conceptToBone.set(cid, key); });
+  });
+  anat3d.partIdToConceptIds = partIdToConceptIds;
+  anat3d.conceptToMuscle = conceptToMuscle;
+  anat3d.conceptToBone = conceptToBone;
+}
 
-    // View label
-    var boneLabels = {front:'ANTERIOR 前視圖', back:'POSTERIOR 後視圖', all:'ALL VIEWS'};
-    ctx.save();
-    ctx.font = Math.max(7, 7*scale) + 'px monospace';
-    ctx.fillStyle = AC.sub;
-    ctx.textAlign = 'right';
-    ctx.globalAlpha = 0.6;
-    ctx.fillText((boneLabels[currentView] || currentView) + ' · 骨骼', W - 6, H - 6);
-    ctx.restore();
+// Fires when the coach clicks a structure directly on the 3D model —
+// resolves the clicked mesh part back to a Fuse MUSCLES/BONES key (via
+// the concept-id reverse maps above) and opens the same detail panel
+// jumpToMuscle()/the search box use, so all three entry points stay consistent.
+function anat3dOnSelect(part) {
+  var conceptIds = anat3d.partIdToConceptIds.get(part.id) || [];
+  for (var i = 0; i < conceptIds.length; i++) {
+    var mKey = anat3d.conceptToMuscle.get(conceptIds[i]);
+    if (mKey) { selectedMuscle = mKey; selectedBone = null; showMuscleDetail(mKey); return; }
+  }
+  for (var j = 0; j < conceptIds.length; j++) {
+    var bKey = anat3d.conceptToBone.get(conceptIds[j]);
+    if (bKey) { selectedBone = bKey; selectedMuscle = null; showBoneDetail(bKey); return; }
+  }
+}
 
-    if (!hasSelBone) {
-      var boneVisCount = 0;
-      Object.keys(BONES).forEach(function(id) {
-        var b = BONES[id];
-        var viewOK   = (currentView === 'all') || (b.view === 'all') || (b.view === currentView);
-        var regionOK = (currentRegion === 'all') || (b.region === currentRegion);
-        if (viewOK && regionOK) boneVisCount++;
+function initAnat3D() {
+  if (anat3d.viewer || anat3d.loading) return;
+  var host = document.getElementById('anat-3d-host');
+  if (!host) return;
+  anat3d.loading = true;
+  var loadingEl = document.getElementById('anat-3d-loading');
+  import('./anatomy3d.js').then(function(mod) {
+    return mod.loadAtlas('models/').then(function(atlas) {
+      anat3d.atlas = atlas;
+      anat3dBuildReverseMaps();
+      anat3d.viewer = mod.createAnatomyViewer(host, atlas, {
+        onProgress: function(pct) {
+          var pctEl = document.getElementById('anat-3d-loading-pct');
+          if (pctEl) pctEl.textContent = pct + '%';
+          if (pct >= 100 && loadingEl) loadingEl.style.display = 'none';
+        },
+        onError: function(msg) {
+          if (loadingEl) { loadingEl.innerHTML = '<span style="color:#fbbf24">⚠️ ' + msg + '</span>'; loadingEl.style.display = 'flex'; }
+        },
+        onSelect: anat3dOnSelect,
       });
-      ctx.save();
-      ctx.font = Math.max(7, 7*scale) + 'px monospace';
-      ctx.fillStyle = AC.sub;
-      ctx.textAlign = 'left';
-      ctx.globalAlpha = 0.5;
-      ctx.fillText(boneVisCount + ' 塊骨', 6, H - 6);
-      ctx.restore();
-    }
+      anat3d.loading = false;
+      draw(); // apply whatever view/region/layer/selection state is already set
+    });
+  }).catch(function(e) {
+    anat3d.loading = false;
+    if (loadingEl) { loadingEl.innerHTML = '<span style="color:#fbbf24">⚠️ 3D模型載入失敗：' + (e && e.message ? e.message : e) + '</span>'; loadingEl.style.display = 'flex'; }
+  });
+}
+
+// ── Main draw — syncs the 3D viewer to current view/region/layer/selection ──
+function draw() {
+  if (!anat3d.viewer) { initAnat3D(); return; }
+  var viewer = anat3d.viewer;
+  viewer.setView(currentView === 'back' ? 'back' : 'front');
+
+  if (selectedMuscle && window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[selectedMuscle]) {
+    viewer.setSelectedByIds(window.MUSCLE_TO_ATLAS[selectedMuscle], true);
+    return;
+  }
+  if (selectedBone && window.BONE_TO_ATLAS && window.BONE_TO_ATLAS[selectedBone]) {
+    viewer.setSelectedByIds(window.BONE_TO_ATLAS[selectedBone], true);
     return;
   }
 
-  var layerOrder = ['deep','intermediate','superficial'];
-  var layerFilter = currentLayer;
-  var hasSel = !!selectedMuscle; // dim all others when something is selected
-
-  layerOrder.forEach(function(layerName) {
-    if (layerFilter !== 'all' && layerFilter !== layerName) return;
-    Object.keys(MUSCLES).forEach(function(id) {
-      var m = MUSCLES[id];
-      var viewOK   = (currentView === 'all') || (m.view === currentView);
-      var regionOK = (currentRegion === 'all') || (m.region === currentRegion);
-      var layerOK  = (m.layer === layerName);
-      if (!viewOK || !regionOK || !layerOK) return;
-      drawMuscle(id, m, id === hoveredMuscle, id === selectedMuscle, hasSel);
-    });
-  });
-
-  // Draw origin/insertion attachment markers for the selected muscle,
-  // on top of everything else so they're always visible
-  if (selectedMuscle && MUSCLES[selectedMuscle]) {
-    var selM = MUSCLES[selectedMuscle];
-    var selViewOK = (currentView === 'all') || (selM.view === currentView);
-    if (selViewOK) {
-      drawAttachmentMarkers({ poly: selM.poly });
-      if (selM.poly2) drawAttachmentMarkers({ poly: selM.poly2 });
-    }
+  // No single structure selected — either show the full body, or (if a
+  // region/layer filter is active) isolate just the matching muscles,
+  // zoomed in, so filtering still declutters the view the way the old
+  // 2D diagram's show/hide did.
+  if (currentRegion === 'all' && currentLayer === 'all') {
+    viewer.clearSelection();
+    viewer.setVisible(['skeletal', 'muscular']);
+    return;
   }
-
-  // View + layer label
-  var labels = {front:'ANTERIOR 前視圖', back:'POSTERIOR 後視圖', all:'ALL VIEWS'};
-  var layerLabels = {all:'', superficial:' · 淺層', intermediate:' · 中層', deep:' · 深層'};
-  ctx.save();
-  ctx.font = Math.max(7, 7*scale) + 'px monospace';
-  ctx.fillStyle = AC.sub;
-  ctx.textAlign = 'right';
-  ctx.globalAlpha = 0.6;
-  ctx.fillText((labels[currentView] || currentView) + (layerLabels[currentLayer] || ''), W - 6, H - 6);
-  ctx.restore();
-
-  // Selected muscle count badge (top-left)
-  if (!hasSel) {
-    var visCount = 0;
-    Object.keys(MUSCLES).forEach(function(id) {
-      var m = MUSCLES[id];
-      var viewOK   = (currentView === 'all') || (m.view === currentView);
-      var regionOK = (currentRegion === 'all') || (m.region === currentRegion);
-      var layerOK  = (currentLayer === 'all') || (m.layer === currentLayer);
-      if (viewOK && regionOK && layerOK) visCount++;
-    });
-    ctx.save();
-    ctx.font = Math.max(7, 7*scale) + 'px monospace';
-    ctx.fillStyle = AC.sub;
-    ctx.textAlign = 'left';
-    ctx.globalAlpha = 0.5;
-    ctx.fillText(visCount + ' 塊', 6, H - 6);
-    ctx.restore();
+  var ids = [];
+  Object.keys(MUSCLES).forEach(function(key) {
+    var m = MUSCLES[key];
+    var regionOK = (currentRegion === 'all') || (m.region === currentRegion);
+    var layerOK  = (currentLayer === 'all') || (m.layer === currentLayer);
+    if (regionOK && layerOK && window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[key]) {
+      ids = ids.concat(window.MUSCLE_TO_ATLAS[key]);
+    }
+  });
+  if (ids.length) {
+    viewer.setSelectedByIds(ids, true);
+  } else {
+    viewer.clearSelection();
+    viewer.setVisible(['skeletal', 'muscular']);
   }
 }
 
@@ -20269,6 +20266,15 @@ window.addEventListener('resize', function() {
 window.MUSCLE_GROUPS = MUSCLE_GROUPS;
 window.MUSCLES = MUSCLES;
 window.showMuscleDetail = showMuscleDetail;
+window.showBoneDetail = showBoneDetail;
+// jumpToMuscle() / the search box live in a LATER, separate <script> block
+// (this whole "canvas state" section is wrapped in its own scope), so —
+// same reason resizeCanvas/closeAnatomyDetail/MUSCLES get exposed above —
+// draw()/selectedMuscle/selectedBone need an exposed setter too, otherwise
+// jumpToMuscle's own `typeof draw === 'function'` guard just silently
+// evaluates false and the 3D model never actually jumps to the result.
+window.anat3dSelectMuscle = function(id) { selectedMuscle = id; selectedBone = null; draw(); };
+window.anat3dSelectBone = function(id) { selectedBone = id; selectedMuscle = null; draw(); };
 
 // ── Full-body muscle index (結構 → 肌肉): render + live search + jump ──
 // Lists every entry in MUSCLES grouped by region (trunk/upper/lower),
@@ -31112,10 +31118,9 @@ function jumpToMuscle(id) {
         qsa('.anat-layer-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-layer') === 'all'); });
       }
     }
-    if (typeof selectedMuscle !== 'undefined') selectedMuscle = id;
     showMuscleDetail(id);
     if (typeof startPulse === 'function') { try { startPulse(); } catch(e) {} }
-    if (typeof draw === 'function') { try { draw(); } catch(e) {} }
+    if (typeof window.anat3dSelectMuscle === 'function') { try { window.anat3dSelectMuscle(id); } catch(e) {} }
 
     var input = document.getElementById('anat-search-input');
     if (input && m) input.value = m.name;
