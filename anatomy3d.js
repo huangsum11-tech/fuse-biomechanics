@@ -95,15 +95,23 @@ class PointerTap {
 }
 
 let atlasPromise = null;
-export function loadAtlas(baseUrl = 'models/') {
-  if (!atlasPromise) {
-    atlasPromise = fetch(baseUrl + 'atlas.json').then(r => {
+async function fetchAtlas(baseUrl) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const r = await fetch(baseUrl + 'atlas.json', { cache: 'force-cache' });
       if (!r.ok) throw new Error('atlas.json fetch failed: ' + r.status);
-      return r.json();
-    }).then(atlas => {
+      const atlas = await r.json();
       atlas.chunks.forEach(c => { c.url = baseUrl + c.url.split('/').pop(); if (c.gzip) c.gzip = baseUrl + c.gzip.split('/').pop(); });
       return atlas;
-    });
+    } catch (e) {
+      if (attempt >= 2) throw e;
+      await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+    }
+  }
+}
+export function loadAtlas(baseUrl = 'models/') {
+  if (!atlasPromise) {
+    atlasPromise = fetchAtlas(baseUrl).catch(e => { atlasPromise = null; throw e; });
   }
   return atlasPromise;
 }
@@ -206,8 +214,18 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   const loadChunk = async ci => {
     const chunk = atlas.chunks[ci];
     const compressed = !!chunk.gzip && typeof DecompressionStream !== 'undefined';
-    const response = await fetch(compressed ? chunk.gzip : chunk.url, { signal: abort.signal });
-    const buffer = await decodeModelResponse(response, chunk.bytes);
+    const url = compressed ? chunk.gzip : chunk.url;
+    let buffer;
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const response = await fetch(url, { signal: abort.signal, cache: 'force-cache' });
+        buffer = await decodeModelResponse(response, chunk.bytes);
+        break;
+      } catch (e) {
+        if (disposed || abort.signal.aborted || attempt >= 2) throw e;
+        await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+      }
+    }
     if (disposed) return;
     const groups = new Map();
     atlas.parts.forEach((p, i) => {
