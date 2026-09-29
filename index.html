@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fuse Biomechanics — PRI 全身評估系統</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/"
+  }
+}
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap');
 
@@ -9812,13 +9820,32 @@ orbitUpdate();
   <div class="pain-detail-body" id="cc-body" style="grid-template-columns:1fr;"></div>
 </div>
 
-<!-- ══════════ 3D ATLAS MODAL (human-atlas iframe embed) ══════════ -->
-<div id="atlas3d-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(5,8,14,.92);backdrop-filter:blur(4px)">
-  <div style="position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:2">
+<!-- ══════════ 3D ATLAS MODAL (內建 BodyParts3D 解剖模型) ══════════ -->
+<div id="atlas3d-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(5,8,14,.96);backdrop-filter:blur(4px)">
+  <div style="position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;z-index:3;flex-wrap:wrap;gap:8px">
     <span id="atlas3d-label" style="font-family:var(--mono);font-size:11px;color:var(--green);background:rgba(5,8,14,.85);padding:6px 12px;border-radius:6px;border:1px solid rgba(0,229,160,.3)"></span>
-    <button onclick="closeAtlas3D()" style="font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);cursor:pointer">✕ 關閉</button>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <input id="atlas3d-search" type="text" placeholder="🔍 搜尋結構名稱（英文）…" autocomplete="off" oninput="atlas3dSearchInput(this.value)"
+        style="font-family:var(--mono);font-size:11px;padding:6px 10px;border-radius:6px;background:rgba(5,8,14,.85);border:1px solid var(--border);color:var(--text);width:180px;outline:none">
+      <button onclick="atlas3dResetView()" style="font-family:var(--mono);font-size:11px;padding:7px 12px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);cursor:pointer">⟲ 重設</button>
+      <button onclick="closeAtlas3D()" style="font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--text);cursor:pointer">✕ 關閉</button>
+    </div>
   </div>
-  <iframe id="atlas3d-iframe" style="width:100%;height:100%;border:0" allow="fullscreen"></iframe>
+  <div id="atlas3d-search-results" style="display:none;position:absolute;top:48px;right:12px;z-index:3;background:#14161c;border:1px solid var(--border);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.5);max-height:min(50vh,420px);overflow-y:auto;width:260px"></div>
+  <div id="atlas3d-canvas-host" style="position:absolute;inset:0"></div>
+  <div id="atlas3d-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;font-family:var(--mono);font-size:12px;color:var(--sub);pointer-events:none">
+    <div>🧊 載入解剖模型中… <span id="atlas3d-loading-pct">0%</span></div>
+  </div>
+  <div style="position:absolute;bottom:10px;left:12px;right:12px;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap">
+    <div id="atlas3d-systems" style="display:flex;gap:4px;flex-wrap:wrap;max-width:70%"></div>
+    <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--sub);background:rgba(5,8,14,.75);padding:5px 10px;border-radius:6px;border:1px solid var(--border)">
+      <span>爆炸圖</span>
+      <input id="atlas3d-explode" type="range" min="0" max="100" value="0" style="width:110px" oninput="atlas3dSetExplode(this.value)">
+    </div>
+  </div>
+  <div style="position:absolute;bottom:2px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:8.5px;color:rgba(255,255,255,.28);pointer-events:none">
+    解剖數據: BodyParts3D 4.0 © DBCLS · CC BY 4.0
+  </div>
 </div>
 
 <!-- ══════════ NUTRITION DETAIL OVERLAY ══════════ -->
@@ -10861,93 +10888,114 @@ window.buildSessionFlowHTML = function(phaseIdx, sessionData) {
 
 
 // ════════════════════════════════════════════════════════════
-//  3D ANATOMY VIEWER INTEGRATION — links out to the standalone
-//  Three.js/Open3Dmodel viewer (separate hosted app, not embedded here
-//  since the .glb models are tens of MB and this app stays a single
-//  portable HTML file). Update ANATOMY_3D_VIEWER_URL below if you move
-//  it to a different host/domain.
+//  內建 3D 解剖模型 (BodyParts3D 4.0) —— 資源已經搬入呢個repo嘅
+//  models/ 資料夾，由 anatomy3d.js（human-atlas 個 Three.js 引擎、
+//  剝走 React 之後嘅 vanilla JS版）直接喺頁面入面render，唔使
+//  外部iframe／服務。
+//
+//  MUSCLE_TO_ATLAS / BONE_TO_ATLAS：Fuse自己嘅肌肉/骨骼id -> 對應
+//  嘅 BodyParts3D concept id（models/atlas.json 嘅 "concepts"），
+//  俾 openAtlas3D() 用嚟揀選、放大顯示對應結構。
 // ════════════════════════════════════════════════════════════
-window.ANATOMY_3D_VIEWER_URL = 'https://neon-sundae-59286b.netlify.app';
+window.MUSCLE_TO_ATLAS = {"abdPollLong":["FMA38515"],"abductDigMinFoot":["FMA37451"],"abductHall":["FMA37448"],"abductPolBrevis":["FMA37373"],"addBrevis":["FMA22442"],"addHallucis":["FMA46012"],"addLong":["FMA22441"],"addMag":["FMA22443"],"anconeus":["FMA37704"],"bicepsBrachii":["FMA37682", "FMA37683"],"bicepsFemLong":["FMA45887"],"bicepsFemShort":["FMA45890"],"brachialis":["FMA37667"],"brachioradialis":["FMA38485"],"coracoBrachialis":["FMA37664"],"deltA":["FMA34677"],"deltM":["FMA34678"],"deltPBack":["FMA34679"],"diaphragm":["FMA13295"],"ecrb":["FMA38494", "FMA38497"],"erectors":["FMA77177", "FMA77178", "FMA77179"],"extCarpiUln":["FMA38506"],"extDigComm":["FMA38500"],"extDigLong":["FMA22534"],"extHallBrevis":["FMA51141"],"extHallLong":["FMA22533"],"extIndicis":["FMA38524"],"extPollLong":["FMA38521"],"fcr":["FMA38459"],"fcu":["FMA38615", "FMA38616"],"fdpDeep":["FMA38478"],"fdsFront":["FMA38469"],"fibuTertius":["FMA22538"],"flexDigBrevis":["FMA37450"],"flexDigLong":["FMA51071"],"flexDigMiniBrevis":["FMA37383"],"flexHallBrevis":["FMA45963"],"flexHallLong":["FMA22593"],"gastrocnemius":["FMA45956", "FMA45959"],"gemelli":["FMA22318", "FMA22320"],"glutMax":["FMA22314"],"glutMed":["FMA22315"],"glutMin":["FMA22317"],"glutMinFront":["FMA22317"],"gracilis":["FMA43882"],"iliacus":["FMA22310", "FMA18060"],"iliocostalis":["FMA77177"],"infraspinatus":["FMA32546"],"interosseiHand":["FMA42404", "FMA42405", "FMA42402", "FMA42403"],"interspinales":["FMA22841"],"levScap":["FMA32519"],"longissimus":["FMA77178"],"longusColli":["FMA46279"],"lumbricals":["FMA42398", "FMA42399"],"lumbricalsFoot":["FMA37453"],"oblExt":["FMA13335"],"obturatorExt":["FMA22299"],"obturatorInt":["FMA22298"],"omohyoid":["FMA13342"],"opponensPollic":["FMA37379"],"palmLong":["FMA38462"],"pecMaj":["FMA13373", "FMA13374"],"pectMinor":["FMA13109"],"pectineus":["FMA22440"],"peroneals":["FMA22539", "FMA22540"],"piriformis":["FMA19082"],"plantaris":["FMA22543"],"platysma":["FMA45738"],"popliteus":["FMA22590"],"pronQuad":["FMA38453"],"pronTeres":["FMA38558", "FMA38559"],"quadFem":["FMA22321"],"quadPlant":["FMA37452"],"recFem":["FMA22430"],"rhomboids":["FMA13379", "FMA13380"],"rotatores":["FMA23081"],"sartorius":["FMA22353"],"scalenesAnt":["FMA13385"],"scalenesMid":["FMA13386"],"scalenesPost":["FMA13387"],"scm":["FMA13407"],"semimem":["FMA22438"],"semispinalis":["FMA22823"],"semiten":["FMA22357"],"serrPostInf":["FMA13402"],"serrPostSup":["FMA13401"],"serratus":["FMA13397"],"soleus":["FMA22542"],"spinalis":["FMA77179"],"splenius":["FMA22653"],"subclavius":["FMA13410"],"suboccipitals":["FMA32525", "FMA32526", "FMA32527", "FMA32528"],"subscap":["FMA13413"],"supinator":["FMA38512"],"suprasp":["FMA9629"],"suprasp_back":["FMA9629"],"teresMaj":["FMA32549"],"teresMinor":["FMA32550"],"tfl":["FMA22423"],"tibAnt":["FMA22532"],"tibPost":["FMA51099"],"transverseThoracis":["FMA9760"],"trapLower":["FMA32555"],"trapMid":["FMA32556"],"trapUpper":["FMA32557"],"tricepsBack":["FMA37692", "FMA37693", "FMA37694"],"vasInt":["FMA22433"],"vasLat":["FMA22431"],"vasMed":["FMA22432"]};
+window.BONE_TO_ATLAS = {"sternum":["FMA7485"],"clavicle":["FMA13321"],"skull":["FMA46565"],"mandible":["FMA52748"],"humerus":["FMA13303"],"scapula":["FMA13394"],"ribs":["FMA7480"],"pelvis":["FMA16580"],"thoracicSpine":["FMA9139"],"lumbarSpine":["FMA9921"],"cervicalSpine":["FMA9915","FMA12519","FMA12520"],"sacrum":["FMA16202"],"femur":["FMA9611"],"tibiaFibula":["FMA24476","FMA24479"],"patella":["FMA24485"],"radiusUlna":["FMA23463","FMA23466"],"footBones":["FMA24496","FMA9708","FMA24527","FMA24518","FMA24520","FMA24519","FMA24502","FMA24503","FMA24504","FMA24505","FMA24506"],"handBones":["FMA23899","FMA23900","FMA23901","FMA23902","FMA23903","FMA23727","FMA23730","FMA23712","FMA23718","FMA23709","FMA23721","FMA23724","FMA23945","FMA23946","FMA23947","FMA23948","FMA23949","FMA23918","FMA23919","FMA23920","FMA23921","FMA23922","FMA23933","FMA23934","FMA23935","FMA23936"]};
 
-window.MUSCLE_TO_3D = {"deltPBack": {"model": "upper", "node": "Deltoid muscle.r"}, "pecMaj": {"model": "upper", "node": "Clavicular head of pectoralis major muscle.r"}, "pectMinor": {"model": "upper", "node": "Pectoralis minor muscle.r"}, "subclavius": {"model": "upper", "node": "Subclavius muscle.r"}, "serratus": {"model": "upper", "node": "Serratus anterior muscle.r"}, "tfl": {"model": "lower", "node": "Tensor fasciae latae.r"}, "sartorius": {"model": "lower", "node": "Subtendinous bursa of sartorius.r"}, "recFem": {"model": "lower", "node": "Rectus femoris.r"}, "vasLat": {"model": "lower", "node": "Vastus lateralis muscle.r"}, "vasInt": {"model": "lower", "node": "Vastus intermedius muscle.r"}, "vasMed": {"model": "lower", "node": "Vastus medialis muscle.r"}, "gracilis": {"model": "lower", "node": "Gracilis muscle.r"}, "pectineus": {"model": "lower", "node": "Pectineus muscle.r"}, "addLong": {"model": "lower", "node": "Adductor longus.r"}, "addMag": {"model": "lower", "node": "Adductor magnus.r"}, "subscap": {"model": "upper", "node": "Subscapularis muscle.r"}, "suprasp_back": {"model": "upper", "node": "Supraspinatus muscle.r"}, "bicepsBrachii": {"model": "upper", "node": "Short head of biceps brachii.r"}, "coracoBrachialis": {"model": "upper", "node": "Brachialis muscle.r"}, "pronTeres": {"model": "upper", "node": "Humeral head of pronator teres.r"}, "tibAnt": {"model": "lower", "node": "Tibialis anterior tendon sheath.r"}, "itband": {"model": "skeleton", "node": "Tibia.r"}, "fibuTertius": {"model": "lower", "node": "Extensor digitorum longus-fibularis tertius vaginae tendinum.r"}, "extDigLong": {"model": "lower", "node": "Extensor digitorum longus.r"}, "extDigComm": {"model": "upper", "node": "Extensor digitorum.r"}, "peroneals": {"model": "lower", "node": "Fibularis longus muscle.r"}, "trapLower": {"model": "upper", "node": "Trapezius muscle.r"}, "levScap": {"model": "upper", "node": "Levator scapulae.r"}, "infraspinatus": {"model": "upper", "node": "Subtendinous bursa of infraspinatus muscle.r"}, "teresMinor": {"model": "upper", "node": "Teres minor muscle.r"}, "teresMaj": {"model": "upper", "node": "Subtendinous bursa of teres major.r"}, "latDorsi": {"model": "upper", "node": "Subtendinous bursa of latissimus dorsi.r"}, "glutMax": {"model": "lower", "node": "Trochanteric bursa of gluteus maximus.r"}, "glutMed": {"model": "lower", "node": "Trochanteric bursae of gluteus medius.r"}, "glutMinFront": {"model": "lower", "node": "Gluteus minimus muscle.r"}, "piriformis": {"model": "lower", "node": "Bursa of piriformis.r"}, "obturatorInt": {"model": "lower", "node": "Sciatic bursa of obturator internus.r"}, "semimem": {"model": "lower", "node": "Semimembranosus bursa deep to tendon.r"}, "semiten": {"model": "lower", "node": "Common tendon of Semitendinosus and Long head of biceps femoris"}, "gastrocnemius": {"model": "lower", "node": "Medial head of gastrocnemius.r"}, "soleus": {"model": "lower", "node": "Tendinous arch of soleus.r"}, "tibPost": {"model": "lower", "node": "Tibialis posterior muscle.r"}, "popliteus": {"model": "lower", "node": "Popliteus muscle.r"}, "flexDigLong": {"model": "lower", "node": "Flexor digitorum longus tendon sheath.r"}, "tricepsBack": {"model": "upper", "node": "Common tendon of triceps brachii.r"}, "anconeus": {"model": "upper", "node": "Anconeus muscle.r"}, "brachioradialis": {"model": "upper", "node": "Brachioradialis muscle.r"}, "ecrb": {"model": "upper", "node": "Extensor carpi radialis brevis.r"}, "fcr": {"model": "upper", "node": "Flexor carpi radialis.r"}, "extCarpiUln": {"model": "skeleton", "node": "Ulna.r"}, "addBrevis": {"model": "lower", "node": "Adductor brevis.r"}, "plantaris": {"model": "lower", "node": "Plantaris muscle.r"}, "extHallLong": {"model": "lower", "node": "Extensor hallucis longus.r"}, "flexHallLong": {"model": "lower", "node": "Flexor hallucis longus.r"}, "quadFem": {"model": "lower", "node": "Quadratus femoris muscle.r"}, "obturatorExt": {"model": "lower", "node": "Obturator externus.r"}, "palmLong": {"model": "upper", "node": "Palmaris longus muscle.r"}, "supinator": {"model": "upper", "node": "Supinator.r"}, "abdPollLong": {"model": "upper", "node": "Abductor pollicis longus.r"}, "extPollLong": {"model": "upper", "node": "Extensor pollicis longus.r"}, "fdpDeep": {"model": "upper", "node": "Flexor digitorum profundus.r"}, "abductHall": {"model": "lower", "node": "Abductor hallucis.r"}, "flexDigBrevis": {"model": "lower", "node": "Flexor digitorum brevis.r"}, "quadPlant": {"model": "lower", "node": "Quadratus plantae muscle.r"}, "abductDigMinFoot": {"model": "upper", "node": "Abductor digiti minimi.r"}, "bicepsFemShort": {"model": "lower", "node": "Short head of biceps femoris.r"}, "extDigBrevis": {"model": "lower", "node": "Extensor digitorum brevis.r"}, "extHallBrevis": {"model": "lower", "node": "Extensor hallucis brevis.r"}, "addHallucis": {"model": "lower", "node": "Oblique head of adductor hallucis.r"}, "flexDigMiniBrevis": {"model": "upper", "node": "Flexor digiti minimi brevis of hand.r"}, "extIndicis": {"model": "upper", "node": "Extensor indicis.r"}, "pronQuad": {"model": "upper", "node": "Pronator quadratus.r"}, "abductPolBrevis": {"model": "upper", "node": "Abductor pollicis brevis.r"}, "opponensPollic": {"model": "upper", "node": "Opponens pollicis muscle.r"}};
-window.BONE_TO_3D = {"sternum": {"model": "skeleton", "node": "Body of sternum"}, "handBones": {"model": "upper", "node": "Extensor hood of 5th finger.r"}, "tibiaFibula": {"model": "lower", "node": "Art cart of tibia proximal tibiofibular joint.r​"}, "ribs": {"model": "skeleton", "node": "Rib (12th).r"}, "footBones": {"model": "lower", "node": "Art cart of intermediate cuneiform bone.r"}, "radiusUlna": {"model": "upper", "node": "Art cart of ulna (proximal end).r"}, "sacrum": {"model": "upper", "node": "art cart of sacrum lumbosacral joint"}, "skull": {"model": "skeleton", "node": "Occipital bone"}, "pelvis": {"model": "skeleton", "node": "Hip bone.r"}, "thoracicSpine": {"model": "skeleton", "node": "Thoracic vertebrae (T7)"}, "lumbarSpine": {"model": "skeleton", "node": "Lumbar vertebrae (L3)"}, "cervicalSpine": {"model": "skeleton", "node": "Cervical vertebrae (C4)"}, "femur": {"model": "lower", "node": "Art cart of femur distal end.r"}, "scapula": {"model": "skeleton", "node": "Scapula.r."}, "humerus": {"model": "upper", "node": "Art cart of humerus head​.r"}, "clavicle": {"model": "skeleton", "node": "Clavicle.r"}, "patella": {"model": "skeleton", "node": "Patella.r"}, "mandible": {"model": "skeleton", "node": "Mandible bone"}};
+window._atlas3d = null;       // { viewer, atlas } once mounted
+window._atlas3dLoading = false;
+window._atlas3dSystemFilter = ['skeletal', 'muscular'];
 
-// Opens the 3D viewer in a new tab. With no args, opens to the default
-// skeleton overview. With modelKey+nodeName, deep-links straight to that
-// exact structure, highlighted (see index.html?model=...&select=... in
-// the viewer itself for how this is read on the other end).
-window.openAnatomy3D = function(modelKey, nodeName) {
-  var url = window.ANATOMY_3D_VIEWER_URL;
-  var params = [];
-  if (modelKey) params.push('model=' + encodeURIComponent(modelKey));
-  if (nodeName) params.push('select=' + encodeURIComponent(nodeName));
-  if (params.length) url += '?' + params.join('&');
-  window.open(url, '_blank');
+window._atlas3dRenderSystemToggles = function() {
+  var wrap = document.getElementById('atlas3d-systems');
+  if (!wrap || !window._atlas3dSYSTEMS) return;
+  wrap.innerHTML = window._atlas3dSYSTEMS.map(function(s) {
+    var on = window._atlas3dSystemFilter.indexOf(s.id) >= 0;
+    return '<button onclick="atlas3dToggleSystem(\'' + s.id + '\')" style="font-family:var(--mono);font-size:9.5px;padding:4px 8px;border-radius:4px;cursor:pointer;white-space:nowrap;background:' +
+      (on ? s.color + '33' : 'rgba(255,255,255,.04)') + ';border:1px solid ' + (on ? s.color : 'var(--border)') + ';color:' + (on ? '#fff' : 'var(--sub)') + '">' + s.name + '</button>';
+  }).join('');
+};
+window.atlas3dToggleSystem = function(id) {
+  var i = window._atlas3dSystemFilter.indexOf(id);
+  if (i >= 0) window._atlas3dSystemFilter.splice(i, 1); else window._atlas3dSystemFilter.push(id);
+  window._atlas3dRenderSystemToggles();
+  if (window._atlas3d) window._atlas3d.viewer.setVisible(window._atlas3dSystemFilter);
+};
+window.atlas3dSetExplode = function(v) { if (window._atlas3d) window._atlas3d.viewer.setExplode(v / 100); };
+window.atlas3dResetView = function() {
+  document.getElementById('atlas3d-explode').value = 0;
+  document.getElementById('atlas3d-search').value = '';
+  document.getElementById('atlas3d-search-results').style.display = 'none';
+  if (window._atlas3d) { window._atlas3d.viewer.resetCamera(); window._atlas3d.viewer.setVisible(window._atlas3dSystemFilter); }
+};
+window.atlas3dSearchInput = function(q) {
+  var results = document.getElementById('atlas3d-search-results');
+  q = (q || '').trim().toLowerCase();
+  if (!window._atlas3d || q.length < 2) { results.style.display = 'none'; return; }
+  var matches = window._atlas3d.atlas.parts.filter(function(p) { return p.name.toLowerCase().indexOf(q) >= 0; }).slice(0, 30);
+  if (!matches.length) { results.innerHTML = '<div style="padding:10px;font-size:11px;color:var(--sub)">搵唔到相關結構</div>'; results.style.display = 'block'; return; }
+  results.innerHTML = matches.map(function(p) {
+    return '<div onclick="atlas3dSelectPart(\'' + p.id + '\')" style="padding:7px 10px;font-size:11.5px;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border)" onmouseover="this.style.background=\'rgba(0,229,160,.08)\'" onmouseout="this.style.background=\'\'">' + p.name + ' <span style="color:var(--sub);font-size:9.5px">(' + p.system + ')</span></div>';
+  }).join('');
+  results.style.display = 'block';
+};
+window.atlas3dSelectPart = function(partId) {
+  if (!window._atlas3d) return;
+  window._atlas3d.viewer.setSelected([partId], true);
+  document.getElementById('atlas3d-search-results').style.display = 'none';
 };
 
-// ════════════════════════════════════════════════════════════
-//  human-atlas 3D肌肉圖集整合——embed喺iframe入面，用postMessage
-//  溝通（human-atlas冧身邊個React app冇URL deep-link，所以用
-//  postMessage傳BodyParts3D concept ID嚟遙控揀選）。
-//  MUSCLE_TO_ATLAS：app肌肉id -> [BodyParts3D concept id,...]
-//  （有幾個concept嘅代表左右兩邊要合埋一齊顯示，例如pecMaj/rhomboids）
-// ════════════════════════════════════════════════════════════
-window.NEW_ANATOMY_3D_URL = 'https://human-atlas-six-eta.vercel.app';
-window.MUSCLE_TO_ATLAS = {"abdPollLong":["FMA38515"],"abductDigMinFoot":["FMA37451"],"abductHall":["FMA37448"],"abductPolBrevis":["FMA37373"],"addBrevis":["FMA22442"],"addHallucis":["FMA46012"],"addLong":["FMA22441"],"addMag":["FMA22443"],"anconeus":["FMA37704"],"bicepsBrachii":["FMA37682", "FMA37683"],"bicepsFemLong":["FMA45887"],"bicepsFemShort":["FMA45890"],"brachialis":["FMA37667"],"brachioradialis":["FMA38485"],"coracoBrachialis":["FMA37664"],"deltA":["FMA34677"],"deltM":["FMA34678"],"deltPBack":["FMA34679"],"diaphragm":["FMA13295"],"ecrb":["FMA38494", "FMA38497"],"erectors":["FMA77177", "FMA77178", "FMA77179"],"extCarpiUln":["FMA38506"],"extDigComm":["FMA38500"],"extDigLong":["FMA22534"],"extHallBrevis":["FMA51141"],"extHallLong":["FMA22533"],"extIndicis":["FMA38524"],"extPollLong":["FMA38521"],"fcr":["FMA38459"],"fcu":["FMA38615", "FMA38616"],"fdpDeep":["FMA38478"],"fdsFront":["FMA38469"],"fibuTertius":["FMA22538"],"flexDigBrevis":["FMA37450"],"flexDigLong":["FMA51071"],"flexDigMiniBrevis":["FMA37383"],"flexHallBrevis":["FMA45963"],"flexHallLong":["FMA22593"],"gastrocnemius":["FMA45956", "FMA45959"],"gemelli":["FMA22318", "FMA22320"],"glutMax":["FMA22314"],"glutMed":["FMA22315"],"glutMin":["FMA22317"],"glutMinFront":["FMA22317"],"gracilis":["FMA43882"],"iliacus":["FMA22310", "FMA18060"],"iliocostalis":["FMA77177"],"infraspinatus":["FMA32546"],"interosseiHand":["FMA42404", "FMA42405", "FMA42402", "FMA42403"],"interspinales":["FMA22841"],"levScap":["FMA32519"],"longissimus":["FMA77178"],"longusColli":["FMA46279"],"lumbricals":["FMA42398", "FMA42399"],"lumbricalsFoot":["FMA37453"],"oblExt":["FMA13335"],"obturatorExt":["FMA22299"],"obturatorInt":["FMA22298"],"omohyoid":["FMA13342"],"opponensPollic":["FMA37379"],"palmLong":["FMA38462"],"pecMaj":["FMA13373", "FMA13374"],"pectMinor":["FMA13109"],"pectineus":["FMA22440"],"peroneals":["FMA22539", "FMA22540"],"piriformis":["FMA19082"],"plantaris":["FMA22543"],"platysma":["FMA45738"],"popliteus":["FMA22590"],"pronQuad":["FMA38453"],"pronTeres":["FMA38558", "FMA38559"],"quadFem":["FMA22321"],"quadPlant":["FMA37452"],"recFem":["FMA22430"],"rhomboids":["FMA13379", "FMA13380"],"rotatores":["FMA23081"],"sartorius":["FMA22353"],"scalenesAnt":["FMA13385"],"scalenesMid":["FMA13386"],"scalenesPost":["FMA13387"],"scm":["FMA13407"],"semimem":["FMA22438"],"semispinalis":["FMA22823"],"semiten":["FMA22357"],"serrPostInf":["FMA13402"],"serrPostSup":["FMA13401"],"serratus":["FMA13397"],"soleus":["FMA22542"],"spinalis":["FMA77179"],"splenius":["FMA22653"],"subclavius":["FMA13410"],"suboccipitals":["FMA32525", "FMA32526", "FMA32527", "FMA32528"],"subscap":["FMA13413"],"supinator":["FMA38512"],"suprasp":["FMA9629"],"suprasp_back":["FMA9629"],"teresMaj":["FMA32549"],"teresMinor":["FMA32550"],"tfl":["FMA22423"],"tibAnt":["FMA22532"],"tibPost":["FMA51099"],"transverseThoracis":["FMA9760"],"trapLower":["FMA32555"],"trapMid":["FMA32556"],"trapUpper":["FMA32557"],"tricepsBack":["FMA37692", "FMA37693", "FMA37694"],"vasInt":["FMA22433"],"vasLat":["FMA22431"],"vasMed":["FMA22432"]};
-
-window._atlas3dReady = false;
-window._atlas3dPending = null;
-window._atlas3dSrcLoaded = false;
-window._atlas3dTimeout = null;
-
+// 主入口：conceptIds = models/atlas.json 嘅 concept id 陣列（見
+// MUSCLE_TO_ATLAS / BONE_TO_ATLAS），label = 顯示喺標題嘅名。
+// 冇傳 conceptIds 就淨係開返個預設（骨骼+肌肉）總覽。
 window.openAtlas3D = function(conceptIds, label) {
   var modal = document.getElementById('atlas3d-modal');
-  var iframe = document.getElementById('atlas3d-iframe');
   var labelEl = document.getElementById('atlas3d-label');
-  labelEl.textContent = label ? ('🧊 ' + label) : '🧊 3D人體圖集';
+  var loading = document.getElementById('atlas3d-loading');
+  labelEl.textContent = label ? ('🧊 ' + label) : '🧊 3D人體解剖模型';
   labelEl.style.color = 'var(--green)';
   modal.style.display = 'block';
-  if (!window._atlas3dSrcLoaded) {
-    window._atlas3dSrcLoaded = true;
-    window._atlas3dReady = false;
-    // 加cache-busting參數，避免撞正Vercel edge嘅舊cache（曾經出現過
-    // Age超過25小時嘅stale cache，headers設定啱都仲用緊舊版本嘅情況）
-    iframe.src = window.NEW_ANATOMY_3D_URL + '?_cb=' + Date.now();
-    // 如果8秒之後都仲未收到atlas-ready，即係3D viewer個邊有嘢壞咗
-    // （常見成因：Vercel deploy失敗、CSP header又封鎖返、URL打錯咗），
-    // 顯示提示文字等用戶知發生咩事，唔使對住一個冇反應嘅空白畫面。
-    clearTimeout(window._atlas3dTimeout);
-    window._atlas3dTimeout = setTimeout(function() {
-      if (!window._atlas3dReady) {
-        labelEl.textContent = '⚠️ 3D模型未能連接——請檢查Vercel deploy狀態或CSP設定';
-        labelEl.style.color = '#fbbf24';
-      }
-    }, 8000);
-  }
-  if (conceptIds && conceptIds.length) {
-    if (window._atlas3dReady) {
-      iframe.contentWindow.postMessage({type:'select-structures', ids:conceptIds}, '*');
+
+  function applySelection() {
+    if (!window._atlas3d) return;
+    if (conceptIds && conceptIds.length) {
+      var found = window._atlas3d.viewer.setSelectedByIds(conceptIds, true);
+      if (!found.length) window._atlas3d.viewer.resetCamera();
     } else {
-      window._atlas3dPending = conceptIds;
+      window._atlas3d.viewer.clearSelection();
     }
   }
+
+  if (window._atlas3d) { applySelection(); return; }
+  if (window._atlas3dLoading) return;
+  window._atlas3dLoading = true;
+  loading.style.display = 'flex';
+  Promise.all([
+    import('./anatomy3d.js'),
+  ]).then(function(mods) {
+    var mod = mods[0];
+    window._atlas3dSYSTEMS = mod.SYSTEMS;
+    window._atlas3dRenderSystemToggles();
+    return mod.loadAtlas('models/').then(function(atlas) {
+      var host = document.getElementById('atlas3d-canvas-host');
+      var viewer = mod.createAnatomyViewer(host, atlas, {
+        onProgress: function(pct) { document.getElementById('atlas3d-loading-pct').textContent = pct + '%'; if (pct >= 100) loading.style.display = 'none'; },
+        onError: function(msg) { loading.innerHTML = '<div style="color:#fbbf24">⚠️ ' + msg + '</div>'; },
+        onSelect: function(part) { window._atlas3d.viewer.setSelected([part.id], true); },
+      });
+      viewer.setVisible(window._atlas3dSystemFilter);
+      window._atlas3d = { viewer: viewer, atlas: atlas };
+      window._atlas3dLoading = false;
+      applySelection();
+    });
+  }).catch(function(e) {
+    window._atlas3dLoading = false;
+    loading.innerHTML = '<div style="color:#fbbf24">⚠️ 3D模型載入失敗：' + (e && e.message ? e.message : e) + '</div>';
+  });
 };
 window.closeAtlas3D = function() {
   document.getElementById('atlas3d-modal').style.display = 'none';
 };
 window.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && document.getElementById('atlas3d-modal').style.display === 'block') closeAtlas3D();
-});
-window.addEventListener('message', function(e) {
-  if (!e.data || typeof e.data !== 'object') return;
-  if (e.data.type === 'atlas-ready') {
-    clearTimeout(window._atlas3dTimeout);
-    window._atlas3dReady = true;
-    if (window._atlas3dPending) {
-      document.getElementById('atlas3d-iframe').contentWindow.postMessage({type:'select-structures', ids:window._atlas3dPending}, '*');
-      window._atlas3dPending = null;
-    }
-  }
 });
 
 function breathPosIcon(posText) {
@@ -20542,9 +20590,9 @@ window.openBoneDetail = function(id) {
       + '</div></div>';
   }
 
-  var bone3d = (window.BONE_TO_3D || {})[id];
-  var bone3dBtnHTML = bone3d ? '<div class="pd-section pd-full" style="text-align:center">'
-    + '<button onclick="openAnatomy3D(\''+bone3d.model+'\',\''+bone3d.node+'\')" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;padding:9px 16px;border-radius:6px;background:rgba(129,140,248,.1);color:#a5b4fc;border:1px solid rgba(129,140,248,.3);cursor:pointer">🧊 真3D模型查看 →</button>'
+  var bone3dIds = (window.BONE_TO_ATLAS || {})[id];
+  var bone3dBtnHTML = bone3dIds ? '<div class="pd-section pd-full" style="text-align:center">'
+    + '<button onclick="openAtlas3D('+JSON.stringify(bone3dIds)+','+JSON.stringify(b.name)+')" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;padding:9px 16px;border-radius:6px;background:rgba(129,140,248,.1);color:#a5b4fc;border:1px solid rgba(129,140,248,.3);cursor:pointer">🧊 真3D模型查看 →</button>'
     + '</div>' : '';
 
   document.getElementById('pd-body').innerHTML =
