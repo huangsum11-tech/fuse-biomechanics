@@ -2815,6 +2815,13 @@
         <div style="flex:1"></div>
         <button class="anat-view-btn" data-view="all" onclick="setAnatomyView('all')" style="font-size:9px">全部</button>
       </div>
+      <!-- Viewer tools: pan mode (left-drag pans instead of orbits — handy on
+           tablet) and X-Ray (muscles turn translucent so the skeleton shows
+           through, instead of hiding a whole layer). -->
+      <div style="display:flex;gap:4px;padding:6px 8px;flex-shrink:0;border-bottom:1px solid var(--border)">
+        <button class="anat-view-btn" id="anat-pan-btn" onclick="window.toggleAnatPanMode()">🖐 平移模式</button>
+        <button class="anat-view-btn" id="anat-xray-btn" onclick="window.toggleAnatXray()">☢️ X光透視</button>
+      </div>
 
       <!-- Region filter -->
       <div style="display:flex;gap:3px;padding:5px 8px;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid var(--border)">
@@ -2839,6 +2846,8 @@
         <button class="anat-dissect-btn active" data-dissect="all" onclick="setAnatomyDissection('all')">完整</button>
         <button class="anat-dissect-btn" data-dissect="noSuperficial" onclick="setAnatomyDissection('noSuperficial')">✂️ 移除淺層</button>
         <button class="anat-dissect-btn" data-dissect="deepOnly" onclick="setAnatomyDissection('deepOnly')">✂️ 只留深層</button>
+        <div style="flex:1"></div>
+        <button class="anat-dissect-btn" onclick="window.anat3dResetRemovedMuscles()" title="復原所有用✂️手動移除嘅肌肉">🔄 復原已移除</button>
       </div>
     </div>
 
@@ -19430,13 +19439,24 @@ function anat3dResolvePartIds(conceptIds) {
 // this hides specific muscle layers while keeping the WHOLE body visible
 // and at normal scale/rotation — closer to how apps like Anatomy Learning
 // let you strip superficial muscles to reveal what's underneath in place.
+// Combines two independent sources of "hidden": the whole-layer peel
+// (currentDissection) and individually-removed muscles (the ✂️ button
+// on each muscle's detail card, toggled via anat3dToggleRemoveMuscle).
+window._anat3dManuallyRemoved = [];
+
 function anat3dDissectionHiddenIds() {
-  if (currentDissection === 'all' || !anat3d.viewer) return [];
-  var hideLayers = currentDissection === 'noSuperficial' ? ['superficial'] : ['superficial', 'intermediate'];
+  if (!anat3d.viewer) return [];
   var conceptIds = [];
-  Object.keys(MUSCLES).forEach(function(key) {
-    var m = MUSCLES[key];
-    if (hideLayers.indexOf(m.layer) === -1) return;
+  if (currentDissection !== 'all') {
+    var hideLayers = currentDissection === 'noSuperficial' ? ['superficial'] : ['superficial', 'intermediate'];
+    Object.keys(MUSCLES).forEach(function(key) {
+      var m = MUSCLES[key];
+      if (hideLayers.indexOf(m.layer) === -1) return;
+      var cids = window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[key];
+      if (cids) conceptIds = conceptIds.concat(cids);
+    });
+  }
+  window._anat3dManuallyRemoved.forEach(function(key) {
     var cids = window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[key];
     if (cids) conceptIds = conceptIds.concat(cids);
   });
@@ -19447,6 +19467,36 @@ window.setAnatomyDissection = function(mode) {
   currentDissection = mode;
   qsa('.anat-dissect-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dissect') === mode); });
   draw();
+};
+
+// Toggled by the ✂️ button on a muscle's detail card — lets a coach click
+// through several muscles one at a time to progressively dissect the
+// model, independent of (and combined with) the layer-peel buttons above.
+window.anat3dToggleRemoveMuscle = function(id) {
+  var idx = window._anat3dManuallyRemoved.indexOf(id);
+  if (idx === -1) window._anat3dManuallyRemoved.push(id); else window._anat3dManuallyRemoved.splice(idx, 1);
+  if (selectedMuscle === id) showMuscleDetail(id); // refresh the ✂️/↩️ button label
+  draw();
+};
+window.anat3dResetRemovedMuscles = function() {
+  window._anat3dManuallyRemoved = [];
+  draw();
+};
+
+// ── Pan mode + X-Ray — thin wrappers over the anatomy3d.js viewer API ──
+window.toggleAnatPanMode = function() {
+  if (!anat3d.viewer) return;
+  var on = !anat3d.viewer.getPanMode();
+  anat3d.viewer.setPanMode(on);
+  var btn = document.getElementById('anat-pan-btn');
+  if (btn) btn.classList.toggle('active', on);
+};
+window.toggleAnatXray = function() {
+  if (!anat3d.viewer) return;
+  var on = !anat3d.viewer.getXray();
+  anat3d.viewer.setXray(on);
+  var btn = document.getElementById('anat-xray-btn');
+  if (btn) btn.classList.toggle('active', on);
 };
 
 // Fires when the coach clicks a structure directly on the 3D model —
@@ -19817,6 +19867,9 @@ function showMuscleDetail(id) {
       links += '<button onclick="openTrainingDetail(\''+k+'\')" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.2);color:var(--green);cursor:pointer;margin:2px">'+label+'</button>';
     });
   }
+  var isRemoved = window._anat3dManuallyRemoved && window._anat3dManuallyRemoved.indexOf(id) !== -1;
+  links += '<button onclick="window.anat3dToggleRemoveMuscle(\''+id+'\')" style="font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);color:#f87171;cursor:pointer;margin:2px">'+(isRemoved ? '↩️ 模型度顯示返' : '✂️ 喺模型度移除')+'</button>';
+  links += '<a href="https://www.youtube.com/results?search_query='+encodeURIComponent((m.latin||m.name)+' muscle action')+'" target="_blank" rel="noopener" style="display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.3);color:#60a5fa;cursor:pointer;margin:2px;text-decoration:none">▶ 動作示範影片</a>';
   if (el('anat-muscle-links')) el('anat-muscle-links').innerHTML = links;
 
   var detail = document.getElementById('anat-detail');

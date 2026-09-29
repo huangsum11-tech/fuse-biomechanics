@@ -197,6 +197,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     }
     return best;
   };
+  let panMode = false, xrayOn = false;
   const materialFor = system => {
     const m = new T.MeshStandardMaterial({ color: SYSTEMS.find(s => s.id === system)?.color ?? '#aebbb8', metalness: 0.08, roughness: 0.53, side: T.DoubleSide, transparent: system === 'integumentary', opacity: system === 'integumentary' ? 0.1 : 1, depthWrite: system !== 'integumentary' });
     m.onBeforeCompile = shader => {
@@ -363,7 +364,8 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
       } else if (lastIsolate) { camera.clearViewOffset(); fit(s.view, amount); }
       lastIsolate = isolateKey;
     }
-    controls.enableRotate = amount < 0.8; controls.mouseButtons.LEFT = amount < 0.8 ? T.MOUSE.ROTATE : T.MOUSE.PAN; controls.touches.ONE = amount < 0.8 ? T.TOUCH.ROTATE : T.TOUCH.PAN;
+    const dragIsPan = panMode || amount >= 0.8;
+    controls.enableRotate = !dragIsPan; controls.mouseButtons.LEFT = dragIsPan ? T.MOUSE.PAN : T.MOUSE.ROTATE; controls.touches.ONE = dragIsPan ? T.TOUCH.PAN : T.TOUCH.ROTATE;
     ground.visible = platform.visible = ring.visible = innerRing.visible = amount < 0.5 && !s.isolate;
     markers.visible = amount > 0.75; controls.autoRotate = s.rotate && !s.isolate && amount < 0.4; controls.autoRotateSpeed = 0.65; controls.update();
     if (controls.autoRotate) dirty = true;
@@ -408,6 +410,15 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     setRotate(v) { state.rotate = !!v; },
     resetCamera() { state.reset++; state.isolate = false; state.selected = []; state.explode = 0; },
     getState() { return state; },
+    setPanMode(v) { panMode = !!v; dirty = true; },
+    getPanMode() { return panMode; },
+    setXray(v) {
+      xrayOn = !!v;
+      const muscle = mats.get('muscular');
+      if (muscle) { muscle.transparent = xrayOn; muscle.opacity = xrayOn ? 0.22 : 1; muscle.depthWrite = !xrayOn; muscle.needsUpdate = true; }
+      dirty = true;
+    },
+    getXray() { return xrayOn; },
     destroy() {
       disposed = true; abort.abort(); cancelAnimationFrame(frame); observer.disconnect(); controls.dispose();
       geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose());
