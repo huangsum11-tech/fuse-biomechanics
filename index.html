@@ -1422,6 +1422,20 @@
   }
   .anat-layer-btn.active { background: rgba(251,146,60,.15); border-color: #fb923c; color: #fb923c; }
   .anat-layer-btn:hover:not(.active) { border-color: var(--sub); color: var(--text); }
+  .anat-dissect-btn {
+    font-family: var(--mono);
+    font-size: 8.5px;
+    letter-spacing: .5px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--sub);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .anat-dissect-btn.active { background: rgba(248,113,113,.15); border-color: #f87171; color: #f87171; }
+  .anat-dissect-btn:hover:not(.active) { border-color: var(--sub); color: var(--text); }
 
   .anat-view-btn, .anat-region-btn {
     font-family: var(--mono);
@@ -1675,13 +1689,9 @@
       <span class="rail-group-caret">▾</span>
     </button>
     <div class="rail-group-buttons" data-group-buttons="anatomy">
-      <button class="rail-btn" data-rail="anatomy" title="人體結構與力學">
+      <button class="rail-btn" data-rail="anatomy" title="人體結構與力學 · 3D解剖模型 + 全身肌肉搜尋">
         <span class="rail-icon">🫀</span>
         <span class="rail-label">人體</span>
-      </button>
-      <button class="rail-btn" data-rail="musclelist" title="全身肌肉列表 · 方便搜尋">
-        <span class="rail-icon">🔍</span>
-        <span class="rail-label">肌肉</span>
       </button>
       <button class="rail-btn" data-rail="fascia" title="筋膜解剖列車">
         <span class="rail-icon">🕸</span>
@@ -1840,7 +1850,7 @@
   // of where the active tab went.
   var RAIL_GROUP_OF = {
     'lower-body':'assess','upper-body':'assess','analysis':'assess','screen':'assess','wedge':'assess',
-    'anatomy':'anatomy','fascia':'anatomy','glossary':'anatomy','musclelist':'anatomy','kineticchain':'anatomy',
+    'anatomy':'anatomy','fascia':'anatomy','glossary':'anatomy','kineticchain':'anatomy',
     'concepts':'path','pain':'path','rehab':'path','training':'path','coaching':'path','exlib':'path',
     'cardio':'specialty','powerlifting':'specialty','bodybuilding':'specialty','traincalc':'specialty',
     'nutrition-metabolism':'nutrition','nutrition-micro':'nutrition','nutrition-supp':'nutrition','nutrition-food':'nutrition','nutrition-apply':'nutrition','nutrition-tdee':'nutrition',
@@ -2813,28 +2823,60 @@
         <button class="anat-region-btn" data-region="upper" onclick="filterAnatomyRegion('upper')">上肢</button>
         <button class="anat-region-btn" data-region="lower" onclick="filterAnatomyRegion('lower')">下肢</button>
       </div>
-      <!-- Layer filter -->
+      <!-- Layer filter — ISOLATES just that layer (zoomed in on it alone) -->
       <div style="display:flex;gap:3px;padding:4px 8px;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid var(--border);background:rgba(0,0,0,.08)">
-        <span style="font-family:var(--mono);font-size:9px;color:var(--sub);align-self:center;margin-right:2px">層次</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--sub);align-self:center;margin-right:2px">層次（獨立顯示）</span>
         <button class="anat-layer-btn active" data-layer="all" onclick="filterAnatomyLayer('all')">全部</button>
         <button class="anat-layer-btn" data-layer="superficial" onclick="filterAnatomyLayer('superficial')">淺層</button>
         <button class="anat-layer-btn" data-layer="intermediate" onclick="filterAnatomyLayer('intermediate')">中層</button>
         <button class="anat-layer-btn" data-layer="deep" onclick="filterAnatomyLayer('deep')">深層</button>
       </div>
+      <!-- Dissection — PEELS layers away on the full body (stays in context,
+           no zoom), like Anatomy Learning app's dissection mode: strip the
+           superficial muscles to reveal what's underneath. -->
+      <div style="display:flex;gap:3px;padding:4px 8px;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--sub);align-self:center;margin-right:2px">解剖深度（全身保留）</span>
+        <button class="anat-dissect-btn active" data-dissect="all" onclick="setAnatomyDissection('all')">完整</button>
+        <button class="anat-dissect-btn" data-dissect="noSuperficial" onclick="setAnatomyDissection('noSuperficial')">✂️ 移除淺層</button>
+        <button class="anat-dissect-btn" data-dissect="deepOnly" onclick="setAnatomyDissection('deepOnly')">✂️ 只留深層</button>
+      </div>
     </div>
 
-    <!-- Model (LEFT, bounded) + muscle description (RIGHT, enlarged) —
-         side-by-side within the SAME panel/container (no cross-container
-         node-moving this time, just a plain CSS row), so the description
-         gets far more reading room than the old cramped 200px-tall strip
-         below the model, and the model itself gets a consistent, sane
-         width instead of stretching edge-to-edge with mostly empty canvas
-         padding beside a portrait-shaped figure. -->
-    <div id="anat-model-detail-row" style="display:grid;grid-template-columns:minmax(240px,320px) 1fr;grid-template-rows:1fr;align-items:stretch;height:600px;flex-shrink:0">
+    <!-- Muscle list (LEFT) + 3D model (MIDDLE) + muscle description (RIGHT) —
+         merged into one three-column row so you can search/browse muscles,
+         see them live-highlighted on the real 3D model, and read the full
+         detail, all without leaving this panel. List and detail columns are
+         the same fixed width so the row reads as visually symmetric. -->
+    <div id="anat-model-detail-row" style="display:grid;grid-template-columns:300px minmax(360px,1fr) 300px;grid-template-rows:1fr;align-items:stretch;height:680px;flex-shrink:0">
 
-      <!-- Canvas viewport (anchor marks its "home" position; LEFT column) -->
+      <!-- Muscle list column (LEFT) — same search/filter/list as before, just
+           living inside this panel now instead of a separate "肌肉" tab, so
+           picking a muscle here drives the SAME 3D view + detail column. -->
+      <div id="anat-musclelist-col" style="grid-column:1;grid-row:1;min-width:0;height:100%;overflow-y:auto;border-right:1px solid var(--border);padding:10px;box-sizing:border-box">
+        <div style="font-size:10.5px;color:#9aa3b5;line-height:1.5;margin-bottom:8px">搜尋或掃視全身118條肌肉，撳任何一條即喺右邊3D模型highlight並顯示詳情。</div>
+        <div id="musclelist-filter-bar" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
+          <button id="mlf-all" class="musclelist-filter-btn active" onclick="setMuscleListFilter('all')">全部</button>
+          <button id="mlf-headneck" class="musclelist-filter-btn" onclick="setMuscleListFilter('headneck')">頭頸</button>
+          <button id="mlf-trunk" class="musclelist-filter-btn" onclick="setMuscleListFilter('trunk')">軀幹</button>
+          <button id="mlf-upper" class="musclelist-filter-btn" onclick="setMuscleListFilter('upper')">上肢</button>
+          <button id="mlf-lower" class="musclelist-filter-btn" onclick="setMuscleListFilter('lower')">下肢</button>
+          <button id="mlf-groups" class="musclelist-filter-btn" onclick="setMuscleListFilter('groups')">🧩 肌群</button>
+        </div>
+        <div id="musclelist-layer-bar" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+          <button id="mlf-layer-all" class="musclelist-filter-btn active" onclick="setMuscleListLayerFilter('all')">全部層</button>
+          <button id="mlf-layer-superficial" class="musclelist-filter-btn" onclick="setMuscleListLayerFilter('superficial')" style="border-color:rgba(74,222,128,.3)">🟢 淺層</button>
+          <button id="mlf-layer-intermediate" class="musclelist-filter-btn" onclick="setMuscleListLayerFilter('intermediate')" style="border-color:rgba(251,146,60,.3)">🟠 中層</button>
+          <button id="mlf-layer-deep" class="musclelist-filter-btn" onclick="setMuscleListLayerFilter('deep')" style="border-color:rgba(248,113,113,.3)">🔴 深層</button>
+        </div>
+        <input id="muscle-search-input" type="text" placeholder="搜尋肌肉名稱（中/英文）..." oninput="filterMuscleList(this.value)"
+          style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text);font-size:12px;margin-bottom:8px;outline:none">
+        <div id="muscle-search-empty" style="display:none;font-size:11px;color:var(--sub);text-align:center;padding:16px 0">找不到匹配的肌肉，試下其他關鍵字。</div>
+        <div id="musclelist-body"></div>
+      </div>
+
+      <!-- Canvas viewport (anchor marks its "home" position; MIDDLE column) -->
       <div id="anat-canvas-anchor" style="display:none"></div>
-      <div id="anat-canvas-viewport" style="grid-column:1;grid-row:1;min-width:0;height:100%;position:relative;overflow:hidden;background:#080c14">
+      <div id="anat-canvas-viewport" style="grid-column:2;grid-row:1;min-width:0;height:100%;position:relative;overflow:hidden;background:#080c14">
         <div id="anat-3d-host" style="position:absolute;inset:0;z-index:3"></div>
         <div id="anat-3d-loading" style="position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--sub);pointer-events:none">🧊 載入3D解剖模型中… <span id="anat-3d-loading-pct">0%</span></div>
         <img id="anat-ref-image" src="" alt="寫實解剖參考圖" />
@@ -2847,11 +2889,11 @@
       <!-- Muscle detail panel (anchor marks its "home" position; RIGHT column) —
            explicitly pinned to the same grid cell as the placeholder below,
            so even if a JS toggle bug ever left both visible at once, they'd
-           just overlap in column 2 rather than the grid auto-placing the
+           just overlap in column 3 rather than the grid auto-placing the
            "extra" one into a brand new (unconstrained-height) implicit row,
            which is what was actually causing the height mismatch. -->
       <div id="anat-detail-anchor" style="display:none"></div>
-      <div id="anat-detail" style="grid-column:2;grid-row:1;min-width:0;height:100%;background:#0d1420;border-left:1px solid var(--border);padding:14px;display:none;flex-direction:column;gap:8px;overflow-y:auto">
+      <div id="anat-detail" style="grid-column:3;grid-row:1;min-width:0;height:100%;background:#0d1420;border-left:1px solid var(--border);padding:14px;display:none;flex-direction:column;gap:8px;overflow-y:auto">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span id="anat-muscle-name" style="font-size:14.5px;font-weight:700;color:var(--text)"></span>
           <button onclick="closeAnatomyDetail()" style="font-family:var(--mono);font-size:10px;color:var(--sub);background:none;border:none;cursor:pointer">✕</button>
@@ -2862,41 +2904,14 @@
         <div id="anat-muscle-links" style="display:flex;gap:5px;flex-wrap:wrap;margin-top:2px"></div>
       </div>
       <!-- Placeholder shown in the description column until a muscle is clicked -->
-      <div id="anat-detail-placeholder" style="grid-column:2;grid-row:1;min-width:0;height:100%;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--sub);text-align:center;padding:20px">
+      <div id="anat-detail-placeholder" style="grid-column:3;grid-row:1;min-width:0;height:100%;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--sub);text-align:center;padding:20px">
         <span style="font-size:32px;opacity:.5">👆</span>
-        <span style="font-size:13px">撳左邊模型上的肌肉<br>查看起止點/神經/臨床意義</span>
+        <span style="font-size:13px">撳左邊列表或中間模型上的肌肉<br>查看起止點/神經/臨床意義</span>
       </div>
 
     </div>
 
   </div><!-- end rail-anatomy -->
-
-  <!-- PANEL: 肌肉列表 Muscle List (全身肌肉搜尋) -->
-  <div class="rail-panel" id="rail-musclelist" style="gap:6px">
-    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--sub);padding:2px 0 8px;border-bottom:1px solid var(--border);margin-bottom:2px">
-      🔍 全身肌肉列表 · MUSCLE INDEX
-    </div>
-    <div style="font-size:11px;color:#9aa3b5;line-height:1.6;padding:2px 2px 8px">直接搜尋或掃視全身118條肌肉，撳任何一條即顯示它的起止點、神經支配、主要動作及相關痛症/訓練連結；詳情入面還有按鈕可以隨時跳去「人體」分頁看實際位置，或者跳去真3D模型。</div>
-    <button onclick="openAtlas3D()" style="width:100%;padding:8px;border-radius:6px;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.35);color:var(--green);font-family:var(--mono);font-size:11.5px;cursor:pointer;margin-bottom:8px">🧊 開啟真3D解剖模型 →</button>
-    <div id="musclelist-filter-bar" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">
-      <button id="mlf-all" class="musclelist-filter-btn active" onclick="setMuscleListFilter('all')">全部</button>
-      <button id="mlf-headneck" class="musclelist-filter-btn" onclick="setMuscleListFilter('headneck')">頭頸</button>
-      <button id="mlf-trunk" class="musclelist-filter-btn" onclick="setMuscleListFilter('trunk')">軀幹</button>
-      <button id="mlf-upper" class="musclelist-filter-btn" onclick="setMuscleListFilter('upper')">上肢</button>
-      <button id="mlf-lower" class="musclelist-filter-btn" onclick="setMuscleListFilter('lower')">下肢</button>
-      <button id="mlf-groups" class="musclelist-filter-btn" onclick="setMuscleListFilter('groups')">🧩 肌群</button>
-    </div>
-    <div id="musclelist-layer-bar" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
-      <button id="mlf-layer-all" class="musclelist-filter-btn active" onclick="setMuscleListLayerFilter('all')">全部層</button>
-      <button id="mlf-layer-superficial" class="musclelist-filter-btn" onclick="setMuscleListLayerFilter('superficial')" style="border-color:rgba(74,222,128,.3)">🟢 淺層</button>
-      <button id="mlf-layer-intermediate" class="musclelist-filter-btn" onclick="setMuscleListLayerFilter('intermediate')" style="border-color:rgba(251,146,60,.3)">🟠 中層</button>
-      <button id="mlf-layer-deep" class="musclelist-filter-btn" onclick="setMuscleListLayerFilter('deep')" style="border-color:rgba(248,113,113,.3)">🔴 深層</button>
-    </div>
-    <input id="muscle-search-input" type="text" placeholder="搜尋肌肉名稱（中/英文）..." oninput="filterMuscleList(this.value)"
-      style="width:100%;box-sizing:border-box;padding:8px 10px;border-radius:6px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text);font-size:12px;margin-bottom:8px;outline:none">
-    <div id="muscle-search-empty" style="display:none;font-size:11px;color:var(--sub);text-align:center;padding:16px 0">找不到匹配的肌肉，試下其他關鍵字。</div>
-    <div id="musclelist-body"></div>
-  </div><!-- end rail-musclelist -->
 
   <!-- PANEL: 筋膜解剖列車 -->
   <div class="rail-panel" id="rail-fascia">
@@ -18506,6 +18521,7 @@ var ctx = canvas.getContext('2d');
 var currentView = 'front';
 var currentRegion = 'all';
 var currentLayer = 'all';
+var currentDissection = 'all'; // 'all' | 'noSuperficial' | 'deepOnly' — see setAnatomyDissection()
 var hoveredMuscle = null;
 var selectedMuscle = null;
 var hoveredBone = null;
@@ -18536,8 +18552,10 @@ function resizeCanvas() {
     canvasViewportEl.style.height = fixedH;
     var detailEl = document.getElementById('anat-detail');
     var placeholderEl = document.getElementById('anat-detail-placeholder');
+    var listEl = document.getElementById('anat-musclelist-col');
     if (detailEl) detailEl.style.height = fixedH;
     if (placeholderEl) placeholderEl.style.height = fixedH;
+    if (listEl) listEl.style.height = fixedH;
   }
 
   var w = canvasViewportEl.clientWidth || 280;
@@ -18584,15 +18602,17 @@ setInterval(function() {
   // pixel height onto them there would fight that (and re-introduce the bug
   // this row-based sync was written for), so bail out once they've moved.
   if (canvasViewportEl.parentNode !== rowEl) return;
-  if (rowEl.style.height !== '600px') rowEl.style.height = '600px';
+  if (rowEl.style.height !== '680px') rowEl.style.height = '680px';
   var rowH = rowEl.getBoundingClientRect().height;
   if (rowH <= 0) return;
   var fixedH = Math.round(rowH) + 'px';
   var detailEl = document.getElementById('anat-detail');
   var placeholderEl = document.getElementById('anat-detail-placeholder');
+  var listEl = document.getElementById('anat-musclelist-col');
   if (canvasViewportEl.style.height !== fixedH) canvasViewportEl.style.height = fixedH;
   if (detailEl && detailEl.parentNode === rowEl && detailEl.style.height !== fixedH) detailEl.style.height = fixedH;
   if (placeholderEl && placeholderEl.parentNode === rowEl && placeholderEl.style.height !== fixedH) placeholderEl.style.height = fixedH;
+  if (listEl && listEl.parentNode === rowEl && listEl.style.height !== fixedH) listEl.style.height = fixedH;
 }, 200);
 
 // ── Coord transforms ──────────────────────────────────────────
@@ -19363,12 +19383,14 @@ function drawBone(id, b, isHovered, isSelected, dimAll) {
 // setAnatomyView/filterAnatomyRegion/filterAnatomyLayer/jumpToMuscle
 // functions below) — draw() just syncs whichever of those changed onto
 // the live viewer instance instead of repainting a <canvas>.
-var anat3d = { viewer:null, atlas:null, conceptToMuscle:null, conceptToBone:null, partIdToConceptIds:null, loading:false };
+var anat3d = { viewer:null, atlas:null, conceptToMuscle:null, conceptToBone:null, partIdToConceptIds:null, conceptElements:null, loading:false };
 
 function anat3dBuildReverseMaps() {
   var atlas = anat3d.atlas;
   var partIdToConceptIds = new Map();
+  var conceptElements = new Map();
   atlas.concepts.forEach(function(c) {
+    conceptElements.set(c.id, c.elements);
     c.elements.forEach(function(pid) {
       var list = partIdToConceptIds.get(pid);
       if (!list) { list = []; partIdToConceptIds.set(pid, list); }
@@ -19384,9 +19406,48 @@ function anat3dBuildReverseMaps() {
     (window.BONE_TO_ATLAS[key] || []).forEach(function(cid) { if (!conceptToBone.has(cid)) conceptToBone.set(cid, key); });
   });
   anat3d.partIdToConceptIds = partIdToConceptIds;
+  anat3d.conceptElements = conceptElements;
   anat3d.conceptToMuscle = conceptToMuscle;
   anat3d.conceptToBone = conceptToBone;
 }
+
+// Resolves a list of models/atlas.json concept ids down to the individual
+// mesh PART ids they contain (concepts group multiple parts — e.g. one
+// muscle's left+right heads). Used by the dissection feature below, which
+// needs to hide specific parts regardless of which system they belong to.
+function anat3dResolvePartIds(conceptIds) {
+  if (!anat3d.conceptElements) return [];
+  var ids = [];
+  conceptIds.forEach(function(cid) {
+    var els = anat3d.conceptElements.get(cid);
+    if (els) ids = ids.concat(els);
+  });
+  return ids;
+}
+
+// ── Dissection ("peel away layers") ─────────────────────────────
+// Unlike the 層次 filter above (which ISOLATES one layer, zoomed in),
+// this hides specific muscle layers while keeping the WHOLE body visible
+// and at normal scale/rotation — closer to how apps like Anatomy Learning
+// let you strip superficial muscles to reveal what's underneath in place.
+function anat3dDissectionHiddenIds() {
+  if (currentDissection === 'all' || !anat3d.viewer) return [];
+  var hideLayers = currentDissection === 'noSuperficial' ? ['superficial'] : ['superficial', 'intermediate'];
+  var conceptIds = [];
+  Object.keys(MUSCLES).forEach(function(key) {
+    var m = MUSCLES[key];
+    if (hideLayers.indexOf(m.layer) === -1) return;
+    var cids = window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[key];
+    if (cids) conceptIds = conceptIds.concat(cids);
+  });
+  return anat3dResolvePartIds(conceptIds);
+}
+
+window.setAnatomyDissection = function(mode) {
+  currentDissection = mode;
+  qsa('.anat-dissect-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dissect') === mode); });
+  draw();
+};
 
 // Fires when the coach clicks a structure directly on the 3D model —
 // resolves the clicked mesh part back to a Fuse MUSCLES/BONES key (via
@@ -19439,6 +19500,7 @@ function draw() {
   if (!anat3d.viewer) { initAnat3D(); return; }
   var viewer = anat3d.viewer;
   viewer.setView(currentView === 'back' ? 'back' : 'front');
+  viewer.setHidden(anat3dDissectionHiddenIds());
 
   if (selectedMuscle && window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[selectedMuscle]) {
     viewer.setSelectedByIds(window.MUSCLE_TO_ATLAS[selectedMuscle], true);
@@ -20273,8 +20335,8 @@ window.showBoneDetail = showBoneDetail;
 // draw()/selectedMuscle/selectedBone need an exposed setter too, otherwise
 // jumpToMuscle's own `typeof draw === 'function'` guard just silently
 // evaluates false and the 3D model never actually jumps to the result.
-window.anat3dSelectMuscle = function(id) { selectedMuscle = id; selectedBone = null; draw(); };
-window.anat3dSelectBone = function(id) { selectedBone = id; selectedMuscle = null; draw(); };
+window.anat3dSelectMuscle = function(id) { selectedMuscle = id; selectedBone = null; showMuscleDetail(id); draw(); };
+window.anat3dSelectBone = function(id) { selectedBone = id; selectedMuscle = null; showBoneDetail(id); draw(); };
 
 // ── Full-body muscle index (結構 → 肌肉): render + live search + jump ──
 // Lists every entry in MUSCLES grouped by region (trunk/upper/lower),
@@ -20381,7 +20443,7 @@ window.renderMuscleList = function(filter, layerFilter) {
       var lc = layerColors[m.layer] || 'var(--sub)';
       var searchKey = (m.name + ' ' + (m.latin||'')).toLowerCase();
       var groupLabel = priority.muscleGroupLabel[id];
-      html += '<div class="pain-list-item muscle-list-row" data-search="'+searchKey.replace(/"/g,'&quot;')+'" onclick="openMuscleDetail(\''+id+'\')">'
+      html += '<div class="pain-list-item muscle-list-row" data-search="'+searchKey.replace(/"/g,'&quot;')+'" onclick="window.anat3dSelectMuscle(\''+id+'\')">'
         + '<span class="pli-emoji" style="color:'+lc+'">●</span>'
         + '<div class="pli-text"><div class="pli-name">'+m.name+'</div><div class="pli-sub">'+(m.latin||'')+(groupLabel ? '　🧩 '+groupLabel : '')+'</div></div>'
         + (m.latin ? '<button onclick="event.stopPropagation();window.speakMuscleName('+JSON.stringify(m.latin).replace(/"/g,'&quot;')+')" title="播放英文讀音" style="font-family:var(--mono);font-size:9.5px;padding:2px 6px;border-radius:4px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);color:#60a5fa;cursor:pointer;flex-shrink:0;margin-right:4px">🔊</button>' : '')

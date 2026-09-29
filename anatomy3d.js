@@ -144,9 +144,9 @@ function resolvePartIndexes(atlas, ids) {
 export function createAnatomyViewer(container, atlas, { onSelect, onProgress, onError } = {}) {
   const el = container;
   let disposed = false, frame = 0, dirty = true, ready = false, lastView = '', lastReset = -1, lastIsolate = '', layoutKey = '', amount = 0;
-  let lastVisKey = null, lastSelKey = null, lastIsolateVal = null, forceRecompute = true;
+  let lastVisKey = null, lastSelKey = null, lastIsolateVal = null, lastHidKey = null, forceRecompute = true;
   const abort = new AbortController();
-  const state = { explode: 0, visible: DEFAULT_VISIBLE.slice(), selected: [], isolate: false, view: 'front', rotate: false, reset: 0 };
+  const state = { explode: 0, visible: DEFAULT_VISIBLE.slice(), selected: [], isolate: false, view: 'front', rotate: false, reset: 0, hidden: [] };
 
   let renderer;
   try { renderer = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' }); }
@@ -309,12 +309,12 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   const animate = () => {
     if (disposed) return; frame = requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), 0.05), s = state;
-    const visKey = s.visible.join(','), selKey = s.selected.join(',');
-    const changed = forceRecompute || visKey !== lastVisKey || selKey !== lastSelKey || s.isolate !== lastIsolateVal;
+    const visKey = s.visible.join(','), selKey = s.selected.join(','), hidKey = s.hidden.join(',');
+    const changed = forceRecompute || visKey !== lastVisKey || selKey !== lastSelKey || s.isolate !== lastIsolateVal || hidKey !== lastHidKey;
     const moving = Math.abs(amount - s.explode) > 0.0001;
     if (moving) { amount = T.MathUtils.damp(amount, s.explode, 8, dt); dirty = true; }
     if (changed || moving || lastExtent < 0) {
-      const visible = new Set(s.visible), selection = new Set(s.selected);
+      const visible = new Set(s.visible), selection = new Set(s.selected), hiddenSet = new Set(s.hidden);
       const visibleParts = atlas.parts.filter(p => s.isolate ? selection.has(p.id) : visible.has(p.system) || selection.has(p.id));
       const nextLayoutKey = visibleParts.map(p => p.id).join(',') + ':' + camera.aspect.toFixed(3);
       if (nextLayoutKey !== layoutKey) {
@@ -334,13 +334,14 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
           dx = T.MathUtils.lerp(Math.sin(angle) * 0.48, destination.x - c.x, t); dy = T.MathUtils.lerp((c.y - 0.85) * 0.28, destination.y - c.y, t); dz = T.MathUtils.lerp(Math.cos(angle) * 0.48, -c.z, t);
         }
         const selected = selection.has(p.id);
-        data.set([dx, dy, dz, (s.isolate ? selected : visible.has(p.system) || selected) ? 1 : 0], i * 4);
+        const baseVisible = s.isolate ? selected : visible.has(p.system) || selected;
+        data.set([dx, dy, dz, (baseVisible && !hiddenSet.has(p.id)) ? 1 : 0], i * 4);
         selectedData[i * 4] = selected ? 255 : 0;
         markerPositions.set(data[i * 4 + 3] > 0.5 ? [c.x + dx, c.y + dy, c.z + dz] : [10000, 10000, 10000], i * 3);
         const mesh = pickers[i]; if (mesh) { mesh.position.set(dx, dy, dz); mesh.updateMatrix(); mesh.updateMatrixWorld(true); }
       });
       partTexture.needsUpdate = true; selectionTexture.needsUpdate = true; markerGeometry.attributes.position.needsUpdate = true;
-      lastVisKey = visKey; lastSelKey = selKey; lastIsolateVal = s.isolate; forceRecompute = false; lastExtent = amount; dirty = true;
+      lastVisKey = visKey; lastSelKey = selKey; lastIsolateVal = s.isolate; lastHidKey = hidKey; forceRecompute = false; lastExtent = amount; dirty = true;
     }
     if (s.view !== lastView || s.reset !== lastReset) { fit(s.view, amount); lastView = s.view; lastReset = s.reset; }
     if (moving && !s.isolate) fit(amount > 0.5 ? 'front' : s.view, Math.max(0, (amount - 0.3) / 0.7));
@@ -392,6 +393,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
 
   return {
     setVisible(systemIds) { state.visible = systemIds.slice(); dirty = true; },
+    setHidden(partIds) { state.hidden = (partIds || []).slice(); dirty = true; },
     setSelected(partIds, isolate) { state.selected = partIds.slice(); if (isolate !== undefined) state.isolate = isolate; dirty = true; },
     setSelectedByIds(atlasOrPartConceptIds, isolate) {
       const idxs = resolvePartIndexes(atlas, atlasOrPartConceptIds);
