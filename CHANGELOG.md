@@ -1,0 +1,22 @@
+# Fuse Biomechanics — Version Log
+
+規則：每次更新網站，都會喺 `versions/` 資料夾入面留低嗰個版本嘅完整備份（`index-vN.html`），
+`index.html` 永遠係最新版本。舊版本唔會被覆蓋或刪除。
+
+（`versions/index-v112.html` 係用戶原始上傳檔案 `fuse-biomechanics_v112.html` 嘅備份，
+沿用用戶自己嘅版本編號，早於呢個 `vN` 版本記錄系統，維持原樣不變。）
+
+## v1 — 2026-09-30
+- 由原始上傳版本（v112）開始，經歷多次更新後嘅基準快照，包括：
+  - 深度整合真實3D解剖模型（[huangsum11-tech/human-atlas](https://github.com/huangsum11-tech/human-atlas)，BodyParts3D 4.0數據集），取代舊有嘅手繪2D肌肉示意圖。
+  - 將「肌肉」搜尋列表同「人體」3D檢視合併做同一個3欄式面板，撳肌肉即時喺3D模型highlight並顯示詳情。
+  - 3D模型加入：正面/背面切換、層次篩選（淺/中/深層）、解剖深度整層剝離（完整/移除淺層/只留深層）、單一肌肉個別切除（✂️移除／↩️顯示返，掣就喺肌肉名稱旁邊）、🖐平移模式、☢️X光透視、YouTube動作示範影片連結。
+  - 修正三項內容準確性問題：AIC骨盆/胸廓代償方向、四象限呼吸限制方向、Anatomy Trains螺旋線交叉點。
+  - 網站已由 private改為public並啟用 GitHub Pages（`https://huangsum11-tech.github.io/fuse-biomechanics/`），解決 `file://`協定無法載入3D模型嘅問題。
+- 備份位置：[versions/index-v1.html](versions/index-v1.html)
+
+## v2 — 2026-09-30
+- **步態力學（GAIT MECHANICS）新增上肢內外旋細節**：8個步態階段嘅「上肢 UPPER LIMB」欄位，加入肱骨/肩胛內外旋點樣跟隨軀幹（胸骨）方向同步轉換嘅具體力學（觸地期同側肱骨內旋→站立中期過渡→站立末期/推進期轉為外旋→擺盪期再過渡返內旋，配合骨盆/股骨嘅內外旋時序），並修正咗原本手臂前擺/後擺角度描述入面嘅內部矛盾（同一個「同側手臂達到後擺最大角度」嘅描述曾經喺多個唔同階段重複出現）。內容根據 Coner Biomechanics課程 Week 2（下肢步態力學）同 Week 3（上肢力學）逐頁核對。
+- **新增訓練介入階段模型（TRAINING PROGRESSION）**：喺步態面板下方加入 Phase 1／2／3 嘅3階段訓練進程（移除代償建立基礎角度 → 處理左右不對稱 → 進階至直立整合式動作），每個階段列明達標角度、適合改善邊一側嘅內外旋能力或體態問題、範例動作，以及點揀由邊個Phase開始嘅進階指引。內容根據 Coner Biomechanics課程 Week 7（Progression Model and Positional Drills）逐頁核對；Week 7原文用「活動度達標與否」劃分3個階段，並非按地板/跪姿/企立呢類姿勢分類。
+- **順手修正**：3D解剖模型導覽掣嘅title文字由「6階段」更正為「8階段」，反映實際步態階段數量。
+- 備份位置：[versions/index-v2.html](versions/index-v2.html)
