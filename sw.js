@@ -4,10 +4,12 @@
 // - 3D模型(.bin.gz)、Three.js、字體：第一次載入後快取，之後離線都用到
 // - 其他同源檔案：先出快取、背後更新（stale-while-revalidate）
 // 改咗網站內容唔使手動改呢度；只有想強制全部用戶重新下載快取先需要加 VERSION。
-const VERSION = 'fuse-v6';
+const VERSION = 'fuse-v7';
 const SHELL = [
-  './', './index.html', './anatomy3d.js', './manifest.webmanifest',
+  './', './index.html', './coach.html', './fit.html', './anatomy3d.js', './tracker.js',
+  './manifest.webmanifest', './manifest-fit.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
+  './icons/fit-icon-192.png', './icons/fit-icon-512.png', './icons/fit-apple-touch-icon.png',
   './models/atlas.json'
 ];
 const CDN_HOSTS = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
@@ -46,12 +48,13 @@ self.addEventListener('fetch', event => {
   if (isHTML) {
     event.respondWith((async () => {
       const cache = await caches.open(VERSION);
+      const key = new Request(url.origin + url.pathname.replace(/\/$/, '/index.html'));
       try {
         const res = await fetch(req);
-        await put(cache, './index.html', res);
+        await put(cache, key, res);
         return res;
       } catch (e) {
-        return (await cache.match('./index.html', { ignoreSearch: true })) || Response.error();
+        return (await cache.match(key, { ignoreSearch: true })) || (await cache.match('./index.html', { ignoreSearch: true })) || Response.error();
       }
     })());
     return;

@@ -1,0 +1,18 @@
+{
+  "id": "fuse-fit",
+  "name": "Fuse Fit 愛好者版 — 體態評估 × 訓練追蹤",
+  "short_name": "Fuse Fit",
+  "description": "愛好者版：訓練日誌、PR追蹤、身體數據、計時器同體態自我評估",
+  "lang": "zh-Hant",
+  "start_url": "./index.html?edition=fit",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0e14",
+  "theme_color": "#0b0e14",
+  "icons": [
+    { "src": "icons/fit-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/fit-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/fit-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
