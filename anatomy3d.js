@@ -152,7 +152,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   try { renderer = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' }); }
   catch { onError && onError('此瀏覽器未能啟動3D檢視器，請改用支援WebGL嘅瀏覽器。'); return null; }
   renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 768 ? 1.5 : 2));
-  renderer.setClearColor((window.FUSE_THEME||{}).bg || '#0b0e14'); renderer.outputColorSpace = T.SRGBColorSpace; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
+  renderer.setClearColor((window.FUSE_THEME||{}).stage || (window.FUSE_THEME||{}).bg || '#0b0e14'); renderer.outputColorSpace = T.SRGBColorSpace; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
   el.appendChild(renderer.domElement);
   renderer.domElement.setAttribute('aria-label', '互動式人體解剖3D模型');
 
