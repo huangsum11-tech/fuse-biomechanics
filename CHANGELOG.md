@@ -1,4 +1,4 @@
-# Fuse Biomechanics — Version Log
+# Kinesis — Version Log（原名 Fuse Biomechanics）
 
 規則：每次更新網站，都會喺 `versions/` 資料夾入面留低嗰個版本嘅完整備份（`index-vN.html`），
 `index.html` 永遠係最新版本。舊版本唔會被覆蓋或刪除。
@@ -67,4 +67,16 @@
 - **其他**：「清除全部客戶」唔會誤刪愛好者版嘅「我」檔案；service worker 升級（快取 v7，coach／fit 入口頁各自快取，tracker.js 離線可用）。
 - 驗證：愛好者版／教練版分流（品牌、manifest、導覽、預設頁）；日誌 PR 偵測同數值（容量 1,390kg、1RM 76→79.2）；計時器自動休息、暫停、間歇相位序列；身體數據趨勢同分享；教練版客戶資料隔離、刪客戶連帶清理；備份包含新資料；17項 service worker 離線模擬測試。**暫未做**：進度相片（瀏覽器儲存空間限制，需要另行設計）、課表指派畀客戶、跨裝置同步。
 - 備份位置：[versions/index-v7.html](versions/index-v7.html)
+
+## v8 — 2026-10-09
+- **更名 Kinesis**：教練版 **Kinesis Pro**（`coach.html`）、愛好者版 **Kinesis Fit**（`fit.html`）。標題、標誌、manifest、安裝名稱、分享訊息、匯出報告預設場館名全部更新。入口網址同儲存資料格式（`fuse:` key、備份檔識別）保持不變，所以舊書籤同舊資料照用。
+- **兩套獨立配色**：
+  - Kinesis Pro：**Cobalt lab**（深藍黑 #0B1220、鈷藍 #4F7DFF，按鈕填色 #3A66F5）。
+  - Kinesis Fit：**Violet pulse**（深紫黑 #110E1D、紫 #8B6FFF，按鈕填色 #6A4BF0）。
+  - 改用主題變數（`--accent`、`--accent-rgb`、`--bg`、`--panel`、`--border`、`--text`、`--text2`、`--sub`）全站換色：約 570 處寫死嘅薄荷綠、冷灰同深色背景都改為跟主題；所有替換都帶原色後備值，所以列印／匯出頁面（冇主題變數）外觀不變。
+  - 2D 畫布（身體線框等）唔識解析 CSS 變數，所以攔截畫布顏色設定，將 `var(--x)` 換成實際數值；Three.js（姿勢 3D 場景、3D 解剖嘅背景／底座／圈線）亦跟版本主題。
+  - 兩版各有新圖示（KINESIS＋PRO／FIT 徽章）、主題色（瀏覽器地址列／安裝後狀態列）同 manifest 顏色。
+- service worker 快取升級至 v8。
+- 驗證：兩個版本主題變數、標題、manifest、theme-color 正確；教練版桌面／手機、愛好者版桌面、3D 解剖皆睇過；console 冇新錯誤。**未做**：左右側專用顏色（左藍右紫）、臨床意義色（正常／受限／限制）嘅全站統一——而家仍沿用原有紅黃綠語義色。
+- 備份位置：[versions/index-v8.html](versions/index-v8.html)
 

@@ -1,4 +1,4 @@
-/* Fuse 訓練追蹤模組 — 教練版（Fuse Coach）同愛好者版（Fuse Fit）共用
+/* Kinesis 訓練追蹤模組 — 教練版（Kinesis Pro）同愛好者版（Kinesis Fit）共用
  *
  * 版本由網址決定（?edition=coach | fit，由 coach.html / fit.html 轉入；冇指定就係教練版）。
  * 提供：版本品牌／導覽調整、訓練日誌（組數×次數×重量×RPE、1RM估算、PR）、
@@ -10,8 +10,8 @@
   'use strict';
   var ED = window.FUSE_EDITION === 'fit' ? 'fit' : 'coach';
   var EDITIONS = {
-    coach: { name: 'FUSE COACH', zh: '教練版', sub: 'PRI-BASED POSTURAL ASSESSMENT SYSTEM', other: 'fit', otherLabel: '切換去愛好者版 Fuse Fit' },
-    fit:   { name: 'FUSE FIT',   zh: '愛好者版', sub: '體態評估 × 訓練追蹤', other: 'coach', otherLabel: '切換去教練版 Fuse Coach' }
+    coach: { name: 'KINESIS PRO', zh: '教練版', sub: 'PRI-BASED POSTURAL ASSESSMENT SYSTEM', other: 'fit', otherLabel: '切換去愛好者版 Kinesis Fit' },
+    fit:   { name: 'KINESIS FIT', zh: '愛好者版', sub: '體態評估 × 訓練追蹤', other: 'coach', otherLabel: '切換去教練版 Kinesis Pro' }
   };
   var HIDDEN = window.FUSE_HIDDEN_RAILS || [];
 
@@ -67,16 +67,16 @@
     '.trk-in{width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:16px;padding:7px 8px;outline:none;min-width:0}' +
     '.trk-in:focus{border-color:var(--green)}' +
     '.trk-btn{font-family:var(--mono);font-size:11px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;white-space:nowrap;min-height:36px}' +
-    '.trk-btn.primary{background:rgba(0,229,160,.14);border-color:rgba(0,229,160,.45);color:var(--green)}' +
+    '.trk-btn.primary{background:rgba(var(--accent-rgb,0,229,160),.14);border-color:rgba(var(--accent-rgb,0,229,160),.45);color:var(--green)}' +
     '.trk-btn.warn{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.35);color:#f87171}' +
     '.trk-btn.blue{background:rgba(96,165,250,.1);border-color:rgba(96,165,250,.4);color:#60a5fa}' +
     '.trk-btn.small{padding:4px 8px;font-size:10px;min-height:28px}' +
-    '.trk-btn.on{background:rgba(0,229,160,.2);border-color:var(--green);color:var(--green)}' +
+    '.trk-btn.on{background:rgba(var(--accent-rgb,0,229,160),.2);border-color:var(--green);color:var(--green)}' +
     '.trk-sets{display:grid;grid-template-columns:24px minmax(0,1.2fr) minmax(0,1fr) minmax(0,.8fr) 34px 26px;gap:5px;align-items:center;margin-top:6px}' +
     '.trk-sets .hd{font-family:var(--mono);font-size:9px;color:var(--sub);text-align:center}' +
     '.trk-sets .n{font-family:var(--mono);font-size:11px;color:var(--sub);text-align:center}' +
     '.trk-sets .tick{height:34px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--sub);cursor:pointer;font-size:14px}' +
-    '.trk-sets .tick.done{background:rgba(0,229,160,.2);border-color:var(--green);color:var(--green)}' +
+    '.trk-sets .tick.done{background:rgba(var(--accent-rgb,0,229,160),.2);border-color:var(--green);color:var(--green)}' +
     '.trk-sets .x{background:none;border:none;color:var(--sub);cursor:pointer;font-size:13px}' +
     '.trk-hint{font-family:var(--mono);font-size:10px;color:var(--sub);line-height:1.6;margin-top:4px}' +
     '.trk-pr{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:9px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.5);color:#fbbf24;margin-left:4px}' +
@@ -119,11 +119,11 @@
       grid += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="#2a3040" stroke-width="1"/>' +
         '<text x="' + (pl - 4) + '" y="' + (y + 3).toFixed(1) + '" fill="#9aa3b5" font-size="9" text-anchor="end" font-family="monospace">' + fmt(v) + '</text>';
     }
-    var dots = pts.map(function (p, i) { return '<circle cx="' + xs[i].toFixed(1) + '" cy="' + yv(p.y).toFixed(1) + '" r="3.5" fill="#00e5a0"><title>' + esc(p.x) + '：' + fmt(p.y) + (unit || '') + '</title></circle>'; }).join('');
+    var dots = pts.map(function (p, i) { return '<circle cx="' + xs[i].toFixed(1) + '" cy="' + yv(p.y).toFixed(1) + '" r="3.5" fill="currentColor"><title>' + esc(p.x) + '：' + fmt(p.y) + (unit || '') + '</title></circle>'; }).join('');
     var xl = '<text x="' + xs[0].toFixed(1) + '" y="' + (H - 6) + '" fill="#9aa3b5" font-size="9" text-anchor="' + (pts.length === 1 ? 'middle' : 'start') + '" font-family="monospace">' + esc(shortDate(pts[0].x)) + '</text>' +
       (pts.length > 1 ? '<text x="' + xs[xs.length - 1].toFixed(1) + '" y="' + (H - 6) + '" fill="#9aa3b5" font-size="9" text-anchor="end" font-family="monospace">' + esc(shortDate(pts[pts.length - 1].x)) + '</text>' : '');
-    return '<svg class="trk-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="趨勢圖">' + grid +
-      '<path d="' + path + '" fill="none" stroke="#00e5a0" stroke-width="2" stroke-linejoin="round"/>' + dots + xl + '</svg>';
+    return '<svg class="trk-chart" style="color:var(--accent,#00e5a0)" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="趨勢圖">' + grid +
+      '<path d="' + path + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>' + dots + xl + '</svg>';
   }
 
   // ───────────────────────── 版本品牌＋導覽 ─────────────────────────
@@ -141,7 +141,7 @@
     var h1 = $('.logo h1'), p = $('.logo p');
     if (h1) h1.textContent = e.name;
     if (p) p.innerHTML = esc(e.zh) + ' · ' + esc(e.sub) + '<div class="trk-edition"><a href="?edition=' + e.other + '">⇄ ' + esc(e.otherLabel) + '</a></div>';
-    document.title = 'Fuse ' + (ED === 'fit' ? 'Fit 愛好者版' : 'Coach 教練版') + ' — ' + (ED === 'fit' ? '體態評估 × 訓練追蹤' : 'PRI 全身評估系統');
+    document.title = 'Kinesis ' + (ED === 'fit' ? 'Fit 愛好者版' : 'Pro 教練版') + ' — ' + (ED === 'fit' ? '體態評估 × 訓練追蹤' : 'PRI 全身評估系統');
 
     var nav = $('#rail-nav');
     if (nav && !$('[data-group="track"]', nav)) {
@@ -301,7 +301,7 @@
 
   function onboardingHtml() {
     if (ED !== 'fit' || L.sessions.length) return '';
-    return '<div class="trk-card" style="border-color:rgba(0,229,160,.35)"><b style="color:var(--green)">👋 歡迎使用 Fuse Fit</b>' +
+    return '<div class="trk-card" style="border-color:rgba(var(--accent-rgb,0,229,160),.35)"><b style="color:var(--green)">👋 歡迎使用 Kinesis Fit</b>' +
       '<div class="trk-hint" style="font-size:11px">記錄訓練、追蹤 PR 同身體數據，再配合體態評估搵出自己嘅弱項。</div>' +
       '<div class="trk-row" style="flex-wrap:wrap;margin-top:8px">' +
       '<button class="trk-btn primary" data-a="goseq">📐 快速評估指南</button>' +
@@ -376,7 +376,7 @@
   function sessionText(s) {
     var who = ED === 'fit' ? '' : (subject() ? subject().name + ' ' : '');
     return '🏋️ ' + who + s.date + (s.title ? ' ' + s.title : '') + '\n' + s.exercises.map(function (ex) { return '• ' + ex.name + (ex.pr ? ' 🏆PR' : '') + '：' + ex.sets.map(setStr).join('、'); }).join('\n') +
-      '\n總量 ' + Math.round(s.volume || 0).toLocaleString() + 'kg（Fuse ' + (ED === 'fit' ? 'Fit' : 'Coach') + '）';
+      '\n總量 ' + Math.round(s.volume || 0).toLocaleString() + 'kg（Kinesis ' + (ED === 'fit' ? 'Fit' : 'Pro') + '）';
   }
 
   function bindLog() {
