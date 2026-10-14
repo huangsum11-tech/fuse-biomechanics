@@ -1730,51 +1730,36 @@ html[data-theme="bone"][data-edition="fit"] { --accent: #27615F; --accent-rgb: 4
 </head>
 <body data-mview="input">
 
-<!-- ══════════════════ SIDEBAR ══════════════════ -->
-<div class="sidebar">
-  <div class="logo" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-    <div>
+<!-- ══════════════════ 主導覽（v11：文字側邊欄，取代舊嘅 62px 圖示欄） ══════════════════ -->
+<div id="ktop">
+  <button type="button" class="k-iconbtn" id="ktop-menu" aria-label="打開選單" aria-expanded="false"><span class="k-ico" data-ic="menu-2" aria-hidden="true"></span></button>
+  <div class="k-top-title"><span id="ktop-crumb"></span><b id="ktop-title">Kinesis</b></div>
+  <button type="button" class="k-iconbtn" id="ktop-search" aria-label="搜尋"><span class="k-ico" data-ic="search" aria-hidden="true"></span></button>
+</div>
+<div id="knav-backdrop"></div>
+<aside id="knav" aria-label="主導覽">
+  <div class="logo">
+    <div class="k-brand">
       <h1>KINESIS</h1>
       <p>PRI-BASED POSTURAL ASSESSMENT SYSTEM v2.0</p>
     </div>
-    <button onclick="globalReset()" title="清除全部數據，回到中立位" style="flex-shrink:0;font-family:var(--mono);font-size:10px;letter-spacing:.5px;padding:5px 10px;border-radius:5px;border:1px solid rgba(var(--accent-rgb,0,229,160),.35);background:rgba(var(--accent-rgb,0,229,160),.07);color:var(--green);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap" onmouseover="this.style.background='rgba(var(--accent-rgb,0,229,160),.18)'" onmouseout="this.style.background='rgba(var(--accent-rgb,0,229,160),.07)'">
-      ↺ 歸零
-    </button>
+    <button type="button" class="k-iconbtn" id="knav-collapse" aria-label="收埋側邊欄" title="收埋／展開側邊欄"><span class="k-ico" data-ic="layout-sidebar-left-collapse" aria-hidden="true"></span></button>
   </div>
-
-  <div id="active-client-bar" style="display:none;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;margin-top:6px;border-radius:5px;background:rgba(var(--accent-rgb,0,229,160),.06);border:1px solid rgba(var(--accent-rgb,0,229,160),.25)">
-    <div style="min-width:0;overflow:hidden">
-      <div style="font-family:var(--mono);font-size:9px;color:var(--sub);letter-spacing:1px">目前客戶 ACTIVE CLIENT</div>
-      <div id="active-client-name" style="font-size:13px;font-weight:700;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
-    </div>
-    <button onclick="saveClientSession(activeClientId)" title="把目前所有滑桿數值記錄成這位客戶的新一筆評估" style="flex-shrink:0;font-family:var(--mono);font-size:10px;padding:5px 9px;border-radius:4px;background:rgba(var(--accent-rgb,0,229,160),.15);border:1px solid rgba(var(--accent-rgb,0,229,160),.4);color:var(--green);cursor:pointer;white-space:nowrap">💾 記錄本次評估</button>
-  </div>
-
-  <div style="position:relative;padding:8px 10px 4px;max-width:373px" id="global-search-wrap">
+  <button type="button" class="k-search-btn" id="knav-search-btn" aria-label="搜尋" title="搜尋（⌘K）"><span class="k-ico" data-ic="search" aria-hidden="true"></span></button>
+  <div id="global-search-wrap">
     <div style="position:relative;display:flex;align-items:center">
-      <span style="position:absolute;left:9px;font-size:12px;color:var(--sub);pointer-events:none">🔍</span>
-      <input id="global-search-input" type="text" placeholder="搜尋體態／痛症／訓練／連動鏈／術語…" autocomplete="off"
+      <span class="k-ico k-search-ico" data-ic="search" aria-hidden="true"></span>
+      <input id="global-search-input" type="text" placeholder="搜尋頁面、痛症、肌肉…" autocomplete="off"
         oninput="handleGlobalSearch(this.value)"
         onfocus="if(this.value) handleGlobalSearch(this.value)"
         style="width:100%;padding:8px 28px 8px 26px;border-radius:6px;background:rgba(var(--ov,255,255,255),.04);border:1px solid var(--border);color:var(--text);font-size:12.5px;outline:none;transition:border-color .15s">
+      <kbd class="k-kbd" aria-hidden="true">⌘K</kbd>
       <span id="global-search-clear" onclick="clearGlobalSearch()" style="display:none;position:absolute;right:9px;font-size:12px;color:var(--sub);cursor:pointer;padding:2px">✕</span>
     </div>
     <div id="global-search-results" style="display:none;position:fixed;z-index:500;background:var(--panel,#14161c);border:1px solid var(--border);border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.5);max-height:min(60vh,480px);overflow-y:auto"></div>
   </div>
-
-  <div class="sidebar-body">
-
-  <!-- ── Icon Rail ──
-       Conservative reorg: the 15 flat buttons are now grouped under 4
-       collapsible category headers. Every single <button class="rail-btn"
-       data-rail="..."> below is UNCHANGED — same data-rail, same title,
-       same icon/label markup — so the existing addEventListener-based
-       click handler (which reads btn.dataset.rail and calls switchRail())
-       keeps working exactly as before with zero changes there. This is
-       purely a navigation/presentation reorg, not a functional one, which
-       is deliberately the lowest-risk way to tackle "15 icons flattened
-       into one rail, hard to scale" without touching any panel logic. -->
-  <nav class="rail" id="rail-nav" aria-label="評估分類">
+  <div class="knav-scroll">
+  <nav class="rail" id="rail-nav" aria-label="頁面">
 
     <button class="rail-group-header active" data-group="assess" onclick="toggleRailGroup('assess')" title="檢測與分析">
       <span class="rail-icon">🔍</span>
@@ -1941,6 +1926,37 @@ html[data-theme="bone"][data-edition="fit"] { --accent: #27615F; --accent-rgb: 4
     </div>
 
   </nav>
+  </div>
+</aside>
+
+<!-- ══════════════════ SIDEBAR ══════════════════ -->
+<div class="sidebar">
+  <div class="k-pagehead">
+    <div class="k-pagehead-txt"><div class="k-crumb" id="k-crumb"></div><h2 id="k-title"></h2></div>
+    <button type="button" class="k-ghost" onclick="globalReset()" title="清除全部數據，回到中立位"><span class="k-ico" data-ic="refresh" aria-hidden="true"></span>歸零</button>
+  </div>
+
+  <div id="active-client-bar" style="display:none;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;margin-top:6px;border-radius:5px;background:rgba(var(--accent-rgb,0,229,160),.06);border:1px solid rgba(var(--accent-rgb,0,229,160),.25)">
+    <div style="min-width:0;overflow:hidden">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--sub);letter-spacing:1px">目前客戶 ACTIVE CLIENT</div>
+      <div id="active-client-name" style="font-size:13px;font-weight:700;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
+    </div>
+    <button onclick="saveClientSession(activeClientId)" title="把目前所有滑桿數值記錄成這位客戶的新一筆評估" style="flex-shrink:0;font-family:var(--mono);font-size:10px;padding:5px 9px;border-radius:4px;background:rgba(var(--accent-rgb,0,229,160),.15);border:1px solid rgba(var(--accent-rgb,0,229,160),.4);color:var(--green);cursor:pointer;white-space:nowrap">💾 記錄本次評估</button>
+  </div>
+
+
+  <div class="sidebar-body">
+
+  <!-- ── Icon Rail ──
+       Conservative reorg: the 15 flat buttons are now grouped under 4
+       collapsible category headers. Every single <button class="rail-btn"
+       data-rail="..."> below is UNCHANGED — same data-rail, same title,
+       same icon/label markup — so the existing addEventListener-based
+       click handler (which reads btn.dataset.rail and calls switchRail())
+       keeps working exactly as before with zero changes there. This is
+       purely a navigation/presentation reorg, not a functional one, which
+       is deliberately the lowest-risk way to tackle "15 icons flattened
+       into one rail, hard to scale" without touching any panel logic. -->
   <script>
   // Accordion behaviour for the 4 rail category groups: clicking a header
   // collapses all groups then re-opens the clicked one (unless it was
@@ -31496,6 +31512,7 @@ function handleGlobalSearch(query) {
   if (!q) { resultsBox.style.display = 'none'; return; }
   var idx = buildSearchIndex();
   var matches = idx.filter(function(item) { return item.searchText.indexOf(q) !== -1; }).slice(0, 30);
+  if (window.kSearchExtras) matches = window.kSearchExtras(q, matches);
   _lastSearchMatches = matches;
   if (!matches.length) {
     resultsBox.innerHTML = '<div style="padding:16px;text-align:center;font-size:12px;color:var(--sub)">尋找不到「'+query+'」相關結果</div>';
@@ -31512,9 +31529,10 @@ function handleGlobalSearch(query) {
     }).join('');
   }
   var rect = input.getBoundingClientRect();
-  resultsBox.style.left = rect.left + 'px';
+  var w = Math.min(Math.max(rect.width, 400), window.innerWidth - 16);
+  resultsBox.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - w - 8)) + 'px';
   resultsBox.style.top = (rect.bottom + 4) + 'px';
-  resultsBox.style.width = rect.width + 'px';
+  resultsBox.style.width = w + 'px';
   resultsBox.style.display = 'block';
 }
 
@@ -32369,6 +32387,234 @@ input[type="range"]:focus-visible { outline-offset: 4px; }
   window.mobileSetView = setView;
   var btns = document.querySelectorAll('#mnav button');
   for (var i = 0; i < btns.length; i++) btns[i].addEventListener('click', function () { setView(this.getAttribute('data-mv')); });
+})();
+</script>
+
+<style id="knav-css">
+/* ── v11 主導覽：文字側邊欄 + 頁面標題列（桌面）／頂部列 + 抽屜選單（手機） ── */
+#ktop, #knav-backdrop { display: none; }
+.k-ico { display: inline-flex; width: 18px; height: 18px; flex-shrink: 0; align-items: center; justify-content: center; }
+.k-ico svg { width: 100%; height: 100%; display: block; }
+.k-iconbtn { width: 32px; height: 32px; border-radius: 8px; border: none; background: none; color: var(--sub); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; }
+.k-iconbtn:hover { background: rgba(var(--ov,255,255,255),.06); color: var(--text); }
+#knav { width: 224px; flex-shrink: 0; display: flex; flex-direction: column; min-height: 0; background: var(--bg); border-right: 1px solid var(--border); }
+#knav .logo { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding: 16px 10px 12px 16px; border-bottom: none; }
+#knav .logo h1 { font-size: 14px; letter-spacing: 3px; }
+#knav .logo p { font-size: 10px; letter-spacing: .3px; line-height: 1.5; margin-top: 4px; }
+#knav .k-brand { min-width: 0; }
+.k-search-btn { display: none; }
+#global-search-wrap { position: relative; padding: 0 12px 12px; }
+#global-search-wrap > div { position: relative; display: flex; align-items: center; }
+#global-search-input { padding: 8px 40px 8px 32px !important; background: var(--panel) !important; border-radius: 8px !important; font-size: 13px !important; font-family: inherit; }
+.k-search-ico { position: absolute; left: 10px; width: 16px; height: 16px; color: var(--sub); pointer-events: none; }
+.k-kbd { position: absolute; right: 8px; font-family: var(--mono); font-size: 10px; color: var(--sub); border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; pointer-events: none; line-height: 16px; }
+#global-search-input:not(:placeholder-shown) ~ .k-kbd { display: none; }
+#global-search-results { z-index: 1100 !important; }
+.knav-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 0 8px 20px; scrollbar-width: thin; }
+#knav .rail { width: auto; background: none; border: none; display: block; padding: 0; }
+#knav .rail-icon { display: inline-flex; width: 18px; height: 18px; font-size: 16px; line-height: 1; align-items: center; justify-content: center; }
+#knav .rail-icon svg { width: 100%; height: 100%; display: block; }
+#knav .rail-label { font-family: inherit; letter-spacing: 0; line-height: 1.2; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#knav .rail-group-header { width: 100%; min-height: 0; flex-direction: row; justify-content: flex-start; gap: 10px; padding: 8px; margin: 2px 0 0; border: none; border-radius: 8px; background: none; color: var(--text2, var(--text)); }
+#knav .rail-group-header .rail-label { font-size: 14px; font-weight: 600; letter-spacing: 0; }
+#knav .rail-group-header:hover:not(.active) { background: rgba(var(--ov,255,255,255),.05); border-color: transparent; }
+#knav .rail-group-header.active { background: none; color: var(--text); }
+#knav .rail-group-caret { margin: 0 2px 0 auto; font-size: 9px; }
+#knav .rail-group-header.active .rail-group-caret { color: var(--sub); }
+#knav .rail-group-buttons { align-items: stretch; gap: 1px; }
+#knav .rail-group-buttons.expanded { max-height: 640px; padding: 2px 0 8px; }
+#knav .rail-group-buttons.expanded::before { left: 16px; top: 2px; bottom: 10px; width: 1px; background: var(--border); }
+#knav .rail-btn, #knav .rail-group-buttons .rail-btn { width: 100%; height: 34px; flex-direction: row; justify-content: flex-start; gap: 10px; padding: 0 8px 0 28px; border-radius: 7px; color: var(--sub); }
+#knav .rail-group-buttons .rail-btn .rail-icon { width: 16px; height: 16px; font-size: 14px; }
+#knav .rail-group-buttons .rail-btn .rail-label { font-size: 13.5px; }
+#knav .rail-btn:hover:not(.active) { background: rgba(var(--ov,255,255,255),.05); color: var(--text); }
+#knav .rail-btn.active, #knav .rail-group-buttons .rail-btn.active { background: rgba(var(--accent-rgb,0,229,160),.12); color: var(--green); }
+#knav .rail-btn.active .rail-label { font-weight: 600; }
+
+.sidebar { width: 384px; }
+.k-pagehead { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.k-pagehead-txt { min-width: 0; }
+.k-crumb { font-size: 11px; color: var(--sub); letter-spacing: .5px; min-height: 14px; }
+#k-title { font-family: inherit; font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.3; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-ghost { display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-size: 12px; padding: 6px 10px; border-radius: 7px; border: 1px solid var(--border); background: none; color: var(--sub); cursor: pointer; flex-shrink: 0; white-space: nowrap; }
+.k-ghost:hover { color: var(--text); border-color: var(--sub); }
+.k-ghost .k-ico { width: 14px; height: 14px; }
+body:not(.k-diag) .k-pagehead .k-ghost { display: none; }
+.search-bar { display: none !important; }
+#mnav button span.k-ico { width: 20px; height: 20px; }
+
+@media (min-width: 901px) {
+  body.knav-collapsed #knav { width: 60px; }
+  body.knav-collapsed #knav .logo { flex-direction: column; align-items: center; padding: 14px 0 6px; }
+  body.knav-collapsed #knav .k-brand, body.knav-collapsed #global-search-wrap,
+  body.knav-collapsed #knav .rail-label, body.knav-collapsed #knav .rail-group-caret { display: none; }
+  body.knav-collapsed .k-search-btn { display: flex; margin: 0 auto 8px; width: 40px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--sub); align-items: center; justify-content: center; cursor: pointer; }
+  body.knav-collapsed .k-search-btn:hover { color: var(--text); }
+  body.knav-collapsed #knav .rail-group-header { justify-content: center; padding: 9px 0; }
+  body.knav-collapsed #knav .rail-group-header.active { background: rgba(var(--ov,255,255,255),.05); }
+  body.knav-collapsed #knav .rail-btn, body.knav-collapsed #knav .rail-group-buttons .rail-btn { justify-content: center; padding: 0; height: 36px; }
+  body.knav-collapsed #knav .rail-group-buttons.expanded::before { display: none; }
+}
+
+@media (max-width: 900px) {
+  #ktop { display: flex; align-items: center; gap: 4px; flex-shrink: 0; min-height: 52px; padding: env(safe-area-inset-top) 6px 0; background: var(--bg); border-bottom: 1px solid var(--border); }
+  #ktop .k-iconbtn { width: 44px; height: 44px; }
+  #ktop .k-ico { width: 22px; height: 22px; }
+  .k-top-title { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; padding: 0 2px; }
+  #ktop-crumb { font-size: 11px; color: var(--sub); }
+  #ktop-title { font-size: 16px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #knav { position: fixed; top: 0; left: 0; bottom: 0; width: min(300px, 84vw); z-index: 1000; background: var(--panel); transform: translateX(-102%); transition: transform .22s ease; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  body.knav-open #knav { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.5); }
+  #knav-backdrop { display: block; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  body.knav-open #knav-backdrop { opacity: 1; pointer-events: auto; }
+  #knav-collapse { display: none; }
+  #knav .logo { padding-top: 16px !important; padding-bottom: 12px !important; }
+  #knav .logo p { display: block; }
+  #knav .rail-btn, #knav .rail-group-buttons .rail-btn { height: 44px; }
+  #knav .rail-group-header { padding: 11px 8px; }
+  #global-search-input { font-size: 16px !important; padding-right: 32px !important; }
+  .k-kbd { display: none; }
+  .k-pagehead { display: none; }
+  .sidebar { width: 100% !important; }
+  body:not(.k-diag) #mnav { display: none; }
+  body:not(.k-diag) { padding-bottom: env(safe-area-inset-bottom); }
+}
+</style>
+<script id="knav-js">
+// v11 主導覽：線條圖示（Tabler Icons，MIT）、文字標籤、收合、⌘K 搜尋、手機抽屜、頁面標題
+(function () {
+  var IC = {"clipboard-heart":"<path d=\"M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2\"/><path d=\"M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z\"/><path d=\"M11.993 16.75l2.747 -2.815a1.9 1.9 0 0 0 0 -2.632a1.775 1.775 0 0 0 -2.56 0l-.183 .188l-.183 -.189a1.775 1.775 0 0 0 -2.56 0a1.899 1.899 0 0 0 0 2.632l2.738 2.825z\"/>","body-scan":"<path d=\"M4 8v-2a2 2 0 0 1 2 -2h2\"/><path d=\"M4 16v2a2 2 0 0 0 2 2h2\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v2\"/><path d=\"M16 20h2a2 2 0 0 0 2 -2v-2\"/><path d=\"M12 8m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M10 17v-1a2 2 0 1 1 4 0v1\"/><path d=\"M8 10c.666 .666 1.334 1 2 1h4c.666 0 1.334 -.334 2 -1\"/><path d=\"M12 11v3\"/>","first-aid-kit":"<path d=\"M8 8v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2\"/><path d=\"M4 8m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M10 14h4\"/><path d=\"M12 12v4\"/>","trophy":"<path d=\"M8 21l8 0\"/><path d=\"M12 17l0 4\"/><path d=\"M7 4l10 0\"/><path d=\"M17 4v8a5 5 0 0 1 -10 0v-8\"/><path d=\"M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/>","salad":"<path d=\"M4 11h16a1 1 0 0 1 1 1v.5c0 1.5 -2.517 5.573 -4 6.5v1a1 1 0 0 1 -1 1h-8a1 1 0 0 1 -1 -1v-1c-1.687 -1.054 -4 -5 -4 -6.5v-.5a1 1 0 0 1 1 -1z\"/><path d=\"M18.5 11c.351 -1.017 .426 -2.236 .5 -3.714v-1.286h-2.256c-2.83 0 -4.616 .804 -5.64 2.076\"/><path d=\"M5.255 11.008a12.204 12.204 0 0 1 -.255 -2.008v-1h1.755c.98 0 1.801 .124 2.479 .35\"/><path d=\"M8 8l1 -4l4 2.5\"/><path d=\"M13 11v-.5a2.5 2.5 0 1 0 -5 0v.5\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","chart-line":"<path d=\"M4 19l16 0\"/><path d=\"M4 15l4 -6l4 2l4 -5l4 4\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","hand-stop":"<path d=\"M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5\"/><path d=\"M11 5.5v-2a1.5 1.5 0 1 1 3 0v8.5\"/><path d=\"M14 5.5a1.5 1.5 0 0 1 3 0v6.5\"/><path d=\"M17 7.5a1.5 1.5 0 0 1 3 0v8.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7a69.74 69.74 0 0 1 -.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47\"/>","chart-dots":"<path d=\"M3 3v18h18\"/><path d=\"M9 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M19 7m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M14 15m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M10.16 10.62l2.34 2.88\"/><path d=\"M15.088 13.328l2.837 -4.586\"/>","video":"<path d=\"M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z\"/><path d=\"M3 6m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z\"/>","ruler-measure":"<path d=\"M19.875 12c.621 0 1.125 .512 1.125 1.143v5.714c0 .631 -.504 1.143 -1.125 1.143h-15.875a1 1 0 0 1 -1 -1v-5.857c0 -.631 .504 -1.143 1.125 -1.143h15.75z\"/><path d=\"M9 12v2\"/><path d=\"M6 12v3\"/><path d=\"M12 12v3\"/><path d=\"M18 12v3\"/><path d=\"M15 12v2\"/><path d=\"M3 3v4\"/><path d=\"M3 5h18\"/><path d=\"M21 3v4\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","book":"<path d=\"M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0\"/><path d=\"M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0\"/><path d=\"M3 6l0 13\"/><path d=\"M12 6l0 13\"/><path d=\"M21 6l0 13\"/>","lungs":"<path d=\"M6.081 20c1.612 0 2.919 -1.335 2.919 -2.98v-9.763c0 -.694 -.552 -1.257 -1.232 -1.257c-.205 0 -.405 .052 -.584 .15l-.13 .083c-1.46 1.059 -2.432 2.647 -3.404 5.824c-.42 1.37 -.636 2.962 -.648 4.775c-.012 1.675 1.261 3.054 2.877 3.161l.203 .007z\"/><path d=\"M17.92 20c-1.613 0 -2.92 -1.335 -2.92 -2.98v-9.763c0 -.694 .552 -1.257 1.233 -1.257c.204 0 .405 .052 .584 .15l.13 .083c1.46 1.059 2.432 2.647 3.405 5.824c.42 1.37 .636 2.962 .648 4.775c.012 1.675 -1.261 3.054 -2.878 3.161l-.202 .007z\"/><path d=\"M9 12a3 3 0 0 0 3 -3a3 3 0 0 0 3 3\"/><path d=\"M12 4v5\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","link":"<path d=\"M9 15l6 -6\"/><path d=\"M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464\"/><path d=\"M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463\"/>","man":"<path d=\"M10 16v5\"/><path d=\"M14 16v5\"/><path d=\"M9 9h6l-1 7h-4z\"/><path d=\"M5 11c1.333 -1.333 2.667 -2 4 -2\"/><path d=\"M19 11c-1.333 -1.333 -2.667 -2 -4 -2\"/><path d=\"M12 4m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/>","bandage":"<path d=\"M14 12l0 .01\"/><path d=\"M10 12l0 .01\"/><path d=\"M12 10l0 .01\"/><path d=\"M12 14l0 .01\"/><path d=\"M4.5 12.5l8 -8a4.94 4.94 0 0 1 7 7l-8 8a4.94 4.94 0 0 1 -7 -7\"/>","heart-rate-monitor":"<path d=\"M3 4m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z\"/><path d=\"M7 20h10\"/><path d=\"M9 16v4\"/><path d=\"M15 16v4\"/><path d=\"M7 10h2l2 3l2 -6l1 3h3\"/>","barbell":"<path d=\"M2 12h1\"/><path d=\"M6 8h-2a1 1 0 0 0 -1 1v6a1 1 0 0 0 1 1h2\"/><path d=\"M6 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\"/><path d=\"M9 12h6\"/><path d=\"M15 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\"/><path d=\"M18 8h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2\"/><path d=\"M22 12h-1\"/>","speakerphone":"<path d=\"M18 8a3 3 0 0 1 0 6\"/><path d=\"M10 8v11a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1v-5\"/><path d=\"M12 8h0l4.524 -3.77a.9 .9 0 0 1 1.476 .692v12.156a.9 .9 0 0 1 -1.476 .692l-4.524 -3.77h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h8\"/>","books":"<path d=\"M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\"/><path d=\"M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\"/><path d=\"M5 8h4\"/><path d=\"M9 16h4\"/><path d=\"M13.803 4.56l2.184 -.53c.562 -.135 1.133 .19 1.282 .732l3.695 13.418a1.02 1.02 0 0 1 -.634 1.219l-.133 .041l-2.184 .53c-.562 .135 -1.133 -.19 -1.282 -.732l-3.695 -13.418a1.02 1.02 0 0 1 .634 -1.219l.133 -.041z\"/><path d=\"M14 9l4 -1\"/><path d=\"M16 16l3.923 -.98\"/>","heartbeat":"<path d=\"M19.5 13.572l-7.5 7.428l-2.896 -2.868m-6.117 -8.104a5 5 0 0 1 9.013 -3.022a5 5 0 1 1 7.5 6.572\"/><path d=\"M3 13h2l2 3l2 -6l1 3h3\"/>","weight":"<path d=\"M12 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.835 9h10.33a1 1 0 0 1 .984 .821l1.637 9a1 1 0 0 1 -.984 1.179h-13.604a1 1 0 0 1 -.984 -1.179l1.637 -9a1 1 0 0 1 .984 -.821z\"/>","calculator":"<path d=\"M4 3m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M8 7m0 1a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1z\"/><path d=\"M8 14l0 .01\"/><path d=\"M12 14l0 .01\"/><path d=\"M16 14l0 .01\"/><path d=\"M8 17l0 .01\"/><path d=\"M12 17l0 .01\"/><path d=\"M16 17l0 .01\"/>","stretching":"<path d=\"M16 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M5 20l5 -.5l1 -2\"/><path d=\"M18 20v-5h-5.5l2.5 -6.5l-5.5 1l1.5 2\"/>","calendar-event":"<path d=\"M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M16 3l0 4\"/><path d=\"M8 3l0 4\"/><path d=\"M4 11l16 0\"/><path d=\"M8 15h2v2h-2z\"/>","flame":"<path d=\"M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z\"/>","pill":"<path d=\"M4.5 12.5l8 -8a4.94 4.94 0 0 1 7 7l-8 8a4.94 4.94 0 0 1 -7 -7\"/><path d=\"M8.5 8.5l7 7\"/>","bottle":"<path d=\"M10 5h4v-2a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v2z\"/><path d=\"M14 3.5c0 1.626 .507 3.212 1.45 4.537l.05 .07a8.093 8.093 0 0 1 1.5 4.694v6.199a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2v-6.2c0 -1.682 .524 -3.322 1.5 -4.693l.05 -.07a7.823 7.823 0 0 0 1.45 -4.537\"/><path d=\"M7 14.803a2.4 2.4 0 0 0 1 -.803a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 1 -.805\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","target-arrow":"<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 7a5 5 0 1 0 5 5\"/><path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/><path d=\"M15 6v3h3l3 -3h-3v-3z\"/><path d=\"M15 9l-3 3\"/>","scale":"<path d=\"M7 20l10 0\"/><path d=\"M6 6l6 -1l6 1\"/><path d=\"M12 3l0 17\"/><path d=\"M9 12l-3 -6l-3 6a3 3 0 0 0 6 0\"/><path d=\"M21 12l-3 -6l-3 6a3 3 0 0 0 6 0\"/>","stopwatch":"<path d=\"M5 13a7 7 0 1 0 14 0a7 7 0 0 0 -14 0z\"/><path d=\"M14.5 10.5l-2.5 2.5\"/><path d=\"M17 8l1 -1\"/><path d=\"M14 3h-4\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","layout-sidebar-left-collapse":"<path d=\"M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M9 4v16\"/><path d=\"M15 10l-2 2l2 2\"/>","layout-sidebar-left-expand":"<path d=\"M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M9 4v16\"/><path d=\"M14 10l2 2l-2 2\"/>","refresh":"<path d=\"M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4\"/><path d=\"M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4\"/>","menu-2":"<path d=\"M4 6l16 0\"/><path d=\"M4 12l16 0\"/><path d=\"M4 18l16 0\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","chart-bar":"<path d=\"M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M4 20h14\"/>","prescription":"<path d=\"M6 19v-16h4.5a4.5 4.5 0 1 1 0 9h-4.5\"/><path d=\"M19 21l-9 -9\"/><path d=\"M13 21l6 -6\"/>"};
+  function svg(n) { var d = IC[n]; return d ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>' : ''; }
+  window.kIconSvg = svg;
+  var GROUP = {
+    track: ['chart-line', '追蹤'], assess: ['clipboard-heart', '檢測'], anatomy: ['body-scan', '結構'], path: ['first-aid-kit', '病理與矯正'],
+    specialty: ['trophy', '專項訓練'], nutrition: ['salad', '營養'], client: ['users', '客戶']
+  };
+  var PAGE = {
+    'lower-body': ['walk', '下肢評估'], 'upper-body': ['hand-stop', '上肢評估'], analysis: ['chart-dots', '分析'], screen: ['video', '動態篩查'], wedge: ['ruler-measure', '道具計算'],
+    anatomy: ['body-scan', '3D 人體'], fascia: ['route', '筋膜列車'], glossary: ['book', '關節術語'], breathingmech: ['lungs', '呼吸力學'], gaitmech: ['shoe', '步態力學'], kineticchain: ['link', '動力鏈'],
+    concepts: ['man', '體態問題'], pain: ['bandage', '痛症'], rehab: ['heart-rate-monitor', '運動復健'], training: ['barbell', '健身問題'], coaching: ['speakerphone', '教練技巧'], exlib: ['books', '動作庫'],
+    cardio: ['heartbeat', '有氧訓練'], powerlifting: ['weight', '健力'], traincalc: ['calculator', '訓練計算器'], bodybuilding: ['stretching', '健美'], 'program-designer': ['calendar-event', '課表設計'],
+    'nutrition-metabolism': ['flame', '代謝與荷爾蒙'], 'nutrition-micro': ['pill', '微量營養素'], 'nutrition-supp': ['bottle', '補充品'], 'nutrition-food': ['tools-kitchen-2', '食物庫'], 'nutrition-apply': ['target-arrow', '應用整合'], 'nutrition-tdee': ['calculator', 'TDEE 計算器'],
+    clients: ['users', '客戶名單'], tlog: ['barbell', '訓練日誌'], tbody: ['scale', '身體數據'], ttimer: ['stopwatch', '計時器']
+  };
+  var DIAG = { 'lower-body': 1, 'upper-body': 1, analysis: 1, screen: 1 };
+  var body = document.body, nav, last = null;
+  function isMobile() { return window.matchMedia('(max-width: 900px)').matches; }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function groupOf(btn) { var g = btn && btn.closest('.rail-group-buttons'); return g ? g.getAttribute('data-group-buttons') : ''; }
+
+  function paint() {
+    $$('.k-ico[data-ic]').forEach(function (el) { if (!el.firstChild) el.innerHTML = svg(el.getAttribute('data-ic')); });
+    $$('.rail-group-header', nav).forEach(function (h) {
+      var g = GROUP[h.getAttribute('data-group')]; if (!g) return;
+      var i = h.querySelector('.rail-icon'), l = h.querySelector('.rail-label');
+      if (i && !i.querySelector('svg')) i.innerHTML = svg(g[0]);
+      if (l) l.textContent = g[1];
+      h.setAttribute('aria-expanded', h.classList.contains('active') ? 'true' : 'false');
+    });
+    $$('.rail-btn', nav).forEach(function (b) {
+      var p = PAGE[b.getAttribute('data-rail')]; if (!p) return;
+      var i = b.querySelector('.rail-icon'), l = b.querySelector('.rail-label');
+      if (i && !i.querySelector('svg')) i.innerHTML = svg(p[0]);
+      if (l) l.textContent = p[1];
+      if (!b.getAttribute('aria-label')) b.setAttribute('aria-label', p[1]);
+    });
+    var MV = { input: 'pencil', result: 'chart-bar', rx: 'prescription' };
+    $$('#mnav button').forEach(function (b) { var sp = b.querySelector('span'); var n = MV[b.getAttribute('data-mv')]; if (sp && n && !sp.querySelector('svg')) { sp.className = 'k-ico'; sp.innerHTML = svg(n); sp.setAttribute('aria-hidden', 'true'); } });
+  }
+
+  // ── 頁面標題／麵包屑，同步「而家喺邊頁」 ──
+  function update() {
+    var panel = document.querySelector('.rail-panel.active'); if (!panel) return;
+    var id = panel.id.replace(/^rail-/, ''); if (id === last) return; last = id;
+    var btn = nav.querySelector('.rail-btn[data-rail="' + id + '"]');
+    var g = groupOf(btn), title = (PAGE[id] || [])[1] || (btn ? btn.textContent.trim() : ''), crumb = (GROUP[g] || [])[1] || '';
+    ['k-title', 'ktop-title'].forEach(function (x) { var e = document.getElementById(x); if (e) e.textContent = title || 'Kinesis'; });
+    ['k-crumb', 'ktop-crumb'].forEach(function (x) { var e = document.getElementById(x); if (e) e.textContent = crumb; });
+    body.classList.toggle('k-diag', !!DIAG[id]);
+    if (!DIAG[id] && isMobile() && body.getAttribute('data-mview') !== 'input' && window.mobileSetView) window.mobileSetView('input');
+    if (g) { var gb = nav.querySelector('.rail-group-buttons[data-group-buttons="' + g + '"]'); if (gb && !gb.classList.contains('expanded') && window.toggleRailGroup) window.toggleRailGroup(g); }
+  }
+
+  // ── 收合（桌面） ──
+  var KEY = 'kinesis:navCollapsed';
+  function setCollapsed(c, save) {
+    body.classList.toggle('knav-collapsed', c);
+    var b = document.getElementById('knav-collapse');
+    if (b) { b.setAttribute('aria-label', c ? '展開側邊欄' : '收埋側邊欄'); var i = b.querySelector('.k-ico'); if (i) i.innerHTML = svg(c ? 'layout-sidebar-left-expand' : 'layout-sidebar-left-collapse'); }
+    if (save) { try { localStorage.setItem(KEY, c ? '1' : '0'); } catch (e) {} }
+    requestAnimationFrame(function () { window.dispatchEvent(new Event('resize')); });
+  }
+
+  // ── 手機抽屜 ──
+  function setDrawer(open) {
+    body.classList.toggle('knav-open', open);
+    var m = document.getElementById('ktop-menu'); if (m) m.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (!open) { var r = document.getElementById('global-search-results'); if (r) r.style.display = 'none'; }
+  }
+  function openSearch() {
+    var input = document.getElementById('global-search-input'); if (!input) return;
+    if (isMobile()) { setDrawer(true); setTimeout(function () { input.focus(); }, 230); return; }
+    if (body.classList.contains('knav-collapsed')) setCollapsed(false, true);
+    setTimeout(function () { input.focus(); input.select(); }, 30);
+  }
+
+  // ── 搜尋：加入「頁面」同舊有頁內搜尋（關鍵字更深）嘅結果，兩個搜尋欄合併為一 ──
+  var DEEP_FN = { pain: 'openPainDetail', fascia: 'openFasciaDetail', cluster: 'openClusterDetail', posture: 'openPostureDetail', training: 'openTrainingDetail' };
+  var DEEP_LABEL = { pain: '痛症', fascia: '筋膜線', cluster: '組合', posture: '體態', training: '訓練', concept: '分析', assess: '檢測' };
+  window.kSearchExtras = function (q, matches) {
+    var pages = [];
+    $$('.rail-btn', nav).forEach(function (b) {
+      if (b.style.display === 'none') return;
+      var id = b.getAttribute('data-rail'), p = PAGE[id] || ['', b.textContent.trim()];
+      var hay = (p[1] + ' ' + (b.getAttribute('title') || '') + ' ' + id).toLowerCase();
+      if (hay.indexOf(q) === -1) return;
+      pages.push({ key: id, name: p[1], sub: ((GROUP[groupOf(b)] || [])[1] || '') + ' · ' + (b.getAttribute('title') || ''), emoji: '<span class="k-ico" style="width:16px;height:16px;color:var(--green)">' + svg(p[0]) + '</span>', label: '頁面', color: 'var(--green)', fn: function () { window.switchRail(id); } });
+    });
+    var seen = {}; matches.forEach(function (m) { seen[m.key] = 1; });
+    var hidden = window.FUSE_HIDDEN_RAILS || [], deep = [];
+    (window.SEARCH_INDEX || []).forEach(function (it) {
+      if (deep.length >= 12 || (it.key && seen[it.key])) return;
+      if (it.railTarget && hidden.indexOf(it.railTarget) !== -1) return;
+      if ((it.kw || '').indexOf(q) === -1 && (it.title || '').toLowerCase().indexOf(q) === -1) return;
+      var fnName = DEEP_FN[it.type], fn;
+      if (fnName && typeof window[fnName] === 'function') fn = (function (f, k) { return function () { f(k); }; })(window[fnName], it.key);
+      else if (it.railTarget) fn = (function (r) { return function () { window.switchRail(r); }; })(it.railTarget);
+      else return;
+      if (it.key) seen[it.key] = 1;
+      deep.push({ key: it.key || it.title, name: it.title, sub: it.snippet || '', emoji: '', label: DEEP_LABEL[it.type] || '相關', color: 'var(--sub)', fn: fn });
+    });
+    return pages.slice(0, 6).concat(matches, deep);
+  };
+
+  function init() {
+    nav = document.getElementById('rail-nav'); if (!nav) return;
+    paint();
+    var stored = null; try { stored = localStorage.getItem(KEY); } catch (e) {}
+    setCollapsed(stored === null ? window.innerWidth < 1600 : stored === '1', false);
+    var tg = window.toggleRailGroup;
+    if (typeof tg === 'function') window.toggleRailGroup = function (g) { tg(g); $$('.rail-group-header', nav).forEach(function (h) { h.setAttribute('aria-expanded', h.classList.contains('active') ? 'true' : 'false'); }); };
+    var tr = window.triggerSearchResultByIndex;
+    if (typeof tr === 'function') window.triggerSearchResultByIndex = function (i) { if (isMobile()) setDrawer(false); return tr(i); };
+    document.getElementById('knav-collapse').addEventListener('click', function () { setCollapsed(!body.classList.contains('knav-collapsed'), true); });
+    document.getElementById('knav-search-btn').addEventListener('click', openSearch);
+    document.getElementById('ktop-search').addEventListener('click', openSearch);
+    document.getElementById('ktop-menu').addEventListener('click', function () { setDrawer(!body.classList.contains('knav-open')); });
+    document.getElementById('knav-backdrop').addEventListener('click', function () { setDrawer(false); });
+    nav.addEventListener('click', function (e) { if (isMobile() && e.target.closest('.rail-btn')) setDrawer(false); });
+    document.addEventListener('keydown', function (e) {
+      var t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); openSearch(); }
+      else if (e.key === '/' && !typing) { e.preventDefault(); openSearch(); }
+      else if (e.key === 'Escape' && body.classList.contains('knav-open')) setDrawer(false);
+    });
+    var kb = document.querySelector('.k-kbd'); if (kb && !/Mac|iPhone|iPad/.test(navigator.platform || '')) kb.textContent = 'Ctrl K';
+    new MutationObserver(update).observe(document.querySelector('.sidebar'), { subtree: true, attributes: true, attributeFilter: ['class'] });
+    update();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.addEventListener('load', paint);
 })();
 </script>
 
