@@ -637,7 +637,7 @@
     bindLog(); bindBody(); bindTimer();
     onActivate('tlog', renderLog); onActivate('tbody', renderBody); onActivate('ttimer', function () { renderTimer(); });
     if (ED === 'fit') {
-      setTimeout(function () { if (typeof window.switchRail === 'function') window.switchRail('tlog'); }, 50);
+      setTimeout(function () { if (typeof window.switchRail === 'function') window.switchRail(document.getElementById('rail-home') ? 'home' : 'tlog'); }, 50);
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

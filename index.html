@@ -32483,7 +32483,7 @@ body:not(.k-diag) .k-pagehead .k-ghost { display: none; }
 <script id="knav-js">
 // v11 主導覽：線條圖示（Tabler Icons，MIT）、文字標籤、收合、⌘K 搜尋、手機抽屜、頁面標題
 (function () {
-  var IC = {"clipboard-heart":"<path d=\"M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2\"/><path d=\"M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z\"/><path d=\"M11.993 16.75l2.747 -2.815a1.9 1.9 0 0 0 0 -2.632a1.775 1.775 0 0 0 -2.56 0l-.183 .188l-.183 -.189a1.775 1.775 0 0 0 -2.56 0a1.899 1.899 0 0 0 0 2.632l2.738 2.825z\"/>","body-scan":"<path d=\"M4 8v-2a2 2 0 0 1 2 -2h2\"/><path d=\"M4 16v2a2 2 0 0 0 2 2h2\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v2\"/><path d=\"M16 20h2a2 2 0 0 0 2 -2v-2\"/><path d=\"M12 8m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M10 17v-1a2 2 0 1 1 4 0v1\"/><path d=\"M8 10c.666 .666 1.334 1 2 1h4c.666 0 1.334 -.334 2 -1\"/><path d=\"M12 11v3\"/>","first-aid-kit":"<path d=\"M8 8v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2\"/><path d=\"M4 8m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M10 14h4\"/><path d=\"M12 12v4\"/>","trophy":"<path d=\"M8 21l8 0\"/><path d=\"M12 17l0 4\"/><path d=\"M7 4l10 0\"/><path d=\"M17 4v8a5 5 0 0 1 -10 0v-8\"/><path d=\"M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/>","salad":"<path d=\"M4 11h16a1 1 0 0 1 1 1v.5c0 1.5 -2.517 5.573 -4 6.5v1a1 1 0 0 1 -1 1h-8a1 1 0 0 1 -1 -1v-1c-1.687 -1.054 -4 -5 -4 -6.5v-.5a1 1 0 0 1 1 -1z\"/><path d=\"M18.5 11c.351 -1.017 .426 -2.236 .5 -3.714v-1.286h-2.256c-2.83 0 -4.616 .804 -5.64 2.076\"/><path d=\"M5.255 11.008a12.204 12.204 0 0 1 -.255 -2.008v-1h1.755c.98 0 1.801 .124 2.479 .35\"/><path d=\"M8 8l1 -4l4 2.5\"/><path d=\"M13 11v-.5a2.5 2.5 0 1 0 -5 0v.5\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","chart-line":"<path d=\"M4 19l16 0\"/><path d=\"M4 15l4 -6l4 2l4 -5l4 4\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","hand-stop":"<path d=\"M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5\"/><path d=\"M11 5.5v-2a1.5 1.5 0 1 1 3 0v8.5\"/><path d=\"M14 5.5a1.5 1.5 0 0 1 3 0v6.5\"/><path d=\"M17 7.5a1.5 1.5 0 0 1 3 0v8.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7a69.74 69.74 0 0 1 -.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47\"/>","chart-dots":"<path d=\"M3 3v18h18\"/><path d=\"M9 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M19 7m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M14 15m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M10.16 10.62l2.34 2.88\"/><path d=\"M15.088 13.328l2.837 -4.586\"/>","video":"<path d=\"M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z\"/><path d=\"M3 6m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z\"/>","ruler-measure":"<path d=\"M19.875 12c.621 0 1.125 .512 1.125 1.143v5.714c0 .631 -.504 1.143 -1.125 1.143h-15.875a1 1 0 0 1 -1 -1v-5.857c0 -.631 .504 -1.143 1.125 -1.143h15.75z\"/><path d=\"M9 12v2\"/><path d=\"M6 12v3\"/><path d=\"M12 12v3\"/><path d=\"M18 12v3\"/><path d=\"M15 12v2\"/><path d=\"M3 3v4\"/><path d=\"M3 5h18\"/><path d=\"M21 3v4\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","book":"<path d=\"M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0\"/><path d=\"M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0\"/><path d=\"M3 6l0 13\"/><path d=\"M12 6l0 13\"/><path d=\"M21 6l0 13\"/>","lungs":"<path d=\"M6.081 20c1.612 0 2.919 -1.335 2.919 -2.98v-9.763c0 -.694 -.552 -1.257 -1.232 -1.257c-.205 0 -.405 .052 -.584 .15l-.13 .083c-1.46 1.059 -2.432 2.647 -3.404 5.824c-.42 1.37 -.636 2.962 -.648 4.775c-.012 1.675 1.261 3.054 2.877 3.161l.203 .007z\"/><path d=\"M17.92 20c-1.613 0 -2.92 -1.335 -2.92 -2.98v-9.763c0 -.694 .552 -1.257 1.233 -1.257c.204 0 .405 .052 .584 .15l.13 .083c1.46 1.059 2.432 2.647 3.405 5.824c.42 1.37 .636 2.962 .648 4.775c.012 1.675 -1.261 3.054 -2.878 3.161l-.202 .007z\"/><path d=\"M9 12a3 3 0 0 0 3 -3a3 3 0 0 0 3 3\"/><path d=\"M12 4v5\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","link":"<path d=\"M9 15l6 -6\"/><path d=\"M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464\"/><path d=\"M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463\"/>","man":"<path d=\"M10 16v5\"/><path d=\"M14 16v5\"/><path d=\"M9 9h6l-1 7h-4z\"/><path d=\"M5 11c1.333 -1.333 2.667 -2 4 -2\"/><path d=\"M19 11c-1.333 -1.333 -2.667 -2 -4 -2\"/><path d=\"M12 4m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/>","bandage":"<path d=\"M14 12l0 .01\"/><path d=\"M10 12l0 .01\"/><path d=\"M12 10l0 .01\"/><path d=\"M12 14l0 .01\"/><path d=\"M4.5 12.5l8 -8a4.94 4.94 0 0 1 7 7l-8 8a4.94 4.94 0 0 1 -7 -7\"/>","heart-rate-monitor":"<path d=\"M3 4m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z\"/><path d=\"M7 20h10\"/><path d=\"M9 16v4\"/><path d=\"M15 16v4\"/><path d=\"M7 10h2l2 3l2 -6l1 3h3\"/>","barbell":"<path d=\"M2 12h1\"/><path d=\"M6 8h-2a1 1 0 0 0 -1 1v6a1 1 0 0 0 1 1h2\"/><path d=\"M6 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\"/><path d=\"M9 12h6\"/><path d=\"M15 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\"/><path d=\"M18 8h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2\"/><path d=\"M22 12h-1\"/>","speakerphone":"<path d=\"M18 8a3 3 0 0 1 0 6\"/><path d=\"M10 8v11a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1v-5\"/><path d=\"M12 8h0l4.524 -3.77a.9 .9 0 0 1 1.476 .692v12.156a.9 .9 0 0 1 -1.476 .692l-4.524 -3.77h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h8\"/>","books":"<path d=\"M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\"/><path d=\"M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\"/><path d=\"M5 8h4\"/><path d=\"M9 16h4\"/><path d=\"M13.803 4.56l2.184 -.53c.562 -.135 1.133 .19 1.282 .732l3.695 13.418a1.02 1.02 0 0 1 -.634 1.219l-.133 .041l-2.184 .53c-.562 .135 -1.133 -.19 -1.282 -.732l-3.695 -13.418a1.02 1.02 0 0 1 .634 -1.219l.133 -.041z\"/><path d=\"M14 9l4 -1\"/><path d=\"M16 16l3.923 -.98\"/>","heartbeat":"<path d=\"M19.5 13.572l-7.5 7.428l-2.896 -2.868m-6.117 -8.104a5 5 0 0 1 9.013 -3.022a5 5 0 1 1 7.5 6.572\"/><path d=\"M3 13h2l2 3l2 -6l1 3h3\"/>","weight":"<path d=\"M12 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.835 9h10.33a1 1 0 0 1 .984 .821l1.637 9a1 1 0 0 1 -.984 1.179h-13.604a1 1 0 0 1 -.984 -1.179l1.637 -9a1 1 0 0 1 .984 -.821z\"/>","calculator":"<path d=\"M4 3m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M8 7m0 1a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1z\"/><path d=\"M8 14l0 .01\"/><path d=\"M12 14l0 .01\"/><path d=\"M16 14l0 .01\"/><path d=\"M8 17l0 .01\"/><path d=\"M12 17l0 .01\"/><path d=\"M16 17l0 .01\"/>","stretching":"<path d=\"M16 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M5 20l5 -.5l1 -2\"/><path d=\"M18 20v-5h-5.5l2.5 -6.5l-5.5 1l1.5 2\"/>","calendar-event":"<path d=\"M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M16 3l0 4\"/><path d=\"M8 3l0 4\"/><path d=\"M4 11l16 0\"/><path d=\"M8 15h2v2h-2z\"/>","flame":"<path d=\"M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z\"/>","pill":"<path d=\"M4.5 12.5l8 -8a4.94 4.94 0 0 1 7 7l-8 8a4.94 4.94 0 0 1 -7 -7\"/><path d=\"M8.5 8.5l7 7\"/>","bottle":"<path d=\"M10 5h4v-2a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v2z\"/><path d=\"M14 3.5c0 1.626 .507 3.212 1.45 4.537l.05 .07a8.093 8.093 0 0 1 1.5 4.694v6.199a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2v-6.2c0 -1.682 .524 -3.322 1.5 -4.693l.05 -.07a7.823 7.823 0 0 0 1.45 -4.537\"/><path d=\"M7 14.803a2.4 2.4 0 0 0 1 -.803a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 1 -.805\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","target-arrow":"<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 7a5 5 0 1 0 5 5\"/><path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/><path d=\"M15 6v3h3l3 -3h-3v-3z\"/><path d=\"M15 9l-3 3\"/>","scale":"<path d=\"M7 20l10 0\"/><path d=\"M6 6l6 -1l6 1\"/><path d=\"M12 3l0 17\"/><path d=\"M9 12l-3 -6l-3 6a3 3 0 0 0 6 0\"/><path d=\"M21 12l-3 -6l-3 6a3 3 0 0 0 6 0\"/>","stopwatch":"<path d=\"M5 13a7 7 0 1 0 14 0a7 7 0 0 0 -14 0z\"/><path d=\"M14.5 10.5l-2.5 2.5\"/><path d=\"M17 8l1 -1\"/><path d=\"M14 3h-4\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","layout-sidebar-left-collapse":"<path d=\"M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M9 4v16\"/><path d=\"M15 10l-2 2l2 2\"/>","layout-sidebar-left-expand":"<path d=\"M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M9 4v16\"/><path d=\"M14 10l2 2l-2 2\"/>","refresh":"<path d=\"M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4\"/><path d=\"M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4\"/>","menu-2":"<path d=\"M4 6l16 0\"/><path d=\"M4 12l16 0\"/><path d=\"M4 18l16 0\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","chart-bar":"<path d=\"M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M4 20h14\"/>","prescription":"<path d=\"M6 19v-16h4.5a4.5 4.5 0 1 1 0 9h-4.5\"/><path d=\"M19 21l-9 -9\"/><path d=\"M13 21l6 -6\"/>"};
+  var IC = {"home":"<path d=\"M5 12l-2 0l9 -9l9 9l-2 0\"/><path d=\"M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7\"/><path d=\"M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6\"/>","player-play":"<path d=\"M7 4v16l13 -8z\"/>","check":"<path d=\"M5 12l5 5l10 -10\"/>","chevron-left":"<path d=\"M15 6l-6 6l6 6\"/>","chevron-right":"<path d=\"M9 6l6 6l-6 6\"/>","file-export":"<path d=\"M14 3v4a1 1 0 0 0 1 1h4\"/><path d=\"M11.5 21h-4.5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v5m-5 6h7m-3 -3l3 3l-3 3\"/>","device-floppy":"<path d=\"M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2\"/><path d=\"M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M14 4l0 4l-6 0l0 -4\"/>","history":"<path d=\"M12 8l0 4l2 2\"/><path d=\"M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5\"/>","clipboard-list":"<path d=\"M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2\"/><path d=\"M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z\"/><path d=\"M9 12l.01 0\"/><path d=\"M13 12l2 0\"/><path d=\"M9 16l.01 0\"/><path d=\"M13 16l2 0\"/>","x":"<path d=\"M18 6l-12 12\"/><path d=\"M6 6l12 12\"/>","clipboard-heart":"<path d=\"M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2\"/><path d=\"M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z\"/><path d=\"M11.993 16.75l2.747 -2.815a1.9 1.9 0 0 0 0 -2.632a1.775 1.775 0 0 0 -2.56 0l-.183 .188l-.183 -.189a1.775 1.775 0 0 0 -2.56 0a1.899 1.899 0 0 0 0 2.632l2.738 2.825z\"/>","body-scan":"<path d=\"M4 8v-2a2 2 0 0 1 2 -2h2\"/><path d=\"M4 16v2a2 2 0 0 0 2 2h2\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v2\"/><path d=\"M16 20h2a2 2 0 0 0 2 -2v-2\"/><path d=\"M12 8m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M10 17v-1a2 2 0 1 1 4 0v1\"/><path d=\"M8 10c.666 .666 1.334 1 2 1h4c.666 0 1.334 -.334 2 -1\"/><path d=\"M12 11v3\"/>","first-aid-kit":"<path d=\"M8 8v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2\"/><path d=\"M4 8m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M10 14h4\"/><path d=\"M12 12v4\"/>","trophy":"<path d=\"M8 21l8 0\"/><path d=\"M12 17l0 4\"/><path d=\"M7 4l10 0\"/><path d=\"M17 4v8a5 5 0 0 1 -10 0v-8\"/><path d=\"M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/>","salad":"<path d=\"M4 11h16a1 1 0 0 1 1 1v.5c0 1.5 -2.517 5.573 -4 6.5v1a1 1 0 0 1 -1 1h-8a1 1 0 0 1 -1 -1v-1c-1.687 -1.054 -4 -5 -4 -6.5v-.5a1 1 0 0 1 1 -1z\"/><path d=\"M18.5 11c.351 -1.017 .426 -2.236 .5 -3.714v-1.286h-2.256c-2.83 0 -4.616 .804 -5.64 2.076\"/><path d=\"M5.255 11.008a12.204 12.204 0 0 1 -.255 -2.008v-1h1.755c.98 0 1.801 .124 2.479 .35\"/><path d=\"M8 8l1 -4l4 2.5\"/><path d=\"M13 11v-.5a2.5 2.5 0 1 0 -5 0v.5\"/>","users":"<path d=\"M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\"/><path d=\"M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/><path d=\"M21 21v-2a4 4 0 0 0 -3 -3.85\"/>","chart-line":"<path d=\"M4 19l16 0\"/><path d=\"M4 15l4 -6l4 2l4 -5l4 4\"/>","walk":"<path d=\"M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M7 21l3 -4\"/><path d=\"M16 21l-2 -4l-3 -3l1 -6\"/><path d=\"M6 12l2 -3l4 -1l3 3l3 1\"/>","hand-stop":"<path d=\"M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5\"/><path d=\"M11 5.5v-2a1.5 1.5 0 1 1 3 0v8.5\"/><path d=\"M14 5.5a1.5 1.5 0 0 1 3 0v6.5\"/><path d=\"M17 7.5a1.5 1.5 0 0 1 3 0v8.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7a69.74 69.74 0 0 1 -.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47\"/>","chart-dots":"<path d=\"M3 3v18h18\"/><path d=\"M9 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M19 7m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M14 15m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/><path d=\"M10.16 10.62l2.34 2.88\"/><path d=\"M15.088 13.328l2.837 -4.586\"/>","video":"<path d=\"M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z\"/><path d=\"M3 6m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z\"/>","ruler-measure":"<path d=\"M19.875 12c.621 0 1.125 .512 1.125 1.143v5.714c0 .631 -.504 1.143 -1.125 1.143h-15.875a1 1 0 0 1 -1 -1v-5.857c0 -.631 .504 -1.143 1.125 -1.143h15.75z\"/><path d=\"M9 12v2\"/><path d=\"M6 12v3\"/><path d=\"M12 12v3\"/><path d=\"M18 12v3\"/><path d=\"M15 12v2\"/><path d=\"M3 3v4\"/><path d=\"M3 5h18\"/><path d=\"M21 3v4\"/>","route":"<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\"/><path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4z\"/><path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\"/>","book":"<path d=\"M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0\"/><path d=\"M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0\"/><path d=\"M3 6l0 13\"/><path d=\"M12 6l0 13\"/><path d=\"M21 6l0 13\"/>","lungs":"<path d=\"M6.081 20c1.612 0 2.919 -1.335 2.919 -2.98v-9.763c0 -.694 -.552 -1.257 -1.232 -1.257c-.205 0 -.405 .052 -.584 .15l-.13 .083c-1.46 1.059 -2.432 2.647 -3.404 5.824c-.42 1.37 -.636 2.962 -.648 4.775c-.012 1.675 1.261 3.054 2.877 3.161l.203 .007z\"/><path d=\"M17.92 20c-1.613 0 -2.92 -1.335 -2.92 -2.98v-9.763c0 -.694 .552 -1.257 1.233 -1.257c.204 0 .405 .052 .584 .15l.13 .083c1.46 1.059 2.432 2.647 3.405 5.824c.42 1.37 .636 2.962 .648 4.775c.012 1.675 -1.261 3.054 -2.878 3.161l-.202 .007z\"/><path d=\"M9 12a3 3 0 0 0 3 -3a3 3 0 0 0 3 3\"/><path d=\"M12 4v5\"/>","shoe":"<path d=\"M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1z\"/><path d=\"M14 13l1 -2\"/><path d=\"M8 18v-1a4 4 0 0 0 -4 -4h-1\"/><path d=\"M10 12l1.5 -3\"/>","link":"<path d=\"M9 15l6 -6\"/><path d=\"M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464\"/><path d=\"M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463\"/>","man":"<path d=\"M10 16v5\"/><path d=\"M14 16v5\"/><path d=\"M9 9h6l-1 7h-4z\"/><path d=\"M5 11c1.333 -1.333 2.667 -2 4 -2\"/><path d=\"M19 11c-1.333 -1.333 -2.667 -2 -4 -2\"/><path d=\"M12 4m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\"/>","bandage":"<path d=\"M14 12l0 .01\"/><path d=\"M10 12l0 .01\"/><path d=\"M12 10l0 .01\"/><path d=\"M12 14l0 .01\"/><path d=\"M4.5 12.5l8 -8a4.94 4.94 0 0 1 7 7l-8 8a4.94 4.94 0 0 1 -7 -7\"/>","heart-rate-monitor":"<path d=\"M3 4m0 1a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z\"/><path d=\"M7 20h10\"/><path d=\"M9 16v4\"/><path d=\"M15 16v4\"/><path d=\"M7 10h2l2 3l2 -6l1 3h3\"/>","barbell":"<path d=\"M2 12h1\"/><path d=\"M6 8h-2a1 1 0 0 0 -1 1v6a1 1 0 0 0 1 1h2\"/><path d=\"M6 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\"/><path d=\"M9 12h6\"/><path d=\"M15 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\"/><path d=\"M18 8h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2\"/><path d=\"M22 12h-1\"/>","speakerphone":"<path d=\"M18 8a3 3 0 0 1 0 6\"/><path d=\"M10 8v11a1 1 0 0 1 -1 1h-1a1 1 0 0 1 -1 -1v-5\"/><path d=\"M12 8h0l4.524 -3.77a.9 .9 0 0 1 1.476 .692v12.156a.9 .9 0 0 1 -1.476 .692l-4.524 -3.77h-8a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h8\"/>","books":"<path d=\"M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\"/><path d=\"M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\"/><path d=\"M5 8h4\"/><path d=\"M9 16h4\"/><path d=\"M13.803 4.56l2.184 -.53c.562 -.135 1.133 .19 1.282 .732l3.695 13.418a1.02 1.02 0 0 1 -.634 1.219l-.133 .041l-2.184 .53c-.562 .135 -1.133 -.19 -1.282 -.732l-3.695 -13.418a1.02 1.02 0 0 1 .634 -1.219l.133 -.041z\"/><path d=\"M14 9l4 -1\"/><path d=\"M16 16l3.923 -.98\"/>","heartbeat":"<path d=\"M19.5 13.572l-7.5 7.428l-2.896 -2.868m-6.117 -8.104a5 5 0 0 1 9.013 -3.022a5 5 0 1 1 7.5 6.572\"/><path d=\"M3 13h2l2 3l2 -6l1 3h3\"/>","weight":"<path d=\"M12 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\"/><path d=\"M6.835 9h10.33a1 1 0 0 1 .984 .821l1.637 9a1 1 0 0 1 -.984 1.179h-13.604a1 1 0 0 1 -.984 -1.179l1.637 -9a1 1 0 0 1 .984 -.821z\"/>","calculator":"<path d=\"M4 3m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M8 7m0 1a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1z\"/><path d=\"M8 14l0 .01\"/><path d=\"M12 14l0 .01\"/><path d=\"M16 14l0 .01\"/><path d=\"M8 17l0 .01\"/><path d=\"M12 17l0 .01\"/><path d=\"M16 17l0 .01\"/>","stretching":"<path d=\"M16 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M5 20l5 -.5l1 -2\"/><path d=\"M18 20v-5h-5.5l2.5 -6.5l-5.5 1l1.5 2\"/>","calendar-event":"<path d=\"M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M16 3l0 4\"/><path d=\"M8 3l0 4\"/><path d=\"M4 11l16 0\"/><path d=\"M8 15h2v2h-2z\"/>","flame":"<path d=\"M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z\"/>","pill":"<path d=\"M4.5 12.5l8 -8a4.94 4.94 0 0 1 7 7l-8 8a4.94 4.94 0 0 1 -7 -7\"/><path d=\"M8.5 8.5l7 7\"/>","bottle":"<path d=\"M10 5h4v-2a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v2z\"/><path d=\"M14 3.5c0 1.626 .507 3.212 1.45 4.537l.05 .07a8.093 8.093 0 0 1 1.5 4.694v6.199a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2v-6.2c0 -1.682 .524 -3.322 1.5 -4.693l.05 -.07a7.823 7.823 0 0 0 1.45 -4.537\"/><path d=\"M7 14.803a2.4 2.4 0 0 0 1 -.803a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 1 -.805\"/>","tools-kitchen-2":"<path d=\"M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3\"/>","target-arrow":"<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 7a5 5 0 1 0 5 5\"/><path d=\"M13 3.055a9 9 0 1 0 7.941 7.945\"/><path d=\"M15 6v3h3l3 -3h-3v-3z\"/><path d=\"M15 9l-3 3\"/>","scale":"<path d=\"M7 20l10 0\"/><path d=\"M6 6l6 -1l6 1\"/><path d=\"M12 3l0 17\"/><path d=\"M9 12l-3 -6l-3 6a3 3 0 0 0 6 0\"/><path d=\"M21 12l-3 -6l-3 6a3 3 0 0 0 6 0\"/>","stopwatch":"<path d=\"M5 13a7 7 0 1 0 14 0a7 7 0 0 0 -14 0z\"/><path d=\"M14.5 10.5l-2.5 2.5\"/><path d=\"M17 8l1 -1\"/><path d=\"M14 3h-4\"/>","search":"<path d=\"M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0\"/><path d=\"M21 21l-6 -6\"/>","layout-sidebar-left-collapse":"<path d=\"M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M9 4v16\"/><path d=\"M15 10l-2 2l2 2\"/>","layout-sidebar-left-expand":"<path d=\"M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z\"/><path d=\"M9 4v16\"/><path d=\"M14 10l2 2l-2 2\"/>","refresh":"<path d=\"M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4\"/><path d=\"M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4\"/>","menu-2":"<path d=\"M4 6l16 0\"/><path d=\"M4 12l16 0\"/><path d=\"M4 18l16 0\"/>","pencil":"<path d=\"M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4\"/><path d=\"M13.5 6.5l4 4\"/>","chart-bar":"<path d=\"M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M4 20h14\"/>","prescription":"<path d=\"M6 19v-16h4.5a4.5 4.5 0 1 1 0 9h-4.5\"/><path d=\"M19 21l-9 -9\"/><path d=\"M13 21l6 -6\"/>"};
   function svg(n) { var d = IC[n]; return d ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>' : ''; }
   window.kIconSvg = svg;
   var GROUP = {
@@ -32496,7 +32496,7 @@ body:not(.k-diag) .k-pagehead .k-ghost { display: none; }
     concepts: ['man', '體態問題'], pain: ['bandage', '痛症'], rehab: ['heart-rate-monitor', '運動復健'], training: ['barbell', '健身問題'], coaching: ['speakerphone', '教練技巧'], exlib: ['books', '動作庫'],
     cardio: ['heartbeat', '有氧訓練'], powerlifting: ['weight', '健力'], traincalc: ['calculator', '訓練計算器'], bodybuilding: ['stretching', '健美'], 'program-designer': ['calendar-event', '課表設計'],
     'nutrition-metabolism': ['flame', '代謝與荷爾蒙'], 'nutrition-micro': ['pill', '微量營養素'], 'nutrition-supp': ['bottle', '補充品'], 'nutrition-food': ['tools-kitchen-2', '食物庫'], 'nutrition-apply': ['target-arrow', '應用整合'], 'nutrition-tdee': ['calculator', 'TDEE 計算器'],
-    clients: ['users', '客戶名單'], tlog: ['barbell', '訓練日誌'], tbody: ['scale', '身體數據'], ttimer: ['stopwatch', '計時器']
+    home: ['home', '首頁'], clients: ['users', '客戶名單'], tlog: ['barbell', '訓練日誌'], tbody: ['scale', '身體數據'], ttimer: ['stopwatch', '計時器']
   };
   var DIAG = { 'lower-body': 1, 'upper-body': 1, analysis: 1, screen: 1 };
   var body = document.body, nav, last = null;
@@ -32615,6 +32615,249 @@ body:not(.k-diag) .k-pagehead .k-ghost { display: none; }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   window.addEventListener('load', paint);
+})();
+</script>
+
+<style id="kflow-css">
+/* ── v12 工作台首頁 + 分步評估流程 ── */
+#rail-home.rail-panel { max-width: none; padding: 24px 28px 40px; }
+#knav .rail-btn[data-rail="home"] { padding: 0 8px; height: 38px; margin: 0 0 4px; color: var(--text2, var(--text)); }
+#knav .rail-btn[data-rail="home"] .rail-icon { width: 18px; height: 18px; }
+#knav .rail-btn[data-rail="home"] .rail-label { font-size: 14px; font-weight: 600; }
+#knav .rail-btn[data-rail="home"].active { color: var(--green); }
+@media (min-width: 901px) { body.knav-collapsed #knav .rail-btn[data-rail="home"] { padding: 0; } }
+.kh { max-width: 1040px; width: 100%; }
+.kh-date { font-size: 12px; color: var(--sub); letter-spacing: .5px; }
+.kh-hello { font-size: 24px; font-weight: 600; color: var(--text); margin: 2px 0 18px; font-family: inherit; }
+.kh-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.kh-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; min-width: 0; }
+.kh-card.kh-wide { grid-column: 1 / -1; }
+.kh-h { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--sub); margin-bottom: 12px; }
+.kh-h .k-ico { width: 16px; height: 16px; color: var(--green); }
+.kh-h .kh-more { margin-left: auto; font-size: 12px; color: var(--sub); background: none; border: none; cursor: pointer; font-family: inherit; padding: 2px 4px; }
+.kh-h .kh-more:hover { color: var(--text); }
+.kh-title { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.35; }
+.kh-sub { font-size: 13px; color: var(--sub); line-height: 1.6; margin-top: 4px; }
+.kh-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.kh-btn { display: inline-flex; align-items: center; gap: 6px; font-family: inherit; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer; background: var(--green); color: var(--bg); }
+.kh-btn .k-ico { width: 16px; height: 16px; }
+.kh-btn.ghost { background: none; color: var(--text); border: 1px solid var(--border); font-weight: 500; }
+.kh-btn.ghost:hover { border-color: var(--sub); }
+.kh-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.kh-seg button { font-family: inherit; font-size: 12.5px; padding: 7px 12px; background: none; border: none; color: var(--sub); cursor: pointer; }
+.kh-seg button + button { border-left: 1px solid var(--border); }
+.kh-seg button.on { background: rgba(var(--accent-rgb,0,229,160),.14); color: var(--green); font-weight: 600; }
+.kh-steps { display: flex; gap: 4px; margin: 14px 0 10px; }
+.kh-steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }
+.kh-steps i.done { background: var(--green); }
+.kh-steps i.cur { background: rgba(var(--accent-rgb,0,229,160),.45); }
+.kh-list { display: flex; flex-direction: column; }
+.kh-item { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-top: 1px solid var(--border); cursor: pointer; background: none; border-left: none; border-right: none; border-bottom: none; color: var(--text); font-family: inherit; font-size: 13.5px; text-align: left; width: 100%; }
+.kh-item:first-child { border-top: none; }
+.kh-item:hover { color: var(--green); }
+.kh-item .k-ico { width: 16px; height: 16px; color: var(--sub); }
+.kh-item small { margin-left: auto; color: var(--sub); font-size: 12px; white-space: nowrap; }
+.kh-av { width: 28px; height: 28px; border-radius: 50%; background: rgba(var(--accent-rgb,0,229,160),.14); color: var(--green); font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.kh-tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.kh-tool { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text); font-family: inherit; font-size: 13px; cursor: pointer; text-align: left; }
+.kh-tool:hover { border-color: var(--green); color: var(--green); }
+.kh-tool .k-ico { width: 16px; height: 16px; color: var(--green); }
+.kh-empty { font-size: 13px; color: var(--sub); line-height: 1.6; }
+
+#kflow-bar { flex-shrink: 0; padding: 12px 16px 12px; border-bottom: 1px solid var(--border); background: rgba(var(--accent-rgb,0,229,160),.06); }
+#kflow-bar[hidden] { display: none; }
+.kf-top { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--sub); }
+.kf-top b { color: var(--green); font-weight: 600; }
+.kf-top .k-iconbtn { margin-left: auto; width: 28px; height: 28px; }
+.kf-top .k-ico { width: 16px; height: 16px; }
+#kflow-bar .kh-steps { margin: 8px 0; }
+.kf-name { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.4; }
+.kf-goal { font-size: 12.5px; color: var(--sub); line-height: 1.55; margin-top: 2px; }
+.kf-nav { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.kf-nav .kh-btn { padding: 7px 12px; font-size: 12.5px; }
+.kf-nav .kh-btn.next { margin-left: auto; }
+@media (max-width: 900px) {
+  #rail-home.rail-panel { padding: 16px 14px 32px; }
+  .kh-hello { font-size: 21px; margin-bottom: 14px; }
+  .kh-grid { grid-template-columns: 1fr; }
+  .kh-btn, .kh-seg button { min-height: 42px; }
+  .kf-nav .kh-btn { min-height: 40px; }
+}
+</style>
+<script id="kflow-js">
+// v12 工作台首頁 + 分步評估流程。測試次序同目標角度用返 SEQ_GUIDE_TESTS（Conor 課程 Week 5）。
+(function () {
+  var ED = window.FUSE_EDITION || 'coach';
+  var FKEY = 'kinesis:flow', RKEY = 'kinesis:recent';
+  var MODES = [['full', '完整 12 項'], ['quick', '快速 3 項'], ['remote', '遠距 7 項']];
+  var TOOLS = [['anatomy', 'body-scan', '3D 人體'], ['pain', 'bandage', '痛症'], ['exlib', 'books', '動作庫'], ['concepts', 'man', '體態問題'], ['traincalc', 'calculator', '訓練計算器'], ['program-designer', 'calendar-event', '課表設計'], ['nutrition-tdee', 'flame', 'TDEE 計算器'], ['gaitmech', 'shoe', '步態力學']];
+  var TRACK = [['tlog', 'barbell', '訓練日誌', '記低組數、重量、RPE'], ['tbody', 'scale', '身體數據', '體重、體脂、圍度'], ['ttimer', 'stopwatch', '計時器', '組間休息、Tabata、EMOM']];
+  var mode = ED === 'fit' ? 'quick' : 'full';
+  function svg(n) { return window.kIconSvg ? window.kIconSvg(n) : ''; }
+  function ico(n) { return '<span class="k-ico" aria-hidden="true">' + svg(n) + '</span>'; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function load(k, d) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v == null ? d : v; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function tests() { return window.SEQ_GUIDE_TESTS || []; }
+  function testById(id) { return tests().filter(function (t) { return t.id === id; })[0]; }
+  function hidden(r) { return (window.FUSE_HIDDEN_RAILS || []).indexOf(r) !== -1; }
+  function go(r) { if (typeof window.switchRail === 'function') window.switchRail(r); }
+  function clients() { try { return typeof clientIndex !== 'undefined' ? clientIndex : []; } catch (e) { return []; } }
+  function activeClient() {
+    try { if (typeof activeClientId === 'undefined' || !activeClientId) return null; var id = activeClientId; return clients().filter(function (c) { return c.id === id; })[0] || null; } catch (e) { return null; }
+  }
+  function parseDate(s) { var d = s ? new Date(String(s).replace(/-/g, '/')) : null; return d && !isNaN(d) ? d.getTime() : 0; }
+
+  // ── 評估流程狀態 ──
+  var flow = load(FKEY, null);
+  function setFlow(f) { flow = f; if (f) save(FKEY, f); else { try { localStorage.removeItem(FKEY); } catch (e) {} } renderBar(); }
+  function startFlow(m) {
+    var ids = tests().filter(function (t) { return t.tags.indexOf(m) !== -1; }).map(function (t) { return t.id; });
+    if (!ids.length) return;
+    var c = activeClient();
+    setFlow({ mode: m, ids: ids, i: 0, done: [], client: c ? c.name : '', started: Date.now() });
+    goStep(0);
+  }
+  function openTest(t) {
+    // 收埋上一項（同其他）已展開嘅測試說明，頁面唔會越拉越長
+    Array.prototype.forEach.call(document.querySelectorAll('.test-detail.open'), function (d) { if (d.id !== t.test && typeof window.toggleTest === 'function') window.toggleTest(d.id); });
+    var el = document.getElementById(t.test);
+    if (el && !el.classList.contains('open') && typeof window.toggleTest === 'function') window.toggleTest(t.test);
+    else if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function goStep(i) {
+    if (!flow) return;
+    flow.i = Math.max(0, Math.min(i, flow.ids.length)); save(FKEY, flow); renderBar();
+    if (flow.i >= flow.ids.length) { go('analysis'); return; }
+    var t = testById(flow.ids[flow.i]); if (!t) return;
+    if (window.mobileSetView && document.body.getAttribute('data-mview') !== 'input') window.mobileSetView('input');
+    go(t.rail);
+    setTimeout(function () { openTest(t); }, 80);
+  }
+  function next() {
+    if (!flow) return;
+    var id = flow.ids[flow.i]; if (id && flow.done.indexOf(id) === -1) flow.done.push(id);
+    goStep(flow.i + 1);
+  }
+  window.kFlow = { start: startFlow, next: next, prev: function () { if (flow) goStep(flow.i - 1); }, resume: function () { if (flow) goStep(flow.i); }, end: function () { setFlow(null); renderHome(); }, setMode: function (m) { mode = m; renderHome(); } };
+
+  function stepsHtml() {
+    return '<div class="kh-steps">' + flow.ids.map(function (id, k) { return '<i class="' + (flow.done.indexOf(id) !== -1 ? 'done' : (k === flow.i ? 'cur' : '')) + '"></i>'; }).join('') + '</div>';
+  }
+
+  // ── 流程列（內容欄頂部，跟住你喺唔同頁之間切換） ──
+  function renderBar() {
+    var bar = document.getElementById('kflow-bar'); if (!bar) return;
+    var onHome = !!document.querySelector('#rail-home.active');
+    if (!flow || onHome) { bar.hidden = true; return; }
+    bar.hidden = false;
+    var n = flow.ids.length, finished = flow.i >= n;
+    var top = '<div class="kf-top">' + ico('clipboard-list') + '<span>評估流程' + (flow.client ? ' · ' + esc(flow.client) : '') + '</span><b>' + (finished ? '完成' : (flow.i + 1) + ' / ' + n) + '</b>' +
+      '<button type="button" class="k-iconbtn" onclick="kFlow.end()" aria-label="結束評估流程" title="結束評估流程">' + svg('x') + '</button></div>';
+    if (finished) {
+      var c = activeClient();
+      bar.innerHTML = top + stepsHtml() +
+        '<div class="kf-name">' + n + ' 項測試已完成</div><div class="kf-goal">下面「分析」會根據你入咗嘅角度判讀模式。' + (c ? '記得記錄本次評估，之後可以對比進度。' : '想留低記錄，要先喺客戶名單揀一位客戶。') + '</div>' +
+        '<div class="kf-nav"><button type="button" class="kh-btn ghost" onclick="kFlow.prev()">' + ico('chevron-left') + '上一項</button>' +
+        (c ? '<button type="button" class="kh-btn next" onclick="saveClientSession(activeClientId);kFlow.end()">' + ico('device-floppy') + '記錄本次評估</button>'
+           : '<button type="button" class="kh-btn next" onclick="switchRail(\'clients\')">' + ico('users') + '去揀客戶</button>') + '</div>';
+      return;
+    }
+    var t = testById(flow.ids[flow.i]) || {};
+    bar.innerHTML = top + stepsHtml() +
+      '<div class="kf-name">' + esc(t.name) + '</div><div class="kf-goal">' + esc(t.goal) + '</div>' +
+      '<div class="kf-nav">' + (flow.i > 0 ? '<button type="button" class="kh-btn ghost" onclick="kFlow.prev()">' + ico('chevron-left') + '上一項</button>' : '') +
+      '<button type="button" class="kh-btn ghost" onclick="kFlow.resume()" title="跳返呢項測試嘅說明">睇測試說明</button>' +
+      '<button type="button" class="kh-btn next" onclick="kFlow.next()">' + (flow.i === n - 1 ? '完成' : '下一項') + ico('chevron-right') + '</button></div>';
+  }
+
+  // ── 首頁 ──
+  function renderHome() {
+    var el = document.getElementById('kh-body'); if (!el) return;
+    var now = new Date(), h = now.getHours();
+    var hello = h < 12 ? '早晨' : (h < 18 ? '午安' : '晚安');
+    var date = (now.getMonth() + 1) + '月' + now.getDate() + '日 · 星期' + '日一二三四五六'.charAt(now.getDay());
+    var c = activeClient(), html = '';
+
+    // 評估
+    var fc = '<section class="kh-card kh-wide"><div class="kh-h">' + ico('clipboard-list') + (ED === 'fit' ? '自我評估' : '評估') + '</div>';
+    if (flow && flow.i < flow.ids.length) {
+      var t = testById(flow.ids[flow.i]) || {};
+      fc += '<div class="kh-title">' + (flow.client ? esc(flow.client) + ' · ' : '') + '評估進行中</div>' +
+        '<div class="kh-sub">第 ' + (flow.i + 1) + ' / ' + flow.ids.length + ' 項 · 下一項：' + esc(t.name) + '</div>' + stepsHtml() +
+        '<div class="kh-row"><button type="button" class="kh-btn" onclick="kFlow.resume()">' + ico('player-play') + '繼續評估</button>' +
+        '<button type="button" class="kh-btn ghost" onclick="kFlow.end()">放棄呢次</button></div>';
+    } else {
+      fc += '<div class="kh-title">開始' + (ED === 'fit' ? '自我' : '') + '評估</div>' +
+        '<div class="kh-sub">跟 Conor 課程 Week 5 嘅測試次序，一項一項帶你做。每項都會顯示目標角度同「見到代償即停」嘅位置。</div>' +
+        '<div class="kh-row"><div class="kh-seg" role="group" aria-label="評估範圍">' + MODES.map(function (m) { return '<button type="button" class="' + (m[0] === mode ? 'on' : '') + '" aria-pressed="' + (m[0] === mode) + '" onclick="kFlow.setMode(\'' + m[0] + '\')">' + m[1] + '</button>'; }).join('') + '</div>' +
+        '<button type="button" class="kh-btn" onclick="kFlow.start(\'' + mode + '\')">' + ico('player-play') + '開始</button></div>' +
+        (ED === 'fit' ? '' : '<div class="kh-sub" style="margin-top:10px">' + (c ? '客戶：<b style="color:var(--text)">' + esc(c.name) + '</b>' : '未揀客戶，做完先揀都得。') + '</div>');
+    }
+    html += fc + '</section>';
+
+    // 客戶（教練版）／訓練（兩版）
+    if (ED !== 'fit') {
+      var list = clients().filter(function (x) { return x.id !== 'me'; }).slice().sort(function (a, b) { return parseDate(b.date) - parseDate(a.date); }).slice(0, 5);
+      html += '<section class="kh-card"><div class="kh-h">' + ico('users') + '客戶<button type="button" class="kh-more" onclick="switchRail(\'clients\')">全部 ›</button></div>' +
+        (list.length ? '<div class="kh-list">' + list.map(function (x) {
+          var ini = (x.name || '?').split(/\s+/).map(function (w) { return w[0] || ''; }).join('').slice(0, 2).toUpperCase();
+          return '<button type="button" class="kh-item" onclick="loadClient(\'' + esc(x.id) + '\')"><span class="kh-av">' + esc(ini) + '</span>' + esc(x.name) + '<small>' + esc(x.date || '未評估') + '</small></button>';
+        }).join('') + '</div>' : '<div class="kh-empty">未有客戶。去客戶名單新增第一位。</div>') + '</section>';
+    }
+    html += '<section class="kh-card"><div class="kh-h">' + ico('barbell') + '訓練追蹤</div><div class="kh-list">' + TRACK.map(function (t) {
+      return '<button type="button" class="kh-item" onclick="switchRail(\'' + t[0] + '\')">' + ico(t[1]) + t[2] + '<small>' + t[3] + '</small></button>';
+    }).join('') + '</div></section>';
+
+    // 最近睇過
+    var rec = load(RKEY, []).filter(function (r) { return r !== 'home' && !hidden(r) && document.getElementById('rail-' + r); }).slice(0, 5);
+    var nav = document.getElementById('rail-nav');
+    html += '<section class="kh-card"><div class="kh-h">' + ico('history') + '最近睇過</div>' + (rec.length ? '<div class="kh-list">' + rec.map(function (r) {
+      var b = nav && nav.querySelector('.rail-btn[data-rail="' + r + '"]'), lab = b ? b.textContent.trim() : r, ic = b ? b.querySelector('.rail-icon') : null;
+      return '<button type="button" class="kh-item" onclick="switchRail(\'' + r + '\')"><span class="k-ico" aria-hidden="true">' + (ic ? ic.innerHTML : '') + '</span>' + esc(lab) + '</button>';
+    }).join('') + '</div>' : '<div class="kh-empty">你睇過嘅頁面會喺呢度出現，方便即刻返去。</div>') + '</section>';
+
+    // 常用工具
+    html += '<section class="kh-card kh-wide"><div class="kh-h">' + ico('target-arrow') + '常用</div><div class="kh-tools">' + TOOLS.filter(function (t) { return !hidden(t[0]); }).map(function (t) {
+      return '<button type="button" class="kh-tool" onclick="switchRail(\'' + t[0] + '\')">' + ico(t[1]) + t[2] + '</button>';
+    }).join('') + '</div></section>';
+
+    el.innerHTML = '<div class="kh"><div class="kh-date">' + date + '</div><h2 class="kh-hello">' + hello + (ED === 'fit' ? '，今日練咩？' : '') + '</h2><div class="kh-grid">' + html + '</div></div>';
+  }
+
+  // ── 記錄最近睇過、切頁時更新首頁同流程列 ──
+  var lastPanel = null;
+  function onPanel() {
+    var p = document.querySelector('.rail-panel.active'); if (!p) return;
+    var id = p.id.replace(/^rail-/, ''); if (id === lastPanel) return; lastPanel = id;
+    if (id !== 'home') { var r = load(RKEY, []).filter(function (x) { return x !== id; }); r.unshift(id); save(RKEY, r.slice(0, 8)); }
+    else renderHome();
+    renderBar();
+  }
+
+  function init() {
+    var nav = document.getElementById('rail-nav'), wrap = document.getElementById('rail-panels-wrap'), sb = document.querySelector('.sidebar');
+    if (!nav || !wrap || !sb) return;
+    // 首頁入口：放喺導覽最頂
+    var b = document.createElement('button');
+    b.className = 'rail-btn'; b.setAttribute('data-rail', 'home'); b.title = '首頁 · 今日評估、客戶、訓練';
+    b.innerHTML = '<span class="rail-icon">' + svg('home') + '</span><span class="rail-label">首頁</span>';
+    b.addEventListener('click', function () { go('home'); });
+    nav.insertBefore(b, nav.firstElementChild);
+    // 首頁面板
+    var p = document.createElement('div'); p.className = 'rail-panel'; p.id = 'rail-home';
+    p.innerHTML = '<div id="kh-body"></div>';
+    wrap.insertBefore(p, wrap.firstElementChild);
+    // 流程列
+    var bar = document.createElement('div'); bar.id = 'kflow-bar'; bar.hidden = true; bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', '評估流程');
+    var head = sb.querySelector('.k-pagehead'); sb.insertBefore(bar, head ? head.nextSibling : sb.firstChild);
+    new MutationObserver(onPanel).observe(sb, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('storage', function (e) { if (e.key === FKEY) { flow = load(FKEY, null); renderBar(); } });
+    go('home');
+    // 客戶資料庫係非同步載入，載完再畫一次首頁
+    setTimeout(function () { if (document.querySelector('#rail-home.active')) renderHome(); }, 600);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
 
