@@ -12,7 +12,7 @@ import sys
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-ROOT = "/Users/huangchen/Documents/Claude/2. Fuse-Biomechanics"
+ROOT = "/Users/huangchen/Documents/Claude/2. Biomechanics website"
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8934
 
 

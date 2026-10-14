@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0b0e14">
+<meta name="theme-color" content="#0E0E0F">
 <link rel="manifest" id="app-manifest" href="manifest.webmanifest">
 <link rel="icon" id="app-icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" id="app-touch-icon" href="icons/apple-touch-icon.png">
 <script>
 // Kinesis 兩個版本：教練版 Kinesis Pro（預設）／愛好者版 Kinesis Fit，由網址 ?edition=fit 決定。
-// 配色由 ?theme= 決定，預設 bone（Bone and vermilion 淺色）；cobalt（Cobalt lab 深藍）、
-// violet（Violet pulse 深紫）仍然保留，方便對比：例如 ?edition=fit&theme=violet。
+// 配色由 ?theme= 決定，預設 amber（Carbon and amber 深色，兩版共用）；bone（淺色）、teal、
+// cobalt、violet 仍然保留，方便對比：例如 ?edition=fit&theme=teal。
 // 喺最前面決定好，等 manifest／圖示／主題色／導覽都一致。
 (function () {
   var qs = new URLSearchParams(location.search);
   var ed = qs.get('edition') === 'fit' ? 'fit' : 'coach';
-  var th = ['bone', 'cobalt', 'violet'].indexOf(qs.get('theme')) !== -1 ? qs.get('theme') : 'bone';
+  var th = ['bone', 'cobalt', 'violet', 'teal', 'amber'].indexOf(qs.get('theme')) !== -1 ? qs.get('theme') : 'amber';
   window.FUSE_EDITION = ed;
   window.FUSE_THEME_NAME = th;
   window.FUSE_HIDDEN_RAILS = ed === 'fit' ? ['clients', 'wedge', 'coaching', 'kineticchain', 'screen'] : [];
@@ -26,7 +26,9 @@
       fit:   { bg: '#EDEAE3', stage: '#14130F', accentHex: 0x3FA39E, accentDarkHex: 0x123a38, bgHex: 0x14130F, panelHex: 0x1c1b17, platformHex: 0x2a2823 }
     },
     cobalt: { bg: '#0B1220', stage: '#0B1220', accentHex: 0x4F7DFF, accentDarkHex: 0x152a66, bgHex: 0x0B1220, panelHex: 0x121B2E, platformHex: 0x1a2640 },
-    violet: { bg: '#110E1D', stage: '#110E1D', accentHex: 0x8B6FFF, accentDarkHex: 0x2a1f66, bgHex: 0x110E1D, panelHex: 0x1A1630, platformHex: 0x251f45 }
+    violet: { bg: '#110E1D', stage: '#110E1D', accentHex: 0x8B6FFF, accentDarkHex: 0x2a1f66, bgHex: 0x110E1D, panelHex: 0x1A1630, platformHex: 0x251f45 },
+    teal:   { bg: '#0A1517', stage: '#0A1517', accentHex: 0x3FD0C0, accentDarkHex: 0x114a45, bgHex: 0x0A1517, panelHex: 0x112024, platformHex: 0x1c3338 },
+    amber:  { bg: '#0E0E0F', stage: '#0E0E0F', accentHex: 0xF2A93B, accentDarkHex: 0x5a3c0c, bgHex: 0x0E0E0F, panelHex: 0x18181A, platformHex: 0x27272a }
   };
   window.FUSE_THEME = th === 'bone' ? T.bone[ed] : T[th];
   var root = document.documentElement;
@@ -66,6 +68,16 @@ html[data-theme="violet"] {
   --bg: #110E1D; --panel: #1A1630; --border: #2E2750;
   --text: #EFEBFF; --text2: #D6CFF2; --sub: #A59CCB;
   --accent: #8B6FFF; --accent-rgb: 139,111,255; --accent-fill: #6A4BF0;
+}
+html[data-theme="teal"] {
+  --bg: #0A1517; --panel: #112024; --border: #1F3A3F;
+  --text: #E3F1EF; --text2: #C5DCD9; --sub: #8FB0AC;
+  --accent: #3FD0C0; --accent-rgb: 63,208,192; --accent-fill: #1C8C81;
+}
+html[data-theme="amber"] {
+  --bg: #0E0E0F; --panel: #18181A; --border: #2C2C2F;
+  --text: #F0EDE6; --text2: #D8D4CB; --sub: #9A978F;
+  --accent: #F2A93B; --accent-rgb: 242,169,59; --accent-fill: #C98418;
 }
 html[data-theme="bone"] {
   color-scheme: light;

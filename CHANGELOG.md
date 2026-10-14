@@ -93,3 +93,9 @@
 - service worker 快取升級至 v9。
 - 備份位置：[versions/index-v9.html](versions/index-v9.html)
 
+
+## v10 — 2026-10-14
+- **兩版改用 Carbon and amber 深色配色**：教練版 Kinesis Pro 同愛好者版 Kinesis Fit 預設都係炭黑底（#0E0E0F）、面板 #18181A、琥珀重點色 #F2A93B。用戶覺得 v9 嘅淺色版唔好睇，比較咗 Midnight teal 同 Carbon and amber 兩款深色方案後揀咗後者。
+- **新增兩款可切換主題**：`?theme=teal`（Midnight teal）同 `?theme=amber`（Carbon and amber，預設）。v9 嘅淺色 `?theme=bone`，同埋 `cobalt`、`violet` 照樣保留。
+- **圖示、manifest、入口頁同步換成深色**：重新整咗炭黑底、琥珀色嘅 PRO／FIT 圖示；manifest 同 `coach.html`／`fit.html` 嘅底色改為 #0E0E0F。
+- 備份位置：[versions/index-v10.html](versions/index-v10.html)
