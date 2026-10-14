@@ -11959,10 +11959,11 @@ function exitAnatomyMainMode() {
   }
   if (detailPanel && detailAnchor && detailAnchor.parentNode) {
     detailAnchor.parentNode.insertBefore(detailPanel, detailAnchor.nextSibling);
-    detailPanel.style.maxHeight = '200px';
+    // 返到 3 欄排版（肌肉列表｜3D｜詳情），詳情欄要同 3D 一樣高：唔好再限 200px
+    detailPanel.style.maxHeight = 'none';
     detailPanel.style.border = '';
-    detailPanel.style.borderTop = '1px solid var(--border)';
-    detailPanel.style.background = 'rgba(var(--bg-rgb,10,15,25),.96)';
+    detailPanel.style.borderLeft = '1px solid var(--border)';
+    detailPanel.style.background = 'var(--panel,#0d1420)';
   }
   if (mainRightEl) mainRightEl.style.width = '';
   var leftNormal = document.getElementById('main-left-normal');
@@ -32479,6 +32480,15 @@ body:not(.k-diag) .k-pagehead .k-ghost { display: none; }
   body:not(.k-diag) #mnav { display: none; }
   body:not(.k-diag) { padding-bottom: env(safe-area-inset-bottom); }
 }
+
+/* 深色主題用深色捲軸（之前瀏覽器預設咗淺色，喺 3D 人體列表旁邊見到一條白邊） */
+html:not([data-theme="bone"]) { color-scheme: dark; }
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; background: transparent; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--sub); }
+::-webkit-scrollbar-corner { background: transparent; }
 </style>
 <script id="knav-js">
 // v11 主導覽：線條圖示（Tabler Icons，MIT）、文字標籤、收合、⌘K 搜尋、手機抽屜、頁面標題

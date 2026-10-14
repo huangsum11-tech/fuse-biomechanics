@@ -122,3 +122,8 @@
   - 進度存喺瀏覽器，重新載入或關咗 app 都可以接返。
 - `tracker.js`：愛好者版預設頁由訓練日誌改為首頁。
 - 備份位置：[versions/index-v12.html](versions/index-v12.html)
+
+## v13 — 2026-10-15
+- **3D 人體：肌肉詳情欄同 3D 模型一樣高**：原本揀肌肉後，右邊詳情欄只得 200px 高，下面一大截空白。原因係 `exitAnatomyMainMode()` 仲用緊舊排版（詳情放喺模型下面）嘅 `max-height: 200px`。而家改為唔限高度，邊框同底色亦跟返 3 欄排版。
+- **深色捲軸**：深色主題加咗 `color-scheme: dark`，全站捲軸改為幼身、跟主題顏色。之前瀏覽器預設用淺色捲軸，喺肌肉列表同 3D 模型之間見到一條白邊。淺色 `?theme=bone` 唔受影響。
+- 備份位置：[versions/index-v13.html](versions/index-v13.html)
