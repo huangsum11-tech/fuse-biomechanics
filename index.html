@@ -3042,7 +3042,7 @@ html[data-theme="bone"][data-edition="fit"] { --accent: #27615F; --accent-rgb: 4
          see them live-highlighted on the real 3D model, and read the full
          detail, all without leaving this panel. List and detail columns are
          the same fixed width so the row reads as visually symmetric. -->
-    <div id="anat-model-detail-row" style="display:grid;grid-template-columns:300px minmax(360px,1fr) 300px;grid-template-rows:1fr;align-items:stretch;height:680px;flex-shrink:0">
+    <div id="anat-model-detail-row" style="display:grid;grid-template-columns:300px minmax(360px,1fr) 300px;grid-template-rows:minmax(0,1fr);align-items:stretch;flex:1 1 auto;min-height:560px;overflow:hidden">
 
       <!-- Muscle list column (LEFT) — same search/filter/list as before, just
            living inside this panel now instead of a separate "肌肉" tab, so
