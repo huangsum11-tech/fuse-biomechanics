@@ -32871,5 +32871,384 @@ html:not([data-theme="bone"]) { color-scheme: dark; }
 })();
 </script>
 
+<style id="kui-css">
+/* ── v15 統一顯示方式：A 資料列、B 卡片格、C 表格、統一計算器 ── */
+/* A · 資料列 */
+.pain-list-item.k-row { display: flex; align-items: center; gap: 12px !important; padding: 10px 12px !important; border-radius: 10px; }
+.k-lead { --k-tint: var(--green); width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; color: var(--k-tint); background: color-mix(in srgb, var(--k-tint) 15%, transparent); font-size: 13px; font-weight: 600; font-family: inherit; }
+.k-lead svg { width: 17px; height: 17px; display: block; }
+.pain-list-item.k-row .pli-text { flex: 1; min-width: 0; }
+.pain-list-item.k-row .pli-name { font-size: 13.5px; font-weight: 600; color: var(--text); line-height: 1.35; font-family: inherit; }
+.k-en { font-size: 11.5px; font-weight: 400; color: var(--sub); margin-left: 6px; }
+.pain-list-item.k-row .pli-sub { font-family: inherit; font-size: 12px; color: var(--sub); line-height: 1.5; margin-top: 3px; white-space: normal; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.pain-list-item.k-row .pli-sub.k-chips { display: flex; flex-wrap: wrap; gap: 4px; -webkit-line-clamp: unset; }
+.k-chip { font-size: 11px; line-height: 1.5; padding: 1px 7px; border-radius: 5px; background: rgba(var(--ov,255,255,255),.06); color: var(--text2, var(--sub)); }
+.pain-list-item.k-row .pli-arrow { color: var(--sub); font-size: 13px; }
+/* B · 卡片格（少於 13 項嘅入口清單） */
+.k-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 8px; margin: 2px 0 6px; }
+.k-cards > .pain-list-item.k-row { flex-direction: column; align-items: flex-start; gap: 8px !important; padding: 12px !important; min-height: 100px; margin: 0 !important; }
+.k-cards > .pain-list-item.k-row .pli-text { width: 100%; }
+.k-cards > .pain-list-item.k-row .pli-arrow { display: none; }
+.k-cards > .pain-list-item.k-row .k-en { display: block; margin: 1px 0 0; }
+/* 卡片入口頁放闊少少，等卡片可以排 3–4 欄 */
+#rail-exlib.rail-panel, #rail-nutrition-food.rail-panel, #rail-powerlifting.rail-panel, #rail-cardio.rail-panel { max-width: 820px !important; }
+/* C · 表格 */
+.k-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+.k-seg button { white-space: nowrap; font-family: inherit; font-size: 12px; padding: 5px 10px; background: none; border: none; color: var(--sub); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.k-seg button + button { border-left: 1px solid var(--border); }
+.k-seg button.on { background: rgba(var(--accent-rgb,0,229,160),.14); color: var(--green); font-weight: 600; }
+.k-seg .k-ico { width: 14px; height: 14px; }
+.k-viewbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-size: 12px; color: var(--sub); }
+.k-tablewrap { overflow: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
+table.k-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.5; }
+.k-table th { position: sticky; top: 0; z-index: 1; background: var(--panel); text-align: left; font-weight: 600; color: var(--sub); padding: 9px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
+.k-table th[data-sort]:hover { color: var(--text); }
+.k-table th .k-dir { color: var(--green); margin-left: 3px; }
+.k-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text); }
+.k-table tbody tr { cursor: pointer; }
+.k-table tbody tr:hover td { background: rgba(var(--accent-rgb,0,229,160),.06); }
+.k-table td small { display: block; color: var(--sub); font-size: 11.5px; }
+.k-table td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.k-table .k-pill { display: inline-block; font-size: 11px; padding: 0 7px; border-radius: 5px; border: 1px solid currentColor; white-space: nowrap; }
+#anat-model-detail-row.k-table-mode > :not(#k-mtable) { display: none !important; }
+#anat-model-detail-row:not(.k-table-mode) > #k-mtable { display: none !important; }
+#k-mtable { grid-column: 1 / -1; grid-row: 1; min-height: 0; display: flex; flex-direction: column; padding: 12px 14px; }
+#k-mtable .k-tablewrap { flex: 1; min-height: 0; }
+#k-mtable .k-table { min-width: 980px; }
+#k-mtable input { flex: 1; min-width: 0; max-width: 320px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 13px; }
+.k-mview { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+/* 計算器 */
+.k-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin: 4px 0 14px; overflow-x: auto; scrollbar-width: none; }
+.k-tabs button { font-family: inherit; font-size: 13px; padding: 9px 12px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--sub); cursor: pointer; white-space: nowrap; }
+.k-tabs button.on { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+.k-calc-card[hidden] { display: none !important; }
+.k-calc { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; margin-top: 10px; }
+.k-calc-in { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.k-calc-out { position: sticky; top: 8px; min-width: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.k-calc-out-h { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--sub); margin-bottom: 8px; }
+.k-calc-out-h .k-ico { width: 15px; height: 15px; color: var(--green); }
+.k-calc-out > div:empty::before, .k-calc-out .k-empty { content: '輸入數值，結果會即時喺呢度出現。'; display: block; font-size: 13px; color: var(--sub); line-height: 1.6; }
+.k-calc-card .k-hide-btn { display: none !important; }
+@media (max-width: 900px) {
+  .k-calc { grid-template-columns: 1fr; }
+  .k-calc-out { position: static; }
+  .k-cards { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .pain-list-item.k-row { padding: 12px !important; }
+}
+</style>
+<script id="kui-js">
+// v15 統一顯示方式。全站 600 幾個清單項目都用 .pain-list-item（前置標記＋名稱＋副標＋箭咀），
+// 所以用一個 observer 統一改寫，唔使逐個 render 函數重寫；計算器亦係同一個做法。
+(function () {
+  var svg = function (n) { return window.kIconSvg ? window.kIconSvg(n) : ''; };
+  var EXTRA = {"stack-2":"<path d=\"M12 4l-8 4l8 4l8 -4l-8 -4\"/><path d=\"M4 12l8 4l8 -4\"/><path d=\"M4 16l8 4l8 -4\"/>","bone":"<path d=\"M15 3a3 3 0 0 1 3 3a3 3 0 1 1 -2.12 5.122l-4.758 4.758a3 3 0 1 1 -5.117 2.297l0 -.177l-.176 0a3 3 0 1 1 2.298 -5.115l4.758 -4.758a3 3 0 0 1 2.12 -5.122z\"/>","circle-dot":"<path d=\"M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\"/><path d=\"M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\"/>","droplet":"<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546z\"/>","leaf":"<path d=\"M5 21c.5 -4.5 2.5 -8 7 -10\"/><path d=\"M9 18c6.218 0 10.5 -3.288 11 -12v-2h-4.014c-9 0 -11.986 4 -12 9c0 1 0 3 2 5h3z\"/>","repeat":"<path d=\"M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3\"/><path d=\"M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3\"/>","table":"<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z\"/><path d=\"M3 10h18\"/><path d=\"M10 3v18\"/>","list":"<path d=\"M9 6l11 0\"/><path d=\"M9 12l11 0\"/><path d=\"M9 18l11 0\"/><path d=\"M5 6l0 .01\"/><path d=\"M5 12l0 .01\"/><path d=\"M5 18l0 .01\"/>","layout-grid":"<path d=\"M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/><path d=\"M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z\"/>","rotate-360":"<path d=\"M12 16h4v4\"/><path d=\"M19.458 11.042c.86 -2.366 .722 -4.58 -.6 -5.9c-2.272 -2.274 -7.185 -1.045 -10.973 2.743c-3.788 3.788 -5.017 8.701 -2.744 10.974c2.227 2.226 6.987 1.093 10.74 -2.515\"/>","arrows-exchange":"<path d=\"M7 10h14l-4 -4\"/><path d=\"M17 14h-14l4 4\"/>","math-function":"<path d=\"M3 19a2 2 0 0 0 2 2c2 0 2 -4 3 -9s1 -9 3 -9a2 2 0 0 1 2 2\"/><path d=\"M5 12h6\"/><path d=\"M15 12l6 6\"/><path d=\"M15 18l6 -6\"/>"};
+  function isvg(n) { return EXTRA[n] ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' + EXTRA[n] + '</svg>' : svg(n); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+
+  // ── A · 資料列 ──
+  var FN_ICON = {
+    openScreen: 'video', openPostureDetail: 'man', openClusterDetail: 'stack-2', openPriorityFrameworkDetail: 'target-arrow', openPainDetail: 'bandage',
+    openRehabDetail: 'heart-rate-monitor', openTrainingDetail: 'barbell', 'window.anat3dSelectMuscle': 'body-scan', openFasciaDetail: 'route', openBoneDetail: 'bone',
+    openJointHub: 'rotate-360', openGlossary: 'book', openKineticChain: 'link', toggleKineticChainInline: 'link', showBreathingMechInline: 'lungs', showGaitInline: 'shoe',
+    openCoachingDetail: 'speakerphone', openVariationDetail: 'arrows-exchange', openTrainingMethodDetail: 'repeat', openCardioDetail: 'heartbeat', openPowerliftingDetail: 'weight',
+    openHypertrophyDetail: 'stretching', openExerciseCategory: 'books', openNutritionDetail: 'flame', openHormoneDetail: 'droplet', openNutrientDetail: 'pill',
+    openSportDetail: 'bottle', openHerbDetail: 'leaf', openFoodCategory: 'tools-kitchen-2'
+  };
+  // 原本用顏色 emoji 做標記嘅清單（例如體態、痛症、筋膜線），顏色有意思，保留落圖示格
+  var COLOR_EMOJI = { '🔴': '#ef4444', '🟥': '#ef4444', '🟠': '#f97316', '🟧': '#f97316', '🟡': '#eab308', '🟨': '#eab308', '🟢': '#22c55e', '🟩': '#22c55e', '🔵': '#3b82f6', '🟦': '#3b82f6', '🟣': '#a855f7', '🟪': '#a855f7', '🟤': '#b07a3c', '🟫': '#b07a3c', '⚫': '#9A978F', '⬛': '#9A978F', '⚪': '#d4d4d4', '⬜': '#d4d4d4' };
+  var CIRCLED = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳';
+  function leadNum(t) {
+    var m = t.match(/^(\d+)️?⃣$/); if (m) return m[1];
+    var i = CIRCLED.indexOf(t); return i !== -1 ? String(i + 1) : '';
+  }
+  function fnOf(it) { var m = (it.getAttribute('onclick') || '').match(/^\s*([\w.]+)\(/); return m ? m[1] : ''; }
+  var ZH_EN = /^(.*[㐀-鿿）】」\)])\s+([A-Za-z][A-Za-z0-9 .,'&\/\-+()]*)$/;
+
+  function normalizeRow(it) {
+    it.classList.add('k-row');
+    var kids = it.children; if (!kids.length) return;
+    var lead = kids[0], text = kids[1];
+    // 呼吸／步態清單用 inline style 寫，冇 class：補返同一套 class
+    if (text && !text.classList.contains('pli-text') && text.tagName === 'DIV') {
+      text.className = 'pli-text'; text.removeAttribute('style');
+      var nd = text.children[0], sd = text.children[1];
+      if (nd) { nd.className = 'pli-name'; nd.removeAttribute('style'); }
+      if (sd) { sd.className = 'pli-sub'; sd.removeAttribute('style'); }
+      var last = kids[kids.length - 1]; if (last && last !== text && last.tagName === 'SPAN' && last.textContent.trim() === '›') { last.className = 'pli-arrow'; last.removeAttribute('style'); }
+    }
+    // 前置標記 → 線條圖示格
+    if (lead && lead.tagName === 'SPAN' && !lead.classList.contains('k-lead')) {
+      var t = lead.textContent.trim(), tint = '', inner = '';
+      var num = leadNum(t);
+      if (COLOR_EMOJI[t]) tint = COLOR_EMOJI[t];
+      else if (t === '●' && lead.style.color) tint = lead.style.color;
+      inner = num || isvg(FN_ICON[fnOf(it)] || 'circle-dot');
+      lead.className = 'k-lead'; lead.removeAttribute('style');
+      if (tint) lead.style.setProperty('--k-tint', tint);
+      lead.innerHTML = inner; lead.setAttribute('aria-hidden', 'true');
+    }
+    // 名稱：中文＋英文分開
+    var name = it.querySelector('.pli-name');
+    if (name && !name.children.length) {
+      var mm = name.textContent.trim().match(ZH_EN);
+      if (mm && mm[2].length >= 2) name.innerHTML = esc(mm[1]) + '<span class="k-en">' + esc(mm[2]) + '</span>';
+    }
+    // 副標：用「·」分隔嘅短詞變成標籤；肌肉列嘅「拉丁名　🧩 肌群」拆開
+    var sub = it.querySelector('.pli-sub');
+    if (sub && !sub.children.length) {
+      var st = sub.textContent.trim();
+      if (st.indexOf('　') !== -1 && name && !name.querySelector('.k-en')) {
+        var parts = st.split('　'), en = parts.shift().trim();
+        if (/^[A-Za-z]/.test(en)) { name.insertAdjacentHTML('beforeend', '<span class="k-en">' + esc(en) + '</span>'); st = parts.join(' ').replace(/🧩\s*/g, '').trim(); }
+      }
+      var bits = st.split(/\s*[·・]\s*/).filter(Boolean);
+      if (bits.length >= 2 && bits.every(function (b) { return b.length <= 18; })) {
+        sub.classList.add('k-chips'); sub.innerHTML = bits.map(function (b) { return '<span class="k-chip">' + esc(b) + '</span>'; }).join('');
+      } else if (st) { sub.textContent = st; }
+      else sub.remove();
+    }
+  }
+
+  // ── B · 卡片格：入口類清單，連續 3–12 項就排成卡片 ──
+  var B_PANELS = ['rail-breathingmech', 'rail-gaitmech', 'rail-exlib', 'rail-nutrition-food', 'rail-powerlifting', 'rail-cardio'];
+  function cardify(parent) {
+    if (!parent || parent.classList.contains('k-cards')) return;
+    var run = [], kids = Array.prototype.slice.call(parent.children);
+    function flush() {
+      if (run.length >= 3 && run.length <= 12) { var w = document.createElement('div'); w.className = 'k-cards'; parent.insertBefore(w, run[0]); run.forEach(function (n) { w.appendChild(n); }); }
+      run = [];
+    }
+    kids.forEach(function (k) { if (k.classList.contains('pain-list-item')) run.push(k); else flush(); }); flush();
+  }
+
+  var pending = false;
+  function sweep() {
+    pending = false;
+    $$('.pain-list-item:not(.k-row)').forEach(function (it) { try { normalizeRow(it); } catch (e) {} });
+    B_PANELS.forEach(function (id) {
+      var p = document.getElementById(id); if (!p) return;
+      var parents = []; $$('.pain-list-item', p).forEach(function (it) { var pr = it.parentElement; if (!pr.classList.contains('k-cards') && parents.indexOf(pr) === -1) parents.push(pr); });
+      parents.forEach(cardify);
+    });
+  }
+  function schedule() { if (!pending) { pending = true; setTimeout(sweep, 60); } }
+
+  // ── C · 表格：肌肉（3D 人體）同食物庫 ──
+  var REGION = { trunk: '軀幹', upper: '上肢', lower: '下肢', head: '頭頸' };
+  var LAYER = { superficial: ['淺', 'var(--c-4ade80,#4ade80)'], intermediate: ['中', 'var(--c-fb923c,#fb923c)'], deep: ['深', 'var(--c-f87171,#f87171)'] };
+  function lines(s) { return String(s || '').split('\n').map(function (x) { return x.replace(/^[●•]\s*/, '').trim(); }).filter(Boolean).join('；'); }
+  function sortRows(rows, key, dir) {
+    return rows.slice().sort(function (a, b) { var x = a[key], y = b[key]; if (typeof x === 'number' || typeof y === 'number') return ((x || 0) - (y || 0)) * dir; return String(x || '').localeCompare(String(y || ''), 'zh-Hant') * dir; });
+  }
+  function tableHtml(cols, rows, sort) {
+    return '<table class="k-table"><thead><tr>' + cols.map(function (c) { return '<th' + (c.sort ? ' data-sort="' + c.key + '"' : '') + (c.num ? ' style="text-align:right"' : '') + '>' + c.label + (sort.key === c.key ? '<span class="k-dir">' + (sort.dir > 0 ? '↑' : '↓') + '</span>' : '') + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (r, i) { return '<tr data-i="' + i + '">' + cols.map(function (c) { return '<td' + (c.num ? ' class="num"' : '') + '>' + c.cell(r) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table>';
+  }
+
+  // 肌肉表格
+  var MT = { rows: null, sort: { key: 'name', dir: 1 }, q: '' };
+  function muscleRows() {
+    var M = window.MUSCLES || {}, seen = {};
+    return $$('#anat-musclelist-col .muscle-list-row').map(function (row) {
+      var m = (row.getAttribute('onclick') || '').match(/anat3dSelectMuscle\('([^']+)'\)/); if (!m || seen[m[1]]) return null; seen[m[1]] = 1;
+      var d = M[m[1]] || {}, nm = row.querySelector('.pli-name');
+      var zh = d.name || (nm ? nm.childNodes[0].textContent.trim() : m[1]);
+      return { id: m[1], name: zh, latin: d.latin || '', region: REGION[d.region] || '', layer: d.layer || '', layerOrd: { superficial: 1, intermediate: 2, deep: 3 }[d.layer] || 9, origin: lines(d.origin), insertion: lines(d.insertion), action: lines(d.action) };
+    }).filter(Boolean);
+  }
+  var MCOLS = [
+    { key: 'name', label: '肌肉', sort: 1, cell: function (r) { return esc(r.name) + '<small>' + esc(r.latin) + '</small>'; } },
+    { key: 'region', label: '部位', sort: 1, cell: function (r) { return esc(r.region); } },
+    { key: 'layerOrd', label: '層次', sort: 1, cell: function (r) { var l = LAYER[r.layer]; return l ? '<span class="k-pill" style="color:' + l[1] + '">' + l[0] + '</span>' : ''; } },
+    { key: 'origin', label: '起點', cell: function (r) { return esc(r.origin); } },
+    { key: 'insertion', label: '止點', cell: function (r) { return esc(r.insertion); } },
+    { key: 'action', label: '主要動作', cell: function (r) { return esc(r.action); } }
+  ];
+  function renderMTable() {
+    var box = document.getElementById('k-mtable'); if (!box) return;
+    MT.rows = MT.rows || muscleRows();
+    var q = MT.q.toLowerCase();
+    var rows = MT.rows.filter(function (r) { return !q || (r.name + r.latin + r.region + r.action + r.origin + r.insertion).toLowerCase().indexOf(q) !== -1; });
+    rows = sortRows(rows, MT.sort.key, MT.sort.dir); MT.view = rows;
+    box.querySelector('.k-tablewrap').innerHTML = tableHtml(MCOLS, rows, MT.sort);
+    box.querySelector('.k-count').textContent = rows.length + ' / ' + MT.rows.length + ' 條肌肉';
+  }
+  function setMuscleView(mode) {
+    var row = document.getElementById('anat-model-detail-row'); if (!row) return;
+    var tbl = document.getElementById('k-mtable');
+    if (mode === 'table' && !tbl) {
+      tbl = document.createElement('div'); tbl.id = 'k-mtable';
+      tbl.innerHTML = '<div class="k-mview"><div class="k-seg" role="group" aria-label="顯示方式"><button type="button" data-mv="list">' + isvg('list') + '模型</button><button type="button" data-mv="table" class="on">' + isvg('table') + '表格</button></div>' +
+        '<input type="search" placeholder="搜尋肌肉、起止點、動作…" aria-label="搜尋肌肉表格"><span class="k-count" style="font-size:12px;color:var(--sub);margin-left:auto"></span></div><div class="k-tablewrap"></div>';
+      row.appendChild(tbl);
+      tbl.querySelector('input').addEventListener('input', function () { MT.q = this.value.trim(); renderMTable(); });
+      tbl.querySelector('.k-tablewrap').addEventListener('click', function (e) {
+        var th = e.target.closest('th[data-sort]');
+        if (th) { var k = th.getAttribute('data-sort'); MT.sort = { key: k, dir: MT.sort.key === k ? -MT.sort.dir : 1 }; renderMTable(); return; }
+        var tr = e.target.closest('tr[data-i]'); if (!tr) return;
+        var r = MT.view[+tr.getAttribute('data-i')]; setMuscleView('list');
+        if (r && window.anat3dSelectMuscle) setTimeout(function () { window.anat3dSelectMuscle(r.id); }, 60);
+      });
+      tbl.querySelector('.k-seg').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setMuscleView(b.getAttribute('data-mv')); });
+    }
+    row.classList.toggle('k-table-mode', mode === 'table');
+    $$('.k-mseg button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-mv') === mode); });
+    if (mode === 'table') renderMTable(); else window.dispatchEvent(new Event('resize'));
+  }
+  function addMuscleToggle() {
+    var col = document.getElementById('anat-musclelist-col'); if (!col || col.querySelector('.k-mseg')) return;
+    var bar = document.createElement('div'); bar.className = 'k-viewbar';
+    bar.innerHTML = '<span>顯示方式</span><div class="k-seg k-mseg" role="group" aria-label="顯示方式"><button type="button" data-mv="list" class="on">' + isvg('list') + '模型</button><button type="button" data-mv="table">' + isvg('table') + '表格</button></div>';
+    bar.addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setMuscleView(b.getAttribute('data-mv')); });
+    col.insertBefore(bar, col.firstChild);
+  }
+
+  // 食物庫表格（食物分類詳情入面）
+  var FT = { mode: 'cards', sort: { key: 'rank', dir: 1 } };
+  function num(re, s) { var m = String(s || '').match(re); return m ? parseFloat(m[1]) : null; }
+  function foodRows(key) {
+    var d = (window.FOOD_DB || {})[key]; if (!d) return [];
+    return d.items.map(function (it, i) {
+      var mac = it.macro || '';
+      return { i: i, rank: it.rank || null, name: it.name, per: it.per || '', kcal: num(/熱量\s*([\d.]+)/, mac), p: num(/蛋白(?:質)?\s*([\d.]+)/, mac), f: num(/脂肪\s*([\d.]+)/, mac), c: num(/碳水(?:化合物)?\s*([\d.]+)/, mac), micro: it.micro || '', macro: mac };
+    });
+  }
+  function n1(v) { return v == null ? '—' : (Math.round(v * 10) / 10); }
+  function renderFoodTable(key) {
+    var rows = foodRows(key), hasRank = rows.some(function (r) { return r.rank; });
+    if (!hasRank && FT.sort.key === 'rank') FT.sort = { key: 'kcal', dir: 1 };
+    rows = sortRows(rows, FT.sort.key, FT.sort.dir);
+    var cols = (hasRank ? [{ key: 'rank', label: '排名', sort: 1, num: 1, cell: function (r) { return r.rank || '—'; } }] : []).concat([
+      { key: 'name', label: '食物', sort: 1, cell: function (r) { return esc(r.name) + '<small>' + esc(r.per) + '</small>'; } },
+      { key: 'kcal', label: '熱量 kcal', sort: 1, num: 1, cell: function (r) { return r.kcal == null ? esc(r.macro) : n1(r.kcal); } },
+      { key: 'p', label: '蛋白 g', sort: 1, num: 1, cell: function (r) { return n1(r.p); } },
+      { key: 'f', label: '脂肪 g', sort: 1, num: 1, cell: function (r) { return n1(r.f); } },
+      { key: 'c', label: '碳水 g', sort: 1, num: 1, cell: function (r) { return n1(r.c); } },
+      { key: 'micro', label: '主要微量營養素', cell: function (r) { return esc(r.micro); } }
+    ]);
+    var wrap = document.createElement('div'); wrap.className = 'k-tablewrap k-food-table'; wrap.style.gridColumn = '1 / -1';
+    wrap.innerHTML = tableHtml(cols, rows, FT.sort);
+    wrap.querySelector('table').style.minWidth = '640px';
+    wrap.addEventListener('click', function (e) {
+      var th = e.target.closest('th[data-sort]');
+      if (th) { var k = th.getAttribute('data-sort'); FT.sort = { key: k, dir: FT.sort.key === k ? -FT.sort.dir : 1 }; wrap.replaceWith(renderFoodTable(key)); return; }
+      var tr = e.target.closest('tr[data-i]'); if (!tr) return;
+      var r = rows[+tr.getAttribute('data-i')]; FT.mode = 'cards'; window.openFoodCategory(key);
+      // 返去卡片，捲去嗰樣食物
+      setTimeout(function () { var hit = $$('#nt-body *').filter(function (el) { return el.textContent.trim().indexOf(r.name) === 0 && el.children.length <= 1; }).pop(); if (hit) hit.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 120);
+    });
+    return wrap;
+  }
+  // 食物分類詳情（renderFoodCategoryBody 喺 IIFE 入面，攞唔到），所以睇住 #nt-body 嘅內容變化，再加切換掣
+  function foodKeyNow() {
+    var k = window._currentFoodCategoryKey, d = (window.FOOD_DB || {})[k], t = document.getElementById('nt-title');
+    return d && t && t.textContent === d.name && d.items && d.items.length && d.items[0].macro ? k : null;
+  }
+  function decorateFood() {
+    var body = document.getElementById('nt-body'); if (!body || body.querySelector(':scope > .k-viewbar')) return;
+    var key = foodKeyNow(); if (!key) return;
+    var d = window.FOOD_DB[key];
+    var bar = document.createElement('div'); bar.className = 'k-viewbar'; bar.style.gridColumn = '1 / -1';
+    bar.innerHTML = '<span>' + d.items.length + ' 樣食物</span><div class="k-seg" role="group" aria-label="顯示方式"><button type="button" data-fv="cards"' + (FT.mode === 'cards' ? ' class="on"' : '') + '>' + isvg('layout-grid') + '卡片</button><button type="button" data-fv="table"' + (FT.mode === 'table' ? ' class="on"' : '') + '>' + isvg('table') + '表格</button></div>';
+    bar.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      var m = b.getAttribute('data-fv'); if (m === FT.mode) return; FT.mode = m;
+      if (m === 'table') { body.innerHTML = ''; decorateFood(); } else window.openFoodCategory(key);
+    });
+    if (FT.mode === 'table') { body.innerHTML = ''; body.appendChild(bar); body.appendChild(renderFoodTable(key)); }
+    else body.insertBefore(bar, body.firstChild);
+  }
+  function hookFood() {
+    var body = document.getElementById('nt-body'); if (!body || body.__k) return; body.__k = true;
+    new MutationObserver(function () { setTimeout(decorateFood, 0); }).observe(body, { childList: true });
+  }
+
+  // ── 計算器：分頁＋左輸入右結果＋即時計算 ──
+  function debounce(fn, ms) { var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); }; }
+  function visible(el) { return !!(el.offsetParent || el.getClientRects().length); }
+  function ready(card) {
+    return $$('input', card).filter(function (i) { return visible(i) && /number|text|^$/.test(i.type); }).every(function (i) {
+      var lab = (i.closest('div') && i.closest('div').querySelector('label')) ? i.closest('div').querySelector('label').textContent : '';
+      return i.value !== '' || /可選|選填|optional/i.test(lab);
+    });
+  }
+  function buildCalc(card, calcBtn, resultEl, extraReady) {
+    card.classList.add('k-calc-card');
+    calcBtn.classList.add('k-hide-btn');
+    var title = card.firstElementChild;
+    var grid = document.createElement('div'); grid.className = 'k-calc';
+    var left = document.createElement('div'); left.className = 'k-calc-in';
+    var right = document.createElement('div'); right.className = 'k-calc-out';
+    right.innerHTML = '<div class="k-calc-out-h">' + isvg('math-function').replace('<svg', '<svg class="k-ico" style="width:15px;height:15px"') + '結果</div>';
+    Array.prototype.slice.call(card.children).forEach(function (ch) { if (ch !== title && ch !== resultEl && ch !== calcBtn) left.appendChild(ch); });
+    right.appendChild(resultEl);
+    grid.appendChild(left); grid.appendChild(right);
+    card.appendChild(grid); card.appendChild(calcBtn);
+    // 每次改數就計；未填齊時計算函數會出「請填寫…」提示，打字途中唔顯示，留返空白提示
+    var run = debounce(function () {
+      try { calcBtn.click(); } catch (e) {}
+      if (/^\s*請/.test(resultEl.textContent || '')) resultEl.innerHTML = '';
+    }, 280);
+    card.addEventListener('input', run); card.addEventListener('change', run);
+    card.addEventListener('click', function (e) { if (e.target.closest('button') && e.target.closest('button') !== calcBtn) setTimeout(run, 30); });
+  }
+  function initTrainCalc() {
+    var p = document.getElementById('rail-traincalc'); if (!p || p.querySelector('.k-tabs')) return;
+    var cards = $$(':scope > div', p).filter(function (d) { return d.querySelector('button[onclick*="calcTC"]'); });
+    if (!cards.length) return;
+    var tabs = document.createElement('div'); tabs.className = 'k-tabs'; tabs.setAttribute('role', 'tablist');
+    cards.forEach(function (card, i) {
+      var btn = card.querySelector('button[onclick*="calcTC"]'), res = card.querySelector('[id$="-result"]');
+      var t = card.firstElementChild.textContent.trim().replace(/^[①-⑳]\s*/, '');
+      var short = t.replace(/\s+[A-Za-z].*$/, '').replace(/計算(器|機)$/, '').replace(/換算器$/, '').trim() || t;
+      var NAMES = ['1RM／RPE', 'DOTS／GL 點數', 'FFMI', '皮脂卡尺', '訓練容量', 'A:C 負荷比'];
+      if (cards.length === NAMES.length) short = NAMES[i];
+      var tb = document.createElement('button'); tb.type = 'button'; tb.textContent = short.length > 14 ? short.slice(0, 14) + '…' : short; tb.title = t; tb.setAttribute('role', 'tab');
+      tb.addEventListener('click', function () { show(i); });
+      tabs.appendChild(tb);
+      if (btn && res) buildCalc(card, btn, res, card.querySelector('#tc5-rows') ? function () { return true; } : null);
+    });
+    p.insertBefore(tabs, cards[0]);
+    function show(i) {
+      cards.forEach(function (c, k) { c.hidden = k !== i; });
+      $$('button', tabs).forEach(function (b, k) { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+      try { localStorage.setItem('kinesis:calcTab', String(i)); } catch (e) {}
+    }
+    var s = 0; try { s = +localStorage.getItem('kinesis:calcTab') || 0; } catch (e) {}
+    show(Math.min(s, cards.length - 1));
+  }
+  function initTDEE() {
+    var out = document.getElementById('tdee-output'); if (!out || out.closest('.k-calc')) return;
+    var form = out.parentElement, btn = form.querySelector('button[onclick*="calcTDEE"]'); if (!btn) return;
+    var plan = document.getElementById('tdee-mealplan-section');
+    var grid = document.createElement('div'); grid.className = 'k-calc';
+    var left = document.createElement('div'); left.className = 'k-calc-in';
+    var right = document.createElement('div'); right.className = 'k-calc-out';
+    right.innerHTML = '<div class="k-calc-out-h">' + isvg('math-function').replace('<svg', '<svg class="k-ico" style="width:15px;height:15px"') + '結果</div>';
+    Array.prototype.slice.call(form.children).forEach(function (ch) { if (ch !== out && ch !== btn && ch !== plan) left.appendChild(ch); });
+    right.appendChild(out); grid.appendChild(left); grid.appendChild(right);
+    form.insertBefore(grid, form.firstChild); form.classList.add('k-calc-card'); btn.classList.add('k-hide-btn');
+    var v = function (id) { var e = document.getElementById(id); return e && e.value !== '' ? parseFloat(e.value) : 0; };
+    var run = debounce(function () { if (v('tdee-known-bmr') > 0 || (v('tdee-weight') > 0 && v('tdee-height') > 0 && v('tdee-age') > 0)) { try { window.calcTDEE(); } catch (e) {} } }, 300);
+    left.addEventListener('input', run); left.addEventListener('change', run);
+    left.addEventListener('click', function (e) { if (e.target.closest('button')) setTimeout(run, 30); });
+  }
+  function initWedge() {
+    var p = document.getElementById('rail-wedge'); if (!p || p.__k) return; p.__k = true;
+    var btn = $$('button', p).filter(function (b) { return /重新計算/.test(b.textContent); })[0]; if (!btn) return;
+    new MutationObserver(function () { if (p.classList.contains('active')) setTimeout(function () { try { btn.click(); } catch (e) {} }, 50); }).observe(p, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  function init() {
+    sweep();
+    new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+    addMuscleToggle(); hookFood(); initTrainCalc(); initTDEE(); initWedge();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.addEventListener('load', function () { hookFood(); addMuscleToggle(); });
+})();
+</script>
+
 </body>
 </html>
