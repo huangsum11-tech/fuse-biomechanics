@@ -1,17 +1,17 @@
-/* Kinesis 訓練追蹤模組 — 教練版（Kinesis Pro）同愛好者版（Kinesis Fit）共用
+/* Kinesis 訓練追蹤模組 — 教練版（Kinesis Pro）和愛好者版（Kinesis Fit）共用
  *
- * 版本由網址決定（?edition=coach | fit，由 coach.html / fit.html 轉入；冇指定就係教練版）。
+ * 版本由網址決定（?edition=coach | fit，由 coach.html / fit.html 轉入；沒有指定就是教練版）。
  * 提供：版本品牌／導覽調整、訓練日誌（組數×次數×重量×RPE、1RM估算、PR）、
  * 身體數據追蹤、組間休息／間歇計時器。資料經 window.storage（localStorage 後備）儲存，
- * key 以 fuse: 開頭，所以會自動包含喺「匯出備份」入面。
- *   教練版：資料跟住「目前揀咗嘅客戶」；愛好者版：資料屬於固定嘅「我」(id = 'me')。
+ * key 以 fuse: 開頭，所以會自動包含在「匯出備份」裡面。
+ *   教練版：資料接著「目前選了的客戶」；愛好者版：資料屬於固定的「我」(id = 'me')。
  */
 (function () {
   'use strict';
   var ED = window.FUSE_EDITION === 'fit' ? 'fit' : 'coach';
   var EDITIONS = {
-    coach: { name: 'KINESIS PRO', zh: '教練版', sub: 'PRI-BASED POSTURAL ASSESSMENT SYSTEM', other: 'fit', otherLabel: '切換去愛好者版 Kinesis Fit' },
-    fit:   { name: 'KINESIS FIT', zh: '愛好者版', sub: '體態評估 × 訓練追蹤', other: 'coach', otherLabel: '切換去教練版 Kinesis Pro' }
+    coach: { name: 'KINESIS PRO', zh: '教練版', sub: 'PRI-BASED POSTURAL ASSESSMENT SYSTEM', other: 'fit', otherLabel: '切換至愛好者版 Kinesis Fit' },
+    fit:   { name: 'KINESIS FIT', zh: '愛好者版', sub: '體態評估 × 訓練追蹤', other: 'coach', otherLabel: '切換至教練版 Kinesis Pro' }
   };
   var HIDDEN = window.FUSE_HIDDEN_RAILS || [];
 
@@ -104,7 +104,7 @@
 
   // ───────────────────────── 圖表 ─────────────────────────
   function lineChart(pts, unit) {
-    if (!pts.length) return '<div class="trk-empty">未有數據</div>';
+    if (!pts.length) return '<div class="trk-empty">尚未有數據</div>';
     var W = 320, H = 150, pl = 34, pr = 10, pt = 12, pb = 24;
     var ys = pts.map(function (p) { return p.y; });
     var min = Math.min.apply(null, ys), max = Math.max.apply(null, ys);
@@ -155,7 +155,7 @@
       });
       if (typeof RAIL_GROUP_OF !== 'undefined') { RAIL_GROUP_OF.tlog = 'track'; RAIL_GROUP_OF.tbody = 'track'; RAIL_GROUP_OF.ttimer = 'track'; }
     }
-    // 隱藏呢個版本唔需要嘅頁面，同埋變成空嘅分組
+    // 隱藏這個版本不需要的頁面，以及變成空的分組
     HIDDEN.forEach(function (r) { var b = $('.rail-btn[data-rail="' + r + '"]'); if (b) b.style.display = 'none'; });
     Array.prototype.forEach.call(document.querySelectorAll('.rail-group-buttons'), function (g) {
       var vis = Array.prototype.some.call(g.querySelectorAll('.rail-btn'), function (b) { return b.style.display !== 'none'; });
@@ -166,7 +166,7 @@
     });
     if (ED === 'fit') {
       var bar = $('#active-client-bar');
-      if (bar) { var lab = bar.querySelector('div > div'); if (lab) lab.textContent = '我嘅檔案 MY PROFILE'; }
+      if (bar) { var lab = bar.querySelector('div > div'); if (lab) lab.textContent = '我的檔案 MY PROFILE'; }
     }
   }
 
@@ -184,8 +184,8 @@
     new MutationObserver(function () { if (el.classList.contains('active')) fn(); }).observe(el, { attributes: true, attributeFilter: ['class'] });
   }
   function noSubjectHtml() {
-    return '<div class="trk-card"><div class="trk-empty">請先喺「客戶」頁揀一位客戶（撳客戶名載入），訓練同身體數據會記錄喺該客戶名下。</div>' +
-      '<div class="trk-row"><button class="trk-btn primary trk-grow" data-a="goclients">👤 去揀客戶</button></div></div>';
+    return '<div class="trk-card"><div class="trk-empty">請先在「客戶」頁選一位客戶（按客戶名載入），訓練和身體數據會記錄在該客戶名下。</div>' +
+      '<div class="trk-row"><button class="trk-btn primary trk-grow" data-a="goclients">👤 選擇客戶</button></div></div>';
   }
   function subjectBar(sub) {
     if (ED === 'fit') return '';
@@ -232,7 +232,7 @@
     var d = L.draft;
     return d.exercises.map(function (ex, ei) {
       var key = normName(ex.name), last = key ? lastOf(L.sessions, key) : null;
-      var hint = last ? '上次 ' + shortDate(last.date) + '：' + last.ex.sets.map(setStr).join(' · ') : (key ? '首次記錄呢個動作' : '');
+      var hint = last ? '上次 ' + shortDate(last.date) + '：' + last.ex.sets.map(setStr).join(' · ') : (key ? '首次記錄這個動作' : '');
       var rows = ex.sets.map(function (s, si) {
         return '<div class="n">' + (si + 1) + '</div>' +
           '<input class="trk-in" type="number" inputmode="decimal" step="0.5" min="0" placeholder="kg" aria-label="第' + (si + 1) + '組 重量kg" data-f="kg" data-e="' + ei + '" data-s="' + si + '" value="' + esc(s.kg) + '">' +
@@ -262,13 +262,13 @@
   }
 
   function historyHtml() {
-    if (!L.sessions.length) return '<div class="trk-empty">未有訓練記錄——喺上面記低第一堂啦。</div>';
+    if (!L.sessions.length) return '<div class="trk-empty">尚未有訓練記錄——在上面記下第一堂訓練。</div>';
     return L.sessions.slice(0, 30).map(function (s) {
       var prc = s.exercises.filter(function (e) { return e.pr; }).length, open = L.open === s.id;
       var det = open ? '<div class="det">' + s.exercises.map(function (ex) {
         return '<div><b style="color:var(--text)">' + esc(ex.name) + '</b>' + (ex.pr ? '<span class="trk-pr">🏆 PR</span>' : '') + '<br>' + ex.sets.map(setStr).map(esc).join(' · ') + '</div>';
       }).join('') +
-        '<div class="trk-row" style="margin-top:8px;flex-wrap:wrap"><button class="trk-btn small blue" data-a="redo" data-id="' + s.id + '">↻ 重做呢堂</button>' +
+        '<div class="trk-row" style="margin-top:8px;flex-wrap:wrap"><button class="trk-btn small blue" data-a="redo" data-id="' + s.id + '">↻ 重做這堂</button>' +
         '<button class="trk-btn small" data-a="share" data-id="' + s.id + '">💬 WhatsApp</button>' +
         '<button class="trk-btn small warn" data-a="delsess" data-id="' + s.id + '">刪除</button></div></div>' : '';
       return '<div class="trk-sess"><div class="top" data-a="toggle" data-id="' + s.id + '" role="button" tabindex="0">' +
@@ -292,7 +292,7 @@
       });
     });
     var delta = pts.length > 1 ? pts[pts.length - 1].y - pts[0].y : 0;
-    return '<div class="trk-card"><div class="trk-row"><select class="trk-in trk-grow" data-f="progex" aria-label="揀動作睇進度">' +
+    return '<div class="trk-card"><div class="trk-row"><select class="trk-in trk-grow" data-f="progex" aria-label="選動作看進度">' +
       list.map(function (k) { return '<option value="' + esc(k) + '"' + (k === L.progEx ? ' selected' : '') + '>' + esc(names[k]) + '</option>'; }).join('') + '</select></div>' +
       lineChart(pts, weighted ? 'kg' : '次') +
       '<div class="trk-hint">' + (weighted ? '估算 1RM（Epley）' : '最佳次數') + (pts.length > 1 ? ' · 由 ' + fmt(pts[0].y) + ' → ' + fmt(pts[pts.length - 1].y) + '（' + (delta >= 0 ? '+' : '') + fmt(delta) + '）' : '') +
@@ -302,7 +302,7 @@
   function onboardingHtml() {
     if (ED !== 'fit' || L.sessions.length) return '';
     return '<div class="trk-card" style="border-color:rgba(var(--accent-rgb,0,229,160),.35)"><b style="color:var(--green)">👋 歡迎使用 Kinesis Fit</b>' +
-      '<div class="trk-hint" style="font-size:11px">記錄訓練、追蹤 PR 同身體數據，再配合體態評估搵出自己嘅弱項。</div>' +
+      '<div class="trk-hint" style="font-size:11px">記錄訓練、追蹤 PR 和身體數據，再配合體態評估找出自己的弱項。</div>' +
       '<div class="trk-row" style="flex-wrap:wrap;margin-top:8px">' +
       '<button class="trk-btn primary" data-a="goseq">📐 快速評估指南</button>' +
       '<button class="trk-btn" data-a="gobody">⚖️ 記身體數據</button>' +
@@ -310,7 +310,7 @@
   }
   function fitToolsHtml() {
     if (ED !== 'fit') return '';
-    return '<div class="trk-row" style="flex-wrap:wrap"><button class="trk-btn small" data-a="myhist">📈 我嘅評估歷史</button><button class="trk-btn small" data-a="myedit">✎ 我嘅資料</button></div>';
+    return '<div class="trk-row" style="flex-wrap:wrap"><button class="trk-btn small" data-a="myhist">📈 我的評估歷史</button><button class="trk-btn small" data-a="myedit">✎ 我的資料</button></div>';
   }
 
   async function renderLog() {
@@ -332,10 +332,10 @@
       '<div class="trk-row"><button class="trk-btn trk-grow" data-a="addex">＋ 加動作</button></div>' +
       '<div class="trk-card"><div class="trk-row"><div class="trk-grow" style="font-family:var(--mono);font-size:11px;color:var(--sub)">組間休息</div>' +
       '<select class="trk-in" style="flex:0 0 96px" data-f="rest" aria-label="組間休息秒數">' + [30, 45, 60, 90, 120, 180, 240, 300].map(function (v) { return '<option value="' + v + '"' + (v === L.prefs.rest ? ' selected' : '') + '>' + v + ' 秒</option>'; }).join('') + '</select></div>' +
-      '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:var(--sub,#9aa3b5)"><input type="checkbox" data-f="auto"' + (L.prefs.auto ? ' checked' : '') + '> 剔完一組自動開始休息計時</label></div>' +
+      '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:var(--sub,#9aa3b5)"><input type="checkbox" data-f="auto"' + (L.prefs.auto ? ' checked' : '') + '> 勾選完成一組自動開始休息計時</label></div>' +
       '<div class="trk-row"><button class="trk-btn primary trk-grow" data-a="save">💾 儲存今日訓練</button><button class="trk-btn warn" data-a="clear">清空</button></div>' +
       fitToolsHtml() +
-      '<div class="trk-h">動作進度 PROGRESS</div>' + (progressHtml() || '<div class="trk-empty">儲存訓練後，呢度會顯示每個動作嘅估算1RM趨勢。</div>') +
+      '<div class="trk-h">動作進度 PROGRESS</div>' + (progressHtml() || '<div class="trk-empty">儲存訓練後，這裡會顯示每個動作的估算1RM趨勢。</div>') +
       '<div class="trk-h">訓練記錄 HISTORY</div><div id="trk-hist" class="trk-wrap">' + historyHtml() + '</div>';
   }
 
@@ -357,7 +357,7 @@
       var sets = ex.sets.filter(function (s) { return num(s.reps) > 0; }).map(function (s) { return { kg: num(s.kg), reps: num(s.reps), rpe: num(s.rpe) || 0 }; });
       if (sets.length) exs.push({ name: name, sets: sets });
     });
-    if (!exs.length) { toast('請至少填一個動作同每組嘅次數'); return; }
+    if (!exs.length) { toast('請至少填一個動作和每組的次數'); return; }
     var prCount = 0;
     exs.forEach(function (ex) {
       var prev = exBest(L.sessions, normName(ex.name)), top = 0, topSet = null;
@@ -399,7 +399,7 @@
         if (s.done && L.prefs.auto && window.FuseTimer) window.FuseTimer.startRest(L.prefs.rest);
       }
       else if (a === 'save') saveSession();
-      else if (a === 'clear') { if (confirm('清空今日未儲存嘅內容？')) { L.draft = newDraft(); await S.set(KEY.draft(L.sid), L.draft); renderLog(); } }
+      else if (a === 'clear') { if (confirm('清空今日未儲存的內容？')) { L.draft = newDraft(); await S.set(KEY.draft(L.sid), L.draft); renderLog(); } }
       else if (a === 'toggle') { var id = t.getAttribute('data-id'); L.open = L.open === id ? null : id; refreshHist(); }
       else if (a === 'redo') {
         var src = L.sessions.find(function (x) { return x.id === t.getAttribute('data-id'); }); if (!src) return;
@@ -408,7 +408,7 @@
       }
       else if (a === 'share') { var sx = L.sessions.find(function (x) { return x.id === t.getAttribute('data-id'); }); if (sx) shareText(sessionText(sx)); }
       else if (a === 'delsess') {
-        if (!confirm('刪除呢堂訓練記錄？')) return;
+        if (!confirm('刪除這堂訓練記錄？')) return;
         L.sessions = L.sessions.filter(function (x) { return x.id !== t.getAttribute('data-id'); });
         await S.set(KEY.log(L.sid), L.sessions); renderLog();
       }
@@ -446,18 +446,18 @@
       }).join('') + '</div>' +
       '<input class="trk-in" id="trk-b-note" placeholder="備註（選填）" style="margin-top:8px">' +
       '<div class="trk-row" style="margin-top:8px"><button class="trk-btn primary trk-grow" data-a="bsave">💾 記錄</button></div>' +
-      '<div class="trk-hint">已預填上次數值，改變咗嘅先需要改。</div></div>';
+      '<div class="trk-hint">已預填上次數值，改變了的才需要修改。</div></div>';
     var opts = BODY_FIELDS.map(function (f) { return '<option value="' + f.k + '"' + (f.k === B.metric ? ' selected' : '') + '>' + f.l + '（' + f.u + '）</option>'; }).join('');
     var fld = BODY_FIELDS.filter(function (f) { return f.k === B.metric; })[0];
     var pts = rows.slice().reverse().filter(function (r) { return num(r[B.metric]) > 0; }).map(function (r) { return { x: r.date, y: num(r[B.metric]) }; });
-    var chartCard = '<div class="trk-card"><select class="trk-in" data-f="bmetric" aria-label="揀指標">' + opts + '</select>' + lineChart(pts, fld.u) +
+    var chartCard = '<div class="trk-card"><select class="trk-in" data-f="bmetric" aria-label="選指標">' + opts + '</select>' + lineChart(pts, fld.u) +
       (pts.length > 1 ? '<div class="trk-hint">由 ' + fmt(pts[0].y) + ' → ' + fmt(pts[pts.length - 1].y) + fld.u + '（' + (pts[pts.length - 1].y - pts[0].y >= 0 ? '+' : '') + fmt(pts[pts.length - 1].y - pts[0].y) + '）· 共 ' + pts.length + ' 筆</div>' : '') + '</div>';
     var lean = last.weight && last.bf ? '<div class="trk-hint">最新去脂體重估算：約 ' + fmt(num(last.weight) * (1 - num(last.bf) / 100)) + 'kg · 脂肪量約 ' + fmt(num(last.weight) * num(last.bf) / 100) + 'kg</div>' : '';
     var list = rows.length ? rows.slice(0, 20).map(function (r) {
       return '<div class="trk-sess"><div class="top" style="cursor:default"><div class="trk-grow"><b style="font-family:var(--mono);font-size:12px;color:var(--text)">' + esc(r.date) + '</b>' +
         '<div class="trk-hint" style="margin:0">' + BODY_FIELDS.filter(function (f) { return num(r[f.k]) > 0; }).map(function (f) { return f.l + ' ' + fmt(num(r[f.k])) + f.u; }).join(' · ') + (r.note ? ' · ' + esc(r.note) : '') + '</div></div>' +
         '<button class="trk-btn small warn" data-a="bdel" data-id="' + r.id + '" aria-label="刪除記錄">✕</button></div></div>';
-    }).join('') : '<div class="trk-empty">未有記錄。</div>';
+    }).join('') : '<div class="trk-empty">尚未有記錄。</div>';
     var share = rows.length > 1 ? '<div class="trk-row"><button class="trk-btn small" data-a="bshare">💬 WhatsApp 分享身體變化</button></div>' : '';
     return subjectBar(sub) + form + chartCard + lean + share + '<div class="trk-h">記錄 HISTORY</div>' + list;
   }
@@ -488,7 +488,7 @@
         if (!(await S.set(KEY.body(B.sid), B.rows))) { B.rows = B.rows.filter(function (x) { return x.id !== r.id; }); return; }
         toast('已記錄身體數據'); renderBody();
       }
-      else if (a === 'bdel') { if (!confirm('刪除呢筆記錄？')) return; B.rows = B.rows.filter(function (x) { return x.id !== t.getAttribute('data-id'); }); await S.set(KEY.body(B.sid), B.rows); renderBody(); }
+      else if (a === 'bdel') { if (!confirm('刪除這筆記錄？')) return; B.rows = B.rows.filter(function (x) { return x.id !== t.getAttribute('data-id'); }); await S.set(KEY.body(B.sid), B.rows); renderBody(); }
       else if (a === 'bshare') shareText(bodyShareText());
     });
     p.addEventListener('change', function (e) { var t = e.target; if (t.getAttribute && t.getAttribute('data-f') === 'bmetric') { B.metric = t.value; renderBody(); } });
@@ -570,7 +570,7 @@
   window.FuseTimer = { startRest: startRest, reset: resetTimer };
 
   function phaseLabel() {
-    if (TM.phase === 'idle') return TM.mode === 'rest' ? '準備好就撳開始' : '設定好就撳開始';
+    if (TM.phase === 'idle') return TM.mode === 'rest' ? '準備好就按開始' : '設定好就按開始';
     if (TM.phase === 'done') return '✅ 完成！';
     if (TM.mode === 'rest') return TM.paused ? '⏸ 暫停' : '休息中';
     var nm = TM.phase === 'prep' ? '準備' : TM.phase === 'work' ? '工作 WORK' : '休息 REST';
@@ -596,7 +596,7 @@
     var cfg;
     if (TM.mode === 'rest') {
       cfg = '<div class="trk-chips">' + [30, 45, 60, 90, 120, 180, 240, 300].map(function (v) { return '<button class="trk-btn small' + (v === L.prefs.rest ? ' on' : '') + '" data-a="restpick" data-v="' + v + '">' + (v >= 60 ? (v / 60) + '分' : v + '秒') + '</button>'; }).join('') + '</div>' +
-        '<div class="trk-hint">喺「訓練」頁剔完一組，會自動用呢個時間開始休息計時。</div>';
+        '<div class="trk-hint">在「訓練」頁勾選完成一組，會自動用這個時間開始休息計時。</div>';
     } else {
       cfg = '<div class="trk-chips">' + IV_PRESETS.map(function (p, i) { return '<button class="trk-btn small" data-a="ivpreset" data-i="' + i + '">' + p.n + '</button>'; }).join('') + '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">' +
@@ -605,7 +605,7 @@
     return tabs + '<div class="trk-card"><div class="trk-phase" id="trk-phase"></div><div class="trk-time" id="trk-time">00:00</div>' +
       '<div class="trk-row"><button class="trk-btn primary trk-grow" id="trk-start" data-a="start">▶ 開始</button><button class="trk-btn trk-grow" id="trk-pause" data-a="pause">⏸ 暫停</button><button class="trk-btn warn" data-a="reset">重置</button></div></div>' +
       '<div class="trk-card">' + cfg + '</div>' +
-      '<div class="trk-hint">💡 計時用系統時鐘計算，切去其他頁面或鎖屏後時間仍然準確（鎖屏時提示音可能受手機限制）。計時進行中會保持螢幕長亮，並喺其他頁面顯示浮動倒數。</div>';
+      '<div class="trk-hint">💡 計時用系統時鐘計算，切換至其他頁面或鎖屏後時間仍然準確（鎖屏時提示音可能受手機限制）。計時進行中會保持螢幕長亮，並在其他頁面顯示浮動倒數。</div>';
   }
   function renderTimer() { var r = $('#trk-timer-body'); if (!r) return; r.innerHTML = timerHtml(); drawTimer(); }
   function bindTimer() {
@@ -623,7 +623,7 @@
       var t = e.target, f = t.getAttribute && t.getAttribute('data-f');
       if (f && f.indexOf('iv-') === 0) { var k = f.slice(3), v = Math.max(k === 'rounds' ? 1 : 0, Math.min(3600, Math.round(num(t.value)))); TM.iv[k] = v; t.value = v; saveIv(); drawTimer(); }
     });
-    var chip = document.createElement('div'); chip.id = 'trk-chip'; chip.setAttribute('role', 'button'); chip.setAttribute('tabindex', '0'); chip.setAttribute('aria-label', '返去計時器');
+    var chip = document.createElement('div'); chip.id = 'trk-chip'; chip.setAttribute('role', 'button'); chip.setAttribute('tabindex', '0'); chip.setAttribute('aria-label', '返回計時器');
     chip.addEventListener('click', function () { window.switchRail('ttimer'); });
     document.body.appendChild(chip);
   }
@@ -631,9 +631,9 @@
   // ───────────────────────── 啟動 ─────────────────────────
   function init() {
     applyEdition();
-    mkPanel('tlog', '🏋️ 訓練日誌 TRAINING LOG', '記低每組重量、次數同 RPE，自動估算 1RM 同偵測 PR；上次嘅數字會預填。', 'trk-log-body');
-    mkPanel('tbody', '⚖️ 身體數據 BODY METRICS', '追蹤體重、體脂同圍度變化。', 'trk-body-body');
-    mkPanel('ttimer', '⏱ 計時器 TIMER', '組間休息同 Tabata／EMOM／HIIT 間歇計時。', 'trk-timer-body');
+    mkPanel('tlog', '🏋️ 訓練日誌 TRAINING LOG', '記下每組重量、次數及 RPE，自動估算 1RM 和偵測 PR；上次的數字會預填。', 'trk-log-body');
+    mkPanel('tbody', '⚖️ 身體數據 BODY METRICS', '追蹤體重、體脂和圍度變化。', 'trk-body-body');
+    mkPanel('ttimer', '⏱ 計時器 TIMER', '組間休息及 Tabata／EMOM／HIIT 間歇計時。', 'trk-timer-body');
     bindLog(); bindBody(); bindTimer();
     onActivate('tlog', renderLog); onActivate('tbody', renderBody); onActivate('ttimer', function () { renderTimer(); });
     if (ED === 'fit') {

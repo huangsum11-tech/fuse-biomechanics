@@ -1,12 +1,12 @@
 // ════════════════════════════════════════════════════════════
 //  Fuse Biomechanics — 內建3D解剖模型 (BodyParts3D 4.0)
 //
-//  呢個係由 huangsum11-tech/human-atlas（React + Three.js app）嘅
-//  app/scene.tsx 移植返嚟嘅 vanilla JS 版本，剝走 React 之後淨返嘅
-//  Three.js 渲染邏輯基本上原封不動保留（GPU texture 驅動嘅逐部件
-//  位移/可見度/選中狀態、揀選用嘅隱形 picker mesh、爆炸圖佈局）。
-//  模型資源（atlas.json + models/body-N.bin.gz）已經搬咗入呢個repo，
-//  离线／唔使外部服務就可以完整運作。
+//  這個是由 huangsum11-tech/human-atlas（React + Three.js app）的
+//  app/scene.tsx 移植回來的 vanilla JS 版本，剝走 React 之後淨回的
+//  Three.js 渲染邏輯基本上原封不動保留（GPU texture 驅動的逐部件
+//  位移/可見度/選中狀態、選擇用的隱形 picker mesh、爆炸圖佈局）。
+//  模型資源（atlas.json + models/body-N.bin.gz）已經搬了入這個repo，
+//  离线／不需要外部服務就可以完整運作。
 //
 //  資料來源：BodyParts3D 4.0, © DBCLS, CC BY 4.0 — 詳見 models/ATTRIBUTION.md
 // ════════════════════════════════════════════════════════════
@@ -150,7 +150,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
 
   let renderer;
   try { renderer = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' }); }
-  catch { onError && onError('此瀏覽器未能啟動3D檢視器，請改用支援WebGL嘅瀏覽器。'); return null; }
+  catch { onError && onError('此瀏覽器未能啟動3D檢視器，請改用支援WebGL的瀏覽器。'); return null; }
   renderer.setPixelRatio(Math.min(devicePixelRatio, innerWidth < 768 ? 1.5 : 2));
   renderer.setClearColor((window.FUSE_THEME||{}).stage || (window.FUSE_THEME||{}).bg || '#0b0e14'); renderer.outputColorSpace = T.SRGBColorSpace; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.12;
   el.appendChild(renderer.domElement);
@@ -390,7 +390,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     }
   };
   animate();
-  const contextLost = e => { e.preventDefault(); onError && onError('裝置暫停咗3D運算階段，請重新載入。'); };
+  const contextLost = e => { e.preventDefault(); onError && onError('裝置暫停了3D運算階段，請重新載入。'); };
   renderer.domElement.addEventListener('webglcontextlost', contextLost);
 
   return {
