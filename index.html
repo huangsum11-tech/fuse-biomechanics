@@ -33213,6 +33213,7 @@ table.k-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-
     function show(i) {
       cards.forEach(function (c, k) { c.hidden = k !== i; });
       $$('button', tabs).forEach(function (b, k) { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+      var on = $$('button', tabs)[i]; if (on) tabs.scrollLeft = Math.max(0, on.offsetLeft - (tabs.clientWidth - on.offsetWidth) / 2);
       try { localStorage.setItem('kinesis:calcTab', String(i)); } catch (e) {}
     }
     var s = 0; try { s = +localStorage.getItem('kinesis:calcTab') || 0; } catch (e) {}
