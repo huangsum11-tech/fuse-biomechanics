@@ -5891,7 +5891,7 @@ function generateSessionSheet() {
   var today = new Date().toLocaleDateString('zh-TW');
   var activeClient = (typeof activeClientId !== 'undefined' && activeClientId && typeof clientIndex !== 'undefined')
     ? (clientIndex.find(function(x){return x.id===activeClientId;})||{}).name : '';
-  var gymName = (typeof gymSettings !== 'undefined' && gymSettings.name) ? gymSettings.name : 'KINESIS';
+  var gymName = (function () { try { return (JSON.parse(localStorage.getItem('fuse_gym_settings') || '{}') || {}).name; } catch (e) { return ''; } })() || 'KINESIS';
 
   var rows = picked.map(function(d, i) {
     var p = _sessionPicks[d.id];
@@ -14448,42 +14448,159 @@ async function importAllData(file) {
 window.importAllData = importAllData;
 
 // ── 客戶進度報告（可列印／另存PDF）────────────────────────
+// v17 專業評估報告：重點總結、左右對稱、逐項進度（目標條＋趨勢線）、白話建議、教練備註。
+// 場館設定（名稱／教練／logo）喺另一個 IIFE 入面，讀唔到變數，所以直接讀 localStorage。
+function reportGymSettings() {
+  try { return JSON.parse(localStorage.getItem('fuse_gym_settings') || '{}') || {}; } catch (e) { return {}; }
+}
+var REPORT_METRICS = [
+  { key: 'pelvisTilt', label: '骨盆前後傾', group: '骨盆', goal: 'zero', target: 0, rec: 'tilt' },
+  { key: 'pelvisRot', label: '骨盆旋轉', group: '骨盆', goal: 'zero', target: 0, rec: 'prot' },
+  { key: 'hipLIr', label: '左髖內旋', group: '下肢', goal: 'high', target: 40, rec: 'hipir' },
+  { key: 'hipRIr', label: '右髖內旋', group: '下肢', goal: 'high', target: 40, rec: 'hipir' },
+  { key: 'slrL', label: '左直腿抬高', group: '下肢', goal: 'high', target: 80, rec: 'slr' },
+  { key: 'slrR', label: '右直腿抬高', group: '下肢', goal: 'high', target: 80, rec: 'slr' },
+  { key: 'ankleDFL', label: '左踝背屈', group: '下肢', goal: 'high', target: 20, rec: 'ankle' },
+  { key: 'ankleDFR', label: '右踝背屈', group: '下肢', goal: 'high', target: 20, rec: 'ankle' },
+  { key: 'squatDepth', label: '深蹲角度', group: '下肢', goal: 'high', target: 120, rec: 'squat' },
+  { key: 'thoraxRotL', label: '左胸椎旋轉', group: '軀幹', goal: 'high', target: 45, rec: 'trot' },
+  { key: 'thoraxRotR', label: '右胸椎旋轉', group: '軀幹', goal: 'high', target: 45, rec: 'trot' },
+  { key: 'trunkRotL', label: '左軀幹旋轉', group: '軀幹', goal: 'high', target: 70, rec: 'trot' },
+  { key: 'trunkRotR', label: '右軀幹旋轉', group: '軀幹', goal: 'high', target: 70, rec: 'trot' },
+  { key: 'shIrL', label: '左肩內旋', group: '肩頸', goal: 'high', target: 90, rec: 'shrot' },
+  { key: 'shIrR', label: '右肩內旋', group: '肩頸', goal: 'high', target: 90, rec: 'shrot' },
+  { key: 'shErL', label: '左肩外旋', group: '肩頸', goal: 'high', target: 90, rec: 'shrot' },
+  { key: 'shErR', label: '右肩外旋', group: '肩頸', goal: 'high', target: 90, rec: 'shrot' },
+  { key: 'cervRotL', label: '左頸旋轉', group: '肩頸', goal: 'high', target: 30, rec: 'cerv' },
+  { key: 'cervRotR', label: '右頸旋轉', group: '肩頸', goal: 'high', target: 30, rec: 'cerv' }
+];
+var REPORT_PAIRS = [['hipLIr', 'hipRIr', '髖內旋'], ['slrL', 'slrR', '直腿抬高'], ['ankleDFL', 'ankleDFR', '踝背屈'], ['thoraxRotL', 'thoraxRotR', '胸椎旋轉'], ['trunkRotL', 'trunkRotR', '軀幹旋轉'], ['shIrL', 'shIrR', '肩內旋'], ['shErL', 'shErR', '肩外旋'], ['cervRotL', 'cervRotR', '頸旋轉']];
+// 白話解釋：唔用術語，講「影響咩」同「訓練方向」，唔作醫療判斷
+var REPORT_RECS = {
+  tilt: ['骨盆有前傾或後傾傾向', '會改變腰同髖關節嘅受力，久企或久坐容易覺得腰攰。', '呼吸練習配合腹部控制，幫骨盆返到中間位置。'],
+  prot: ['骨盆有旋轉', '左右兩邊受力唔平均，行路同單腳動作時一邊會做多咗。', '左右對稱嘅呼吸重置，同埋單側穩定訓練。'],
+  hipir: ['髖關節向內轉嘅角度唔夠', '行路、深蹲同單腳企時，骨盆轉唔到過去，容易由腰或膝頂替。', '髖關節內旋活動度，加骨盆位置控制。'],
+  slr: ['大腿後側較緊', '彎腰執嘢、硬拉呢類動作會受限，腰容易代償。', '大腿後側活動度，同時調整骨盆位置（唔係淨係拉筋）。'],
+  ankle: ['腳踝向上屈唔夠', '深蹲時腳跟容易離地、膝蓋向內塌。', '小腿同腳踝活動度，配合足弓控制。'],
+  squat: ['深蹲深度未夠', '通常係腳踝、髖關節或者軀幹控制其中一樣限制咗。', '先處理上面最差嗰項，再用輔助深蹲逐步加深。'],
+  trot: ['轉身幅度不足', '轉身、揮拍、投擲動作會由腰或者肩膊代償。', '胸椎活動度同肋骨位置練習。'],
+  shrot: ['肩關節旋轉唔夠', '過頭動作、推舉同引體時，肩前側壓力會較大。', '肩胛同胸廓位置先行，再做肩關節旋轉活動度。'],
+  cerv: ['頸部轉動受限', '多數同胸廓同肩胛位置有關，長時間用電腦會更明顯。', '胸廓同上背活動度，配合頸部控制練習。']
+};
+function reportStatus(m, v) {
+  if (v == null || isNaN(v)) return null;
+  if (m.goal === 'zero') { var a = Math.abs(v); return a <= 3 ? 'ok' : (a <= 8 ? 'near' : 'low'); }
+  return v >= m.target ? 'ok' : (v >= m.target * 0.85 ? 'near' : 'low');
+}
+function reportGap(m, v) { return m.goal === 'zero' ? Math.abs(v) : Math.max(0, (m.target - v) / m.target * 100); }
+function reportParseDate(s) { var d = new Date(String(s || '').replace(/-/g, '/')); return isNaN(d) ? null : d; }
+function reportSpark(vals, m) {
+  var pts = vals.map(function (v, i) { return { i: i, v: v }; }).filter(function (p) { return typeof p.v === 'number'; });
+  if (pts.length < 2) return '';
+  var W = 84, H = 24, all = pts.map(function (p) { return p.v; }).concat([m.target]);
+  var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all); if (lo === hi) { lo -= 1; hi += 1; }
+  var X = function (i) { return 3 + (W - 6) * (vals.length <= 1 ? .5 : i / (vals.length - 1)); }, Y = function (v) { return H - 3 - (H - 6) * (v - lo) / (hi - lo); };
+  var d = pts.map(function (p, k) { return (k ? 'L' : 'M') + X(p.i).toFixed(1) + ' ' + Y(p.v).toFixed(1); }).join(' ');
+  var last = pts[pts.length - 1];
+  return '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '"><line x1="0" x2="' + W + '" y1="' + Y(m.target).toFixed(1) + '" y2="' + Y(m.target).toFixed(1) + '" stroke="#d6d1c4" stroke-dasharray="2 2"/><path d="' + d + '" fill="none" stroke="#b7791f" stroke-width="1.6"/><circle cx="' + X(last.i).toFixed(1) + '" cy="' + Y(last.v).toFixed(1) + '" r="2.4" fill="#b7791f"/></svg>';
+}
+
 async function exportClientReport(id) {
   var w = window.open('', '_blank'); // 要喺await之前開，否則手機瀏覽器會當成彈窗擋住
   var data = await dbLoadData(id);
   var c = clientIndex.find(function (x) { return x.id === id; }) || (data && data.meta) || {};
   if (!data || !data.sessions || !data.sessions.length) { if (w) w.close(); alert('此客戶尚無評估記錄。'); return; }
   if (!w) { alert('瀏覽器擋住咗新分頁，請允許彈出視窗後再試。'); return; }
+  var gs = reportGymSettings(), gym = gs.name || 'KINESIS', coach = gs.coach || '';
   var sessions = data.sessions.slice(0, 8).reverse(); // 最多8筆，舊→新
-  var first = sessions[0], last = sessions[sessions.length - 1];
-  var gym = (typeof gymSettings !== 'undefined' && gymSettings.name) ? gymSettings.name : 'KINESIS';
-  var head = sessions.map(function (s) { return '<th>' + escHtml(s.date) + '</th>'; }).join('');
-  var rows = TREND_METRICS.map(function (m) {
-    var vals = sessions.map(function (s) { var v = s.snapshot[m.key]; return v == null ? '—' : v; });
-    var a = first.snapshot[m.key], b = last.snapshot[m.key], delta = '', cls = '';
-    if (sessions.length > 1 && a != null && b != null) {
-      var improved = m.goal === 'zero' ? Math.abs(b) < Math.abs(a) : b > a;
-      var same = m.goal === 'zero' ? Math.abs(b) === Math.abs(a) : b === a;
-      var diff = b - a;
-      delta = same ? '—' : (diff > 0 ? '+' : '') + diff + '°';
-      cls = same ? '' : (improved ? 'up' : 'down');
+  var first = sessions[0], last = sessions[sessions.length - 1], multi = sessions.length > 1;
+  var L = last.snapshot || {}, F = first.snapshot || {};
+  var metrics = REPORT_METRICS.filter(function (m) { return typeof L[m.key] === 'number'; });
+
+  // 重點總結
+  var okN = 0, improved = [], worse = [], issues = [];
+  metrics.forEach(function (m) {
+    var v = L[m.key], st = reportStatus(m, v); if (st === 'ok') okN++;
+    if (multi && typeof F[m.key] === 'number' && F[m.key] !== v) {
+      var better = m.goal === 'zero' ? Math.abs(v) < Math.abs(F[m.key]) : v > F[m.key];
+      (better ? improved : worse).push(m);
     }
-    return '<tr><td>' + m.label + '</td>' + vals.map(function (v) { return '<td>' + v + (v === '—' ? '' : '°') + '</td>'; }).join('') +
-      '<td class="t">' + (m.goal === 'zero' ? '≈0°' : '≥' + m.target + '°') + '</td><td class="' + cls + '">' + delta + '</td></tr>';
+    if (st !== 'ok') issues.push({ m: m, v: v, gap: reportGap(m, v), st: st });
+  });
+  issues.sort(function (a, b) { return (a.st === 'low' ? 0 : 1) - (b.st === 'low' ? 0 : 1) || b.gap - a.gap; });
+  // 建議：按問題類別合併（例如左右髖內旋只講一次），最多 3 項
+  var recs = [], seenRec = {};
+  issues.forEach(function (it) { if (recs.length < 3 && !seenRec[it.m.rec]) { seenRec[it.m.rec] = 1; recs.push(it); } });
+
+  // 左右對稱
+  var pairs = REPORT_PAIRS.filter(function (p) { return typeof L[p[0]] === 'number' && typeof L[p[1]] === 'number'; }).map(function (p) {
+    var l = L[p[0]], r = L[p[1]], d = Math.abs(l - r), mx = Math.max(l, r, 1);
+    return '<div class="pair' + (d >= 8 ? ' flag' : '') + '"><div class="pl">' + p[2] + '</div>' +
+      '<div class="pbars"><div class="pb"><span>左</span><i style="width:' + (l / mx * 100).toFixed(0) + '%"></i><b>' + l + '°</b></div>' +
+      '<div class="pb"><span>右</span><i style="width:' + (r / mx * 100).toFixed(0) + '%"></i><b>' + r + '°</b></div></div>' +
+      '<div class="pd">' + (d >= 8 ? '相差 ' + d + '°' : (d ? '相差 ' + d + '°' : '對稱')) + '</div></div>';
   }).join('');
-  var html = '<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>進度報告 ' + escHtml(c.name || '') + '</title>' +
-    '<style>body{font-family:-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;max-width:820px;margin:20px auto;padding:0 16px;color:#111}' +
-    'h1{font-size:20px;margin:0 0 2px}.sub{color:#6b7280;font-size:13px;margin-bottom:14px}' +
-    '.wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}' +
-    'th{background:var(--c-f3f4f6,#f3f4f6);padding:7px 8px;text-align:center;font-size:12px;color:var(--border2,#374151);border-bottom:2px solid var(--c-e5e7eb,#e5e7eb);white-space:nowrap}th:first-child,td:first-child{text-align:left}' +
-    'td{padding:7px 8px;text-align:center;border-bottom:1px solid var(--c-f0f0f0,#f0f0f0)}td.t{color:#6b7280}.up{color:var(--c-059669,#059669);font-weight:700}.down{color:#dc2626;font-weight:700}' +
-    '.note{margin-top:14px;font-size:12px;color:#6b7280;line-height:1.7}.btn{margin:12px 0;padding:8px 16px;background:#00b386;color:#fff;border:none;border-radius:5px;font-size:14px}' +
-    '@media print{.no-print{display:none}}</style></head><body>' +
-    '<h1>' + escHtml(gym) + ' — 評估進度報告</h1>' +
-    '<div class="sub">客戶：' + escHtml(c.name || '') + (c.sport ? ' · ' + escHtml(c.sport) : '') + ' · 共 ' + data.sessions.length + ' 筆記錄' + (data.sessions.length > 8 ? '（顯示最近8筆）' : '') + ' · 產生日期：' + new Date().toLocaleDateString('zh-TW') + '</div>' +
-    '<button class="btn no-print" onclick="window.print()">🖨 列印 / 儲存 PDF</button>' +
-    '<div class="wrap"><table><thead><tr><th>項目</th>' + head + '<th>目標</th><th>變化</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-    '<div class="note">「變化」為最舊一筆至最新一筆；綠色＝朝目標改善，紅色＝遠離目標。骨盆傾斜／旋轉以愈接近 0° 愈好。數值為教練現場量度，僅供訓練參考，並非醫療診斷。</div>' +
+  var asymN = REPORT_PAIRS.filter(function (p) { return typeof L[p[0]] === 'number' && typeof L[p[1]] === 'number' && Math.abs(L[p[0]] - L[p[1]]) >= 8; }).length;
+
+  // 逐項（按部位分組）
+  var groups = ['骨盆', '下肢', '軀幹', '肩頸'];
+  var ST = { ok: ['達標', 'ok'], near: ['接近', 'near'], low: ['未達標', 'low'] };
+  var table = groups.map(function (g) {
+    var ms = metrics.filter(function (m) { return m.group === g; }); if (!ms.length) return '';
+    return '<tr class="grp"><td colspan="' + (multi ? 6 : 4) + '">' + g + '</td></tr>' + ms.map(function (m) {
+      var v = L[m.key], st = reportStatus(m, v), a = F[m.key];
+      var pct = m.goal === 'zero' ? Math.max(0, 100 - Math.abs(v) / 15 * 100) : Math.min(100, v / m.target * 100);
+      var change = '';
+      if (multi && typeof a === 'number') {
+        var diff = v - a, better = m.goal === 'zero' ? Math.abs(v) < Math.abs(a) : v > a;
+        change = diff === 0 ? '<span class="muted">—</span>' : '<span class="' + (better ? 'good' : 'bad') + '">' + a + '° → ' + v + '°</span>';
+      }
+      return '<tr><td>' + m.label + '</td><td class="num">' + v + '°</td><td><div class="bar"><i class="' + st + '" style="width:' + pct.toFixed(0) + '%"></i></div><div class="tg">目標 ' + (m.goal === 'zero' ? '≈0°' : '≥' + m.target + '°') + '</div></td>' +
+        '<td><span class="pill ' + ST[st][1] + '">' + ST[st][0] + '</span></td>' +
+        (multi ? '<td>' + change + '</td><td>' + reportSpark(sessions.map(function (s) { return (s.snapshot || {})[m.key]; }), m) + '</td>' : '') + '</tr>';
+    }).join('');
+  }).join('');
+
+  var lastDate = reportParseDate(last.date), next = lastDate ? new Date(lastDate.getTime() + 28 * 864e5) : null;
+  var fmt = function (d) { return d ? d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日' : ''; };
+  var logo = gs.logoDataUrl ? '<img class="logo" src="' + gs.logoDataUrl + '" alt="">' : '<div class="mark">' + escHtml(gym.slice(0, 1)) + '</div>';
+
+  var css = '@page{size:A4;margin:14mm}*{box-sizing:border-box}body{font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;max-width:820px;margin:24px auto;padding:0 20px;color:#1c1b18;font-size:13px;line-height:1.55;background:#fff}' +
+    '.top{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:3px solid #1c1b18}.logo{width:52px;height:52px;object-fit:contain}.mark{width:52px;height:52px;border-radius:12px;background:#1c1b18;color:#f2a93b;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700}' +
+    '.brand{flex:1}.brand b{font-size:18px;letter-spacing:.5px}.brand div{color:#6b675e;font-size:12px}.doc{text-align:right}.doc h1{font-size:20px;margin:0}.doc div{color:#6b675e;font-size:12px}' +
+    '.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 18px}.meta div{background:#f6f4ef;border-radius:8px;padding:9px 11px}.meta span{display:block;color:#6b675e;font-size:11px}.meta b{font-size:14px}' +
+    'h2{font-size:15px;margin:22px 0 10px;padding-left:9px;border-left:4px solid #e0982b}' +
+    '.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.card{border:1px solid #e6e1d6;border-radius:10px;padding:12px}.card .k{color:#6b675e;font-size:11.5px}.card .v{font-size:24px;font-weight:700;margin:2px 0}.card .d{font-size:12px;color:#3f3c35}' +
+    '.recs{display:grid;gap:10px}.rec{border:1px solid #e6e1d6;border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:28px 1fr;gap:10px;break-inside:avoid}.rec .n{width:26px;height:26px;border-radius:50%;background:#1c1b18;color:#f2a93b;display:flex;align-items:center;justify-content:center;font-weight:700}.rec b{font-size:14px}.rec p{margin:3px 0 0;color:#3f3c35}.rec .f{margin-top:6px;font-size:12.5px}.rec .f em{font-style:normal;color:#b7791f;font-weight:600}' +
+    '.pairs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 14px}.pair{display:grid;grid-template-columns:70px 1fr 64px;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;break-inside:avoid}.pair.flag{background:#fdf3e2}.pl{font-weight:600}.pb{display:flex;align-items:center;gap:6px;font-size:11.5px}.pb span{color:#6b675e;width:14px}.pb i{height:7px;border-radius:4px;background:#c9b48a;display:block}.pb b{font-weight:500}.pd{font-size:11.5px;text-align:right;color:#6b675e}.pair.flag .pd{color:#b45309;font-weight:600}' +
+    'table{width:100%;border-collapse:collapse}th{text-align:left;font-size:11.5px;color:#6b675e;font-weight:500;padding:6px 8px;border-bottom:1px solid #d6d1c4}td{padding:7px 8px;border-bottom:1px solid #eeeae1;vertical-align:middle}tr{break-inside:avoid}tr.grp td{background:#f6f4ef;font-weight:600;font-size:12px;padding:5px 8px}td.num{font-weight:600;white-space:nowrap}' +
+    '.bar{height:7px;background:#eeeae1;border-radius:4px;overflow:hidden;min-width:90px}.bar i{display:block;height:100%}.bar i.ok{background:#2f855a}.bar i.near{background:#d69e2e}.bar i.low{background:#c53030}.tg{font-size:10.5px;color:#8a857a;margin-top:2px}' +
+    '.pill{font-size:11px;padding:1px 8px;border-radius:10px;white-space:nowrap}.pill.ok{background:#e6f4ea;color:#276749}.pill.near{background:#fdf3e2;color:#975a16}.pill.low{background:#fdeaea;color:#9b2c2c}.good{color:#276749;font-weight:600}.bad{color:#9b2c2c;font-weight:600}.muted{color:#8a857a}' +
+    '.note{min-height:70px;border:1px dashed #cfc8b8;border-radius:10px;padding:10px 12px;outline:none;white-space:pre-wrap}.note:empty::before{content:"教練備註（可以直接喺度打字，列印時會一齊印出）";color:#a8a294}' +
+    '.next{margin-top:14px;display:flex;justify-content:space-between;gap:12px;padding:12px 14px;background:#1c1b18;color:#f6f4ef;border-radius:10px}.next b{color:#f2a93b}' +
+    '.disc{margin-top:16px;font-size:11px;color:#8a857a;line-height:1.6}.btns{display:flex;gap:8px;margin:0 0 16px}.btn{padding:9px 16px;background:#1c1b18;color:#f2a93b;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}' +
+    '@media print{.no-print{display:none}body{margin:0;padding:0;max-width:none}.next{-webkit-print-color-adjust:exact;print-color-adjust:exact}.mark,.rec .n,.bar i,.pill,.pair.flag,.meta div,tr.grp td{-webkit-print-color-adjust:exact;print-color-adjust:exact}}' +
+    '@media (max-width:640px){.meta,.sum{grid-template-columns:1fr 1fr}.pairs{grid-template-columns:1fr}.doc{display:none}table{font-size:12px}}';
+
+  var sumCards = '<div class="card"><div class="k">達標項目</div><div class="v">' + okN + ' / ' + metrics.length + '</div><div class="d">' + (okN === metrics.length ? '全部達到目標範圍' : '仲有 ' + (metrics.length - okN) + ' 項未達標或接近') + '</div></div>' +
+    '<div class="card"><div class="k">' + (multi ? '同第一次比較' : '左右不對稱') + '</div><div class="v">' + (multi ? improved.length + ' 項進步' : asymN + ' 處') + '</div><div class="d">' + (multi ? (worse.length ? worse.length + ' 項退步，下次要留意' : '冇項目退步') : (asymN ? '左右相差 8° 或以上' : '左右大致對稱')) + '</div></div>' +
+    '<div class="card"><div class="k">優先處理</div><div class="v" style="font-size:16px;margin-top:6px">' + (recs.length ? escHtml(REPORT_RECS[recs[0].m.rec][0]) : '保持現狀') + '</div><div class="d">' + (recs.length ? recs[0].m.label + ' ' + recs[0].v + '°（目標 ' + (recs[0].m.goal === 'zero' ? '≈0°' : '≥' + recs[0].m.target + '°') + '）' : '繼續維持訓練') + '</div></div>';
+  var recHtml = recs.length ? recs.map(function (it, i) {
+    var r = REPORT_RECS[it.m.rec];
+    return '<div class="rec"><div class="n">' + (i + 1) + '</div><div><b>' + r[0] + '</b><span class="muted">　' + it.m.label + ' ' + it.v + '°</span><p>' + r[1] + '</p><div class="f">訓練方向：<em>' + r[2] + '</em></div></div></div>';
+  }).join('') : '<div class="rec"><div class="n">✓</div><div><b>主要項目都喺目標範圍</b><p>繼續保持現有訓練，下次評估確認可以維持。</p></div></div>';
+
+  var html = '<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>體態評估報告 ' + escHtml(c.name || '') + '</title><style>' + css + '</style></head><body>' +
+    '<div class="btns no-print"><button class="btn" onclick="window.print()">列印／儲存 PDF</button></div>' +
+    '<div class="top">' + logo + '<div class="brand"><b>' + escHtml(gym) + '</b><div>' + (coach ? '評估教練：' + escHtml(coach) : '體態及動作評估') + '</div></div><div class="doc"><h1>體態評估報告</h1><div>Postural Assessment Report</div></div></div>' +
+    '<div class="meta"><div><span>客戶</span><b>' + escHtml(c.name || '—') + '</b></div><div><span>評估日期</span><b>' + escHtml(last.date || '') + '</b></div><div><span>評估次數</span><b>第 ' + data.sessions.length + ' 次</b></div><div><span>' + (c.sport ? '運動／目標' : '比較基準') + '</span><b>' + escHtml(c.sport || (multi ? first.date : '首次評估')) + '</b></div></div>' +
+    '<h2>重點總結</h2><div class="sum">' + sumCards + '</div>' +
+    '<h2>建議優先處理</h2><div class="recs">' + recHtml + '</div>' +
+    (pairs ? '<h2>左右對稱</h2><div class="pairs">' + pairs + '</div>' : '') +
+    '<h2>逐項結果</h2><table><thead><tr><th>項目</th><th>今次</th><th>對比目標</th><th>狀態</th>' + (multi ? '<th>變化（首次 → 今次）</th><th>趨勢</th>' : '') + '</tr></thead><tbody>' + table + '</tbody></table>' +
+    '<h2>教練備註</h2><div class="note" contenteditable="true"></div>' +
+    '<div class="next"><span>建議下次評估</span><b>' + (next ? fmt(next) + '前後（約 4 星期後）' : '約 4 星期後') + '</b></div>' +
+    '<div class="disc">本報告數值由教練現場量度，用於訓練規劃參考，並非醫療診斷。如有疼痛、麻痺或受傷，請先諮詢醫生或物理治療師。目標角度為一般參考值，個人情況可能不同。<br>' + escHtml(gym) + ' · 報告產生日期：' + fmt(new Date()) + '</div>' +
     '</body></html>';
   w.document.open(); w.document.write(html); w.document.close();
 }
@@ -14503,7 +14620,7 @@ async function shareClientProgress(id) {
     lines.push({ imp: improved, mag: Math.abs(b - a), t: (improved ? '✅ ' : '⚠️ ') + m.label + '：' + a + '° → ' + b + '°' });
   });
   lines.sort(function (x, y) { return (y.imp - x.imp) || (y.mag - x.mag); });
-  var gym = (typeof gymSettings !== 'undefined' && gymSettings.name) ? gymSettings.name : 'FUSE';
+  var gym = reportGymSettings().name || 'KINESIS';
   var text = '📊 ' + (c.name || '') + ' 評估進度（' + first.date + ' → ' + last.date + '）\n' +
     (lines.length ? lines.slice(0, 8).map(function (l) { return l.t; }).join('\n') : '兩次評估數值冇明顯變化') +
     '\n— ' + gym;
