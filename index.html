@@ -2684,7 +2684,7 @@ html[data-theme="bone"][data-edition="fit"] { --accent: #27615F; --accent-rgb: 4
     <div class="pain-list-item" onclick="openClusterDetail('cl_ucs_lcs_combined')"><span class="pli-emoji">🪑</span><div class="pli-text"><div class="pli-name">上交叉 ＋ 下交叉症候群同時出現</div><div class="pli-sub">久坐族最常見全身組合 · 同一個坐姿的上下半身表現</div></div><span class="pli-arrow">›</span></div>
     <div class="pain-list-item" onclick="openClusterDetail('cl_full_left_aic')" style="border-color:rgba(250,204,21,.3)"><span class="pli-emoji">🧭</span><div class="pli-text"><div class="pli-name">完整 Left AIC 模式（骨盆→肋廓→肩胛）</div><div class="pli-sub">⬆️⬇️ 上下連動 · PRI核心不對稱模式，由下而上的單一套代償</div></div><span class="pli-arrow">›</span></div>
     <div class="pain-list-item" onclick="openClusterDetail('cl_breathing_foundation')" style="border-color:rgba(250,204,21,.3)"><span class="pli-emoji">🫁</span><div class="pli-text"><div class="pli-name">ZOA 喪失連鎖影響全身多個體態模式</div><div class="pli-sub">⬆️⬇️ 上下連動 · 呼吸不只呼吸，頸椎/胸椎/肩胛的上游變數</div></div><span class="pli-arrow">›</span></div>
-    <div class="pain-list-item" onclick="openClusterDetail('cl_pelvis_rib_scapula_link')" style="border-color:rgba(250,204,21,.3)"><span class="pli-emoji">⬆️⬇️</span><div class="pli-text"><div class="pli-name">骨盆前傾/腰椎前凸 為何令圓肩/翼狀肩胛斷不到尾</div><div class="pli-sub">⬆️⬇️ 上下連動 · 只練肩胛穩定，效果好可能好有限</div></div><span class="pli-arrow">›</span></div>
+    <div class="pain-list-item" onclick="openClusterDetail('cl_pelvis_rib_scapula_link')" style="border-color:rgba(250,204,21,.3)"><span class="pli-emoji">⬆️⬇️</span><div class="pli-text"><div class="pli-name">骨盆前傾/腰椎前凸 為何令圓肩/翼狀肩胛斷不到尾</div><div class="pli-sub">⬆️⬇️ 上下連動 · 只練肩胛穩定，效果可能很有限</div></div><span class="pli-arrow">›</span></div>
     <div class="pain-list-item" onclick="openClusterDetail('cl_lifter_pattern')"><span class="pli-emoji">🏋️</span><div class="pli-text"><div class="pli-name">健力／重量訓練者常見代償組合</div><div class="pli-sub">訓練導致的獲得性體態問題 · 不同於久坐型成因</div></div><span class="pli-arrow">›</span></div>
     <div class="pain-list-item" onclick="openClusterDetail('cl_runner_pattern')"><span class="pli-emoji">🏃</span><div class="pli-text"><div class="pli-name">跑者常見代償組合</div><div class="pli-sub">高重複次數單一平面動作 · 微小代償被上千步放大</div></div><span class="pli-arrow">›</span></div>
 
@@ -3945,17 +3945,17 @@ html[data-theme="bone"][data-edition="fit"] { --accent: #27615F; --accent-rgb: 4
 <!-- ══════════════════ ZOOM OVERLAY ══════════════════ -->
 <div class="zoom-overlay" id="zoom-overlay">
   <div class="zoom-overlay-header">
-    <span class="zoom-overlay-title" id="zoom-overlay-title">FRONT VIEW</span>
-    <button class="zoom-close" id="zoom-close">✕ CLOSE</button>
+    <span class="zoom-overlay-title" id="zoom-overlay-title">正面 — 左右對稱性</span>
+    <button class="zoom-close" id="zoom-close">✕ 關閉</button>
   </div>
   <div class="zoom-canvas-wrap" id="zoom-canvas-wrap">
     <canvas id="canvas-zoom"></canvas>
   </div>
   <div class="zoom-footer">
-    <button class="zoom-footer-btn active-view" data-zview="front">FRONT</button>
-    <button class="zoom-footer-btn" data-zview="side">SIDE</button>
-    <button class="zoom-footer-btn" data-zview="back">BACK</button>
-    <span class="zoom-hint">scroll = zoom · drag = pan · double-click = reset</span>
+    <button class="zoom-footer-btn active-view" data-zview="front">正面</button>
+    <button class="zoom-footer-btn" data-zview="side">側面</button>
+    <button class="zoom-footer-btn" data-zview="back">背面</button>
+    <span class="zoom-hint">滾輪縮放 · 拖曳平移 · 雙擊重置</span>
   </div>
 </div>
 
@@ -8397,7 +8397,7 @@ let zoomOffsetY = 0;
 let zoomDragging = false;
 let zoomDragStart = { x: 0, y: 0 };
 
-const VIEW_LABELS = { front: 'FRONT VIEW — 左右對稱性', side: 'SIDE VIEW — ZOA 前後空間', back: 'BACK VIEW — 肩胛 / 脊椎' };
+const VIEW_LABELS = { front: '正面 — 左右對稱性', side: '側面 — ZOA 前後空間', back: '背面 — 肩胛 / 脊椎' };
 
 function resizeZoomCanvas() {
   zoomCanvas.width  = zoomWrap.clientWidth;
@@ -8467,6 +8467,8 @@ function applyViewportZoom(vp, canvas, mouseX, mouseY, factor) {
 }
 
 // ── Wire viewport mouse/wheel events ──
+// 畫布用裝置像素（高解像度），拖曳位移要乘返同一倍數
+function WD() { return window.__wireDpr || 1; }
 function attachViewportEvents(canvasEl, vpKey, drawFn) {
   const vp = vpState[vpKey];
 
@@ -8484,7 +8486,7 @@ function attachViewportEvents(canvasEl, vpKey, drawFn) {
   canvasEl.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
     vp.dragging = true;
-    vp.dragStart = { x: e.clientX - vp.ox, y: e.clientY - vp.oy };
+    vp.dragStart = { x: e.clientX * WD() - vp.ox, y: e.clientY * WD() - vp.oy };
     canvasEl.style.cursor = 'grabbing';
     e.preventDefault();
   });
@@ -8501,7 +8503,7 @@ function attachViewportEvents(canvasEl, vpKey, drawFn) {
   canvasEl.addEventListener('touchstart', e => {
     if (e.touches.length === 1) {
       vp.dragging = true;
-      vp.dragStart = { x: e.touches[0].clientX - vp.ox, y: e.touches[0].clientY - vp.oy };
+      vp.dragStart = { x: e.touches[0].clientX * WD() - vp.ox, y: e.touches[0].clientY * WD() - vp.oy };
     } else if (e.touches.length === 2) {
       vp.dragging = false;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -8514,8 +8516,8 @@ function attachViewportEvents(canvasEl, vpKey, drawFn) {
   canvasEl.addEventListener('touchmove', e => {
     e.preventDefault();
     if (e.touches.length === 1 && vp.dragging) {
-      vp.ox = e.touches[0].clientX - vp.dragStart.x;
-      vp.oy = e.touches[0].clientY - vp.dragStart.y;
+      vp.ox = e.touches[0].clientX * WD() - vp.dragStart.x;
+      vp.oy = e.touches[0].clientY * WD() - vp.dragStart.y;
       drawFn();
     } else if (e.touches.length === 2 && vpTouchDist) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -8539,8 +8541,8 @@ window.addEventListener('mousemove', e => {
     if (k !== av) return; // only pan the active view
     const vp = vpState[k];
     if (!vp.dragging) return;
-    vp.ox = e.clientX - vp.dragStart.x;
-    vp.oy = e.clientY - vp.dragStart.y;
+    vp.ox = e.clientX * WD() - vp.dragStart.x;
+    vp.oy = e.clientY * WD() - vp.dragStart.y;
     if (k === 'front') drawFrontZoomed();
     else if (k === 'side') drawSideZoomed();
     else drawBackZoomed();
@@ -15285,7 +15287,7 @@ var CLUSTER_DB = {
   cl_apt_lordosis_lcs:{
     emoji:'〽️', name:'骨盆前傾 ＋ 腰椎過度前凸 ＋ 下交叉症候群 ＋ 假胯寬 ＋ ZOA 喪失', sub:'同一個代償鏈的五種描述層次——骨盆位置、脊椎曲線、全身肌肉分布、髖外側軟組織代償、呼吸機轉',
     members:[{key:'apt',linkType:'posture',label:'🟡 骨盆前傾 APT'},{key:'lordosis',linkType:'posture',label:'〽️ 腰椎過度前凸 Hyperlordosis'},{key:'lcs',linkType:'posture',label:'🟠 下交叉症候群 LCS'},{key:'falsehipwidth',linkType:'posture',label:'📐 假胯寬 False Hip Width'},{key:'zoa',linkType:'posture',label:'🫁 ZOA 橫膈膜附著區喪失'}],
-    overview:'這幾個名詞常被學生（甚至部分教練）誤以為是幾種不同問題，其實它們是同一個代償模式在不和「觀察尺度」下的描述：APT 是骨盆這塊骨頭本身的傾斜角度，Hyperlordosis 是骨盆傾斜連帶讓腰椎曲線跟著加大的脊椎後果，LCS 則是造成這一切背後、橫跨髖關節上下四條肌肉的緊張/無力配對模式。看到其中一個，幾乎可以預期另外幾個也在場。這條鏈甚至會延伸到髖關節外側的軟組織外觀（假胯寬），以及呼吸機轉本身——ZOA（橫膈膜附著區）喪失和APT/Lordosis其實是同一個力學故事的呼吸版本：肋骨長期外旋外翻，正正就是骨盆前傾、腰椎前凸背後的同一組肌肉張力失衡所導致。',
+    overview:'這幾個名詞常被學生（甚至部分教練）誤以為是幾種不同問題，其實它們是同一個代償模式在不同「觀察尺度」下的描述：APT 是骨盆這塊骨頭本身的傾斜角度，Hyperlordosis 是骨盆傾斜連帶讓腰椎曲線跟著加大的脊椎後果，LCS 則是造成這一切背後、橫跨髖關節上下四條肌肉的緊張/無力配對模式。看到其中一個，幾乎可以預期另外幾個也在場。這條鏈甚至會延伸到髖關節外側的軟組織外觀（假胯寬），以及呼吸機轉本身——ZOA（橫膈膜附著區）喪失和APT/Lordosis其實是同一個力學故事的呼吸版本：肋骨長期外旋外翻，正正就是骨盆前傾、腰椎前凸背後的同一組肌肉張力失衡所導致。',
     whyTogether:'骨盆可以想像成一個裝滿水的臉盆，前後各有一組肌肉像繩子一樣拉著它的邊緣。髂腰肌和豎脊肌在前上方/後方過度縮短，會把骨盆往前下方拉（前傾＝APT）；同時腹直肌／腹橫肌與臀大肌在前下方/後方過度無力，沒有足夠張力把骨盆往後拉回來對抗——這一組「前方緊、後方鬆」的四條肌肉配對，就是 Janda 定義的下交叉症候群（LCS）。骨盆前傾角度增加後，腰椎為了讓上半身重心維持在骨盆正上方，會被迫增加前凸曲度來代償，這就是腰椎過度前凸的成因。與此同時，骨盆前傾會令股骨相對進入內旋位置，改變大轉子在髖臼外側的相對突出程度；加上LCS核心定義的臀大肌無力，經常合併臀中肌後束功能受抑制，髖外展這項工作被迫轉交給TFL代償，TFL長期超負荷發達，將股骨大轉子區域向外頂出，形成外觀上「假胯寬」。同一組「腹肌無力+豎脊肌過度緊繃」的力學失衡，往上延伸也會反映在肋骨的位置上——正常情況下，肋骨需要維持內旋（向下）的位置，橫膈膜才能有效貼附在下肋骨內側形成ZOA；但當豎脊肌過度緊繃、腹橫肌/腹內外斜肌張力不足以將肋骨向下拉，肋骨會傾向外旋、上提，形成「肋骨外翻」（Rib Flare），ZOA隨之喪失，橫膈膜無法有效發揮活塞擴張效果，只能依賴上胸廓的淺層呼吸代償。五者是同一因果鏈上的五個節點，不是五個獨立問題。',
     chain:'髂腰肌+豎脊肌縮短 ＋ 臀大肌+腹肌無力（LCS 肌肉分布）→ 骨盆前上緣被過度拉向前下方（APT，骨盆位置）→ 腰椎代償性增加前凸曲度以維持重心（Hyperlordosis，脊椎曲線）→ 腰椎小面關節與椎間盤後側承受更大壓力；同一組腹肌無力/豎脊肌緊繃 → 肋骨失去向下的內旋牽引力、傾向外旋上提（肋骨外翻）→ 橫膈膜失去下肋骨內側的附著區（ZOA喪失）→ 呼吸被迫依賴上胸廓淺層代償；同時 臀大肌/臀中肌後束功能抑制 → 髖外展工作轉交TFL代償 → TFL長期超負荷發達，將大轉子區域向外頂出（假胯寬，軟組織外觀層次）',
     commonIn:'長期久坐（髖屈肌縮短時間長）、高跟鞋使用者、深蹲/硬舉時「用腰代替髖」的訓練者、產後核心尚未恢復的女性、長期側躺睡姿壓迫同側髖外側者（假胯寬視覺上更明顯）、習慣性挺胸收腹但腰椎過度伸展站姿者（肋骨外翻視覺上更明顯）。',
@@ -15358,7 +15360,7 @@ var CLUSTER_DB = {
   ,cl_cavus_varus_chain:{
     emoji:'🏹', name:'高足弓/旋後 ＋ O型腿 ＋ 髖部代償', sub:'旋後主導鏈——和扁平足/膝內扣鏈方向相反的「另一半」',
     members:[{key:'flatfoot',linkType:'posture',label:'👣 高足弓 Pes Cavus（旋後端）'},{key:'varum',linkType:'posture',label:'🦿 O 型腿 Genu Varum'}],
-    overview:'如果話「膝內扣＋扁平足/旋前＋髖內旋」是下肢閉鎖鏈其中一個方向的代償故事，那麼「高足弓＋O型腿」就是同一條鏈的另一個方向——旋後（Supination）主導的版本。這個組合在教練現場沒扁平足/膝內扣那麼常被討論，但對於足底衝擊吸收差、反覆外側腳踝扭傷的學生來講，往往才是真正的根源。',
+    overview:'如果說「膝內扣＋扁平足/旋前＋髖內旋」是下肢閉鎖鏈其中一個方向的代償故事，那麼「高足弓＋O型腿」就是同一條鏈的另一個方向——旋後（Supination）主導的版本。這個組合在教練現場不如扁平足/膝內扣那麼常被討論，但對於足底衝擊吸收差、反覆外側腳踝扭傷的學生來講，往往才是真正的根源。',
     whyTogether:'高足弓（Pes Cavus）足底接觸面積細，天生衝擊吸收能力差，足部需要用「旋後」（Supination）來代償，令距下關節傾向內翻鎖定；這個旋後力矩會帶動脛骨產生代償性外旋，向上傳遞到膝關節，令膝蓋有外翻/往外的傾向，形成O型腿的外觀表現之一。同時，足部旋後主導者的足踝比較剛性、缺乏彈性緩衝，反覆的外側踝關節扭傷風險因而增加。這條鏈和扁平足/膝內扣鏈剛好方向相反：一個是足部塌陷帶動脛骨內旋、膝蓋內夾；另一個是足弓過高帶動脛骨外旋、膝蓋外翻——但兩者都反映住同一個核心問題：足部未能在旋前（吸震）和旋後（推進剛化）之間靈活轉換，只是卡死在不同的方向。',
     chain:'高足弓／足部衝擊吸收能力差 → 距下關節傾向旋後／內翻鎖定 → 脛骨代償性外旋 → 膝關節外側承受額外壓力，向外傾斜傾向增加（O型腿的其中一種功能性成因）→ 足踝剛性增加、彈性緩衝下降 → 反覆外側踝關節扭傷風險上升',
     commonIn:'高足弓體質者（部分為結構性/家族性）、反覆發生外側踝關節扭傷的運動員、需要長時間單腳站立/側向移動的運動項目（如網球、羽毛球）、部分神經肌肉疾病背景者（嚴重高足弓需要優先排除Charcot-Marie-Tooth等神經肌肉病變）。',
@@ -15390,7 +15392,7 @@ var CLUSTER_DB = {
   ,cl_breathing_foundation:{
     emoji:"🫁",name:"ZOA 喪失如何連鎖影響全身多個體態模式",sub:"呼吸不只呼吸——橫膈膜位置是頸椎/胸椎/肩胛體態的上游變數",
     members:[{key:"zoa",linkType:"posture",label:"🫁 ZOA 橫膈膜附著區喪失"},{key:"thoracicflatback",linkType:"posture",label:"➖ 胸椎平背"},{key:"militaryneck",linkType:"posture",label:"🪖 軍人頸"},{key:"staticscapwing",linkType:"posture",label:"🦅 靜態翼狀肩胛"}],
-    overview:"橫膈膜不只得呼吸功能，它還是核心穩定系統的「天花板」，和骨盆底肌（地板）一起構成腹內壓力的密封系統。當ZOA（橫膈膜附著區）喪失，橫膈膜失去有效的活塞式收縮能力，身體會被迫用呼吸輔助肌（上斜方肌/斜角肌/胸鎖乳突肌）代償，這個代償不只影響呼吸效率，還會直接改變頸椎、胸椎、肩胛的姿勢。",
+    overview:"橫膈膜不只有呼吸功能，它還是核心穩定系統的「天花板」，和骨盆底肌（地板）一起構成腹內壓力的密封系統。當ZOA（橫膈膜附著區）喪失，橫膈膜失去有效的活塞式收縮能力，身體會被迫用呼吸輔助肌（上斜方肌/斜角肌/胸鎖乳突肌）代償，這個代償不只影響呼吸效率，還會直接改變頸椎、胸椎、肩胛的姿勢。",
     whyTogether:"肋骨長期外翻/上提是ZOA喪失的結構起點，橫膈膜因而失去下肋骨內側的有效附著面，呼吸被迫轉為上胸式主導。斜角肌/上斜方肌/胸鎖乳突肌這些原本只在費力吸氣（例如運動後喘氣）先參與的輔助肌群，變成每一口呼吸都要參與，長期過度活躍會將頸椎拉向過度前凸來配合它們的拉力方向；同時，肋骨鎖死在外旋位會令胸椎失去正常的後凸活動度，形成平背；胸廓失去正常的肩胛滑動平面，前鋸肌難以有效參與，形成翼狀肩胛。這四個發現其實是同一個呼吸代償由頸至肩的連續表現。",
     chain:"肋骨長期外翻/上提（ZOA喪失起點）→ 橫膈膜失去下肋骨內側附著面 → 呼吸被迫轉為上胸式 → 斜角肌/上斜方肌/胸鎖乳突肌過度參與吸氣輔助 → 頸椎過度前凸代償配合輔助吸氣肌拉力方向（軍人頸）→ 胸椎因肋骨鎖死在外旋位而失去正常後凸活動度（胸椎平背）→ 肩胛失去正常胸廓滑動平面，前鋸肌難以有效參與（翼狀肩胛）",
     commonIn:"長期壓力大/焦慮狀態者（呼吸模式最先受情緒影響）、游泳/管樂器演奏者（單側或特殊呼吸模式訓練）、產後媽媽（腹內壓力系統尚未恢復）、長期胸式呼吸的健身愛好者（誤以為挺胸收腹就是好姿勢）。",
@@ -15402,7 +15404,7 @@ var CLUSTER_DB = {
   ,cl_lifter_pattern:{
     emoji:"🏋️",name:"健力／重量訓練者常見代償組合",sub:"訓練導致的獲得性體態問題 · 由「錯誤動作模式」練出來，不是由久坐練出來",
     members:[{key:"valgum",linkType:"posture",label:"❌ 膝內扣"},{key:"apt",linkType:"posture",label:"🟡 骨盆前傾"},{key:"staticscapwing",linkType:"posture",label:"🦅 靜態翼狀肩胛"}],
-    overview:"這個組合不是源自單一的肌肉失衡模式，而是源自「用大重量練習錯誤動作模式」這個共同成因——當深蹲/硬舉技術本身有代償，長期高頻率/高負荷訓練會將這個代償模式「刻」得更深，形成訓練導致的獲得性體態問題，同一般久坐導致的體態問題在處理邏輯上有明顯分別。",
+    overview:"這個組合不是源自單一的肌肉失衡模式，而是源自「用大重量練習錯誤動作模式」這個共同成因——當深蹲/硬舉技術本身有代償，長期高頻率/高負荷訓練會將這個代償模式「刻」得更深，形成訓練導致的獲得性體態問題，與一般久坐導致的體態問題在處理邏輯上有明顯分別。",
     whyTogether:"深蹲底部因踝背屈/髖內旋空間不足，身體會用膝內扣代償換取深度；硬舉/深蹲若用腰代替髖鉸鏈發力，會令骨盆前傾角度持續增加；大重量過頭推舉/臥推時若肩胛穩定能力不足，會借用上斜方肌代償聳肩完成動作，長期形成翼狀肩胛。三者的共同點是：都是身體在負重情況下，用相對「省力」但長遠增加關節壓力的代償路徑去完成動作。",
     chain:"深蹲底部踝背屈/髖內旋空間不足 → 膝內扣代償換取深度（valgum）→ 硬舉/深蹲用腰代替髖鉸鏈 → 骨盆前傾角度增加（apt）→ 大重量過頭推舉/臥推肩胛穩定不足 → 借用上斜方肌代償聳肩完成動作（staticscapwing）",
     commonIn:"健力/健美訓練者、CrossFit愛好者、自學深蹲硬舉沒教練指導者、追求數字進步多於動作品質者。",
@@ -15412,7 +15414,7 @@ var CLUSTER_DB = {
   ,cl_runner_pattern:{
     emoji:"🏃",name:"跑者常見代償組合",sub:"高重複次數單一平面動作 · 微小代償會被上千步重複放大",
     members:[{key:"apt",linkType:"posture",label:"🟡 骨盆前傾"},{key:"valgum",linkType:"posture",label:"❌ 膝內扣"},{key:"flatfoot",linkType:"posture",label:"👣 扁平足/旋前"}],
-    overview:"跑步是高重複次數的單一平面動作（矢狀面為主），如果骨盆/髖部控制能力不夠，身體會用相對省力但長遠增加傷害風險的代償模式去完成每一步的重複負荷——因為一次訓練的步數動輒上千步，好細微的代償都會被重複放大，最終演變成明顯的體態問題甚至過度使用性損傷。",
+    overview:"跑步是高重複次數的單一平面動作（矢狀面為主），如果骨盆/髖部控制能力不夠，身體會用相對省力但長遠增加傷害風險的代償模式去完成每一步的重複負荷——因為一次訓練的步數動輒上千步，很細微的代償都會被重複放大，最終演變成明顯的體態問題甚至過度使用性損傷。",
     whyTogether:"髖伸展/臀大肌推進力不足時，每步後蹬階段身體會改用骨盆前傾借力/腰椎代償伸展；單腳支撐期若臀中肌/臀大肌後束離心控制不足，會出現對側骨盆下沉合併膝蓋內扣代償；足部為了吸收反覆落地的衝擊力，會代償性過度旋前。三者是同一個「髖部控制力不足、由遠端結構代償吸收」邏輯在矢狀面、額狀面、足部的不同表現。",
     chain:"髖伸展/臀大肌推進力不足 → 每步後蹬階段改用骨盆前傾借力/腰椎代償伸展（apt）→ 單腳支撐期臀中肌/臀大肌後束離心控制不足 → 對側骨盆下沉+膝蓋內扣代償（valgum）→ 足部代償性過度旋前吸收衝擊（flatfoot）",
     commonIn:"長跑愛好者、馬拉松訓練者、跑量快速增加而沒同步加強肌力訓練者、純粹靠跑步減肥而缺乏跑步以外肌力訓練的初學者。",
@@ -15420,13 +15422,13 @@ var CLUSTER_DB = {
     caution:"很多教練會直接叫跑者「跑姿要這樣那樣」，但單純意識性改變跑姿而背後肌力/控制能力沒跟上，反而可能引發其他部位代償的新問題（例如強行縮短步幅但臀肌力量不夠，變成用小腿/腳踝代償）。跑步的動作矯正一定要配合肌力訓練同步進行，不可以只靠「提示」解決。"
   }
   ,cl_pelvis_rib_scapula_link:{
-    emoji:"⬆️⬇️",name:"骨盆前傾／腰椎前凸 為何會令圓肩／翼狀肩胛斷不到尾",sub:"上下連動問題 · 只練肩胛穩定，效果好可能好有限",
+    emoji:"⬆️⬇️",name:"骨盆前傾／腰椎前凸 為何會令圓肩／翼狀肩胛無法根治",sub:"上下連動問題 · 只練肩胛穩定，效果可能很有限",
     members:[{key:"apt",linkType:"posture",label:"🟡 骨盆前傾 APT"},{key:"lordosis",linkType:"posture",label:"〽️ 腰椎過度前凸"},{key:"roundshoulder",linkType:"posture",label:"🌀 圓肩"},{key:"staticscapwing",linkType:"posture",label:"🕊️ 靜態翼狀肩胛"}],
     overview:"很多教練看到圓肩/翼狀肩胛，直覺反應是做前鋸肌/下斜方肌訓練，但如果學生同時有明顯骨盆前傾/腰椎前凸，單純練肩胛穩定往往進步緩慢甚至完全沒進步——因為問題根源可能不在肩胛本身，而在骨盆位置改變了肋廓的角度，令前鋸肌完全沒辦法在這個肋廓位置下有效發力。",
     whyTogether:"骨盆前傾和腰椎過度前凸，會令髂腰肌/豎脊肌長期處於縮短張力狀態；這組肌肉筋膜連續性向上延伸，加上維持站立平衡的代償需求，會令肋廓傾向伸展/外翻的位置（Rib Flare）來配合骨盆前傾的重心分佈。肋廓外翻/伸展這個姿勢改變，正正就是前鋸肌最難有效發力的位置——前鋸肌需要肋廓處於輕微屈曲/後傾（呼氣末端）的位置才可以有效將肩胛骨拉緊貼服在胸廓表面；當肋廓長期鎖死在伸展/外翻位，前鋸肌就算解剖上沒問題，都會處於長度-張力關係不利收縮的狀態，形成「功能性無力」而非「真正無力」。這個才是很多學生做極多前鋸肌/肩胛訓練都很難根治翼狀肩胛/圓肩的根本原因。",
     chain:"髂腰肌/豎脊肌縮短（LCS/APT）→ 骨盆前傾，腰椎代償性過度前凸 → 為維持重心，肋廓代償性伸展外翻（Rib Flare，ZOA喪失前兆）→ 前鋸肌在伸展位肋廓上處於長度-張力關係不利的位置 → 前鋸肌功能性無力（非真正無力）→ 肩胛骨失去有效的前鋸肌拉力貼服在胸廓上 → 靜態/動態翼狀肩胛、圓肩持續存在，單純肩胛訓練效果有限",
     commonIn:"長期骨盆前傾學生同時抱怨「為何練了好耐前鋸肌都還是翼狀肩胛」、健身教練將圓肩/翼狀肩胛當純上半身問題訓練沒進步的個案、產後媽媽（骨盆前傾+核心尚未恢復+哺乳姿勢加重圓肩）。",
-    fixSequence:[{step:1,title:"先評估骨盆位置",desc:"看到圓肩/翼狀肩胛，同時檢查骨盆前傾角度/腰椎前凸程度，避免預設是純肩胛問題。"},{step:2,title:"骨盆／腰椎處理行先",desc:"參考「骨盆前傾＋腰椎過度前凸＋下交叉症候群」組合的fixSequence，先鬆髂腰肌/豎脊肌，重建臀大肌/腹肌控制。"},{step:3,title:"肋廓位置重建",desc:"90-90呼吸建立肋廓內旋（吐氣下沉）能力，等前鋸肌有一個力學上有利的肋廓位置先開始發力。"},{step:4,title:"才進入肩胛訓練",desc:"在骨盆和肋廓位置改善之後先做Push-Up Plus/Wall Slide等前鋸肌訓練，這個時候的訓練效果會快很多。"},{step:5,title:"整合驗證",desc:"若骨盆/肋廓已經處理但翼狀肩胛仍然明顯，先考慮長胸神經或其他結構性成因，需要轉介評估。"}],
+    fixSequence:[{step:1,title:"先評估骨盆位置",desc:"看到圓肩/翼狀肩胛，同時檢查骨盆前傾角度/腰椎前凸程度，避免預設是純肩胛問題。"},{step:2,title:"優先處理骨盆／腰椎",desc:"參考「骨盆前傾＋腰椎過度前凸＋下交叉症候群」組合的fixSequence，先鬆髂腰肌/豎脊肌，重建臀大肌/腹肌控制。"},{step:3,title:"肋廓位置重建",desc:"90-90呼吸建立肋廓內旋（吐氣下沉）能力，等前鋸肌有一個力學上有利的肋廓位置先開始發力。"},{step:4,title:"才進入肩胛訓練",desc:"在骨盆和肋廓位置改善之後先做Push-Up Plus/Wall Slide等前鋸肌訓練，這個時候的訓練效果會快很多。"},{step:5,title:"整合驗證",desc:"若骨盆/肋廓已經處理但翼狀肩胛仍然明顯，先考慮長胸神經或其他結構性成因，需要轉介評估。"}],
     caution:"這個組合最大的陷阱是教練同學生都會將圓肩/翼狀肩胛當做「肩胛肌肉不夠力」的純局部問題，一味加重前鋸肌訓練負荷甚至加了很多組數，但如果骨盆/肋廓根源沒處理，進步會非常緩慢，甚至會令學生誤以為自己「肩胛特別難練」而失去信心。反過來講，如果骨盆/肋廓都已經處理但還有明顯不對稱翼狀肩胛，就要考慮翻查PRI偏側模式（見「完整Left AIC模式」組合），或者更罕見的長胸神經受損可能性。",
     verticalLink:true,
     verticalLinkNote:"這個組合是典型的「下肢/軀幹問題影響上肢問題」現象——肩胛穩定不只肩胛自己的事，它建立在一個位置正確的肋廓之上；而肋廓位置又建立在一個中立、沒過度前傾的骨盆之上。評估圓肩/翼狀肩胛的時候，應該由下而上檢查骨盆位置，先決定是否需要下肢/軀幹介入行先，而不是一開始就將它當純上肢問題處理。"
@@ -27864,7 +27866,7 @@ function getExercisesForCategory(catName, level, count, weekOffset) {
 
 // 體態糾正目標：由「呼吸／骨盆體位訓練」分類裡面，篩選tags.posture
 // 有包含選擇模式（例如'apt'/'lcs'）的動作，不夠數就再用其他呼吸體
-// 位動作補上。offset用來令不同日／不和「換一批」版本可以選到不同
+// 位動作補上。offset用來令不同日／不同「換一批」版本可以選到不同
 // 的matched動作組合，而不是每日、每次都取回完全一樣那幾條。
 function getPostureExercises(patternKey, count, offset) {
   if (typeof EXERCISE_LIBRARY === 'undefined') return [];
@@ -33765,7 +33767,22 @@ table.k-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-
     'rehab:adductor_strain_acute': { lead: '<em>內收長肌</em>最常受傷，見於快速側向變向與踢擊。<em>分級決定恢復時程</em>。', pain: ['f:adductor:L:內收長肌'] }
   };
   // 由詳情頁標題找出對應項目（復健項目自動附上分期時間線）
+  var CL_LEAD = {"cl_roundshoulder_wing": "圓肩、動態翼狀肩胛與靜態翼狀肩胛是<em>同一條代償鏈的三個嚴重程度</em>，核心在於<em>前鋸肌失能</em>。應<em>先鬆開胸小肌，再訓練前鋸肌</em>。", "cl_apt_lordosis_lcs": "骨盆前傾、腰椎過度前凸、下交叉、假胯寬與 ZOA 喪失，是<em>同一個代償模式的五種描述</em>。應先鬆開髖屈肌與豎脊肌，再喚醒臀肌與腹肌，並以<em>呼吸重建 ZOA</em> 防止復發。", "cl_valgus_chain": "膝內扣<em>很少是膝蓋本身的問題</em>，而是<em>足踝旋前</em>與<em>髖部控制不足</em>兩端同時失守。應先分辨源頭在足踝還是髖部，<em>不要只提示「膝蓋往外推」</em>。", "cl_lateral_asym": "骨盆側傾、功能性腿長差、高低肩與功能性側彎，是<em>同一條額狀面代償斜線</em>，常見於 Left AIC。應<em>從骨盆開始矯正</em>，並先鑑別是否屬<em>結構性</em>問題。", "cl_ucs_triangle": "頭前移、胸椎後凸與圓肩<em>共用同一組緊繃／無力肌群</em>（上交叉症候群）。應<em>先恢復胸椎活動度</em>，而非直接矯正頭頸。", "cl_recurvatum_apt": "膝超伸常是<em>踝背屈不足</em>加上<em>骨盆前傾</em>的站姿代償。應<em>先評估並改善踝背屈</em>，再訓練站姿下的膝關節微屈控制。", "cl_flatback": "平背姿勢是<em>脊椎生理曲線被拉直</em>的全身連鎖，由骨盆後傾向上延伸。應重建<em>骨盆前傾與胸椎後凸的主動控制</em>，不要只做「收下巴」。", "cl_swayback_chain": "懶人站姿是<em>骨盆前移但後傾</em>、上半身後仰、膝超伸鎖死，主要<em>依賴韌帶支撐</em>。應重建骨盆、胸椎與膝關節的<em>主動站姿控制</em>。", "cl_cavus_varus_chain": "高足弓與 O 型腿是<em>旋後主導</em>的下肢代償，方向與扁平足／膝內扣相反，<em>足部緩衝差、容易反覆扭傷</em>。應先排除神經肌肉成因，再改善緩衝與動態穩定。", "cl_ucs_lcs_combined": "上交叉與下交叉同時出現，是<em>同一個久坐姿勢</em>在上下半身的表現。應<em>先建立呼吸與 ZOA</em>，再<em>上下雙線同步</em>放鬆與啟動。", "cl_full_left_aic": "Left AIC 是 PRI 的核心不對稱模式：<em>骨盆右旋 → 胸廓代償 → 肩胛連動</em>。處理次序為<em>骨盆先行、胸廓次之、肩胛最後</em>。", "cl_breathing_foundation": "ZOA 喪失令呼吸變成<em>上胸式</em>，輔助呼吸肌過度工作，連帶影響<em>頸椎、胸椎與肩胛</em>。應<em>先做呼吸模式再教育</em>，再處理胸椎與肩胛。", "cl_lifter_pattern": "重量訓練者的代償多由<em>大重量下的錯誤動作模式</em>練出來。應<em>先降重量再修正動作</em>，優先處理踝關節活動度與髖鉸鏈。", "cl_runner_pattern": "跑步的<em>微小代償會被上千步重複放大</em>，核心是<em>臀肌推進力與單腳支撐控制不足</em>。應先調整跑量，再重建臀肌與骨盆控制。", "cl_pelvis_rib_scapula_link": "骨盆前傾令<em>胸廓外翻</em>，前鋸肌處於不利長度，所以<em>只練肩胛穩定效果有限</em>。應<em>先處理骨盆與胸廓位置</em>，才進入肩胛訓練。"};
+  // 常見體態組合：合併各成員體態的原理圖（側面姿勢＋緊繃／無力肌群）
+  function clusterCfg(key, d) {
+    var cfg = { lead: CL_LEAD[key] || '', cluster: d, tight: [], weak: [] }, seen = {};
+    (d.members || []).forEach(function (m) {
+      if (m.linkType !== 'posture') return;
+      var q = window.KQ['posture:' + m.key]; if (!q) return;
+      if (!cfg.side && q.side) cfg.side = q.side;
+      ['tight', 'weak'].forEach(function (k) { (q[k] || []).forEach(function (x) { var id = x.split(':').slice(0, 2).join(':'); if (!seen[id] && cfg[k].length < 7) { seen[id] = 1; cfg[k].push(x); } }); });
+    });
+    if (!cfg.tight.length) delete cfg.tight; if (!cfg.weak.length) delete cfg.weak;
+    return cfg;
+  }
   window.kLookupItem = function (title) {
+    var CL = typeof CLUSTER_DB !== 'undefined' ? CLUSTER_DB : window.CLUSTER_DB;
+    if (CL) for (var ck in CL) if (CL[ck] && CL[ck].name === title) return clusterCfg(ck, CL[ck]);
     var sets = [['posture', typeof POSTURE_DB !== 'undefined' ? POSTURE_DB : window.POSTURE_DB], ['pain', typeof PAIN_DB !== 'undefined' ? PAIN_DB : window.PAIN_DB],
       ['fascia', typeof FASCIA_DB !== 'undefined' ? FASCIA_DB : window.FASCIA_DB], ['rehab', typeof REHAB_DB !== 'undefined' ? REHAB_DB : window.REHAB_DB]];
     for (var i = 0; i < sets.length; i++) {
@@ -33782,6 +33799,7 @@ table.k-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-
 </script>
 
 <style id="kquick-css">
+.k-caution { font-size: 15px; line-height: 1.75; color: var(--text); padding: 12px 16px; border-radius: 12px; background: rgba(248,113,113,.07); border: 1px solid rgba(248,113,113,.28); border-left: 4px solid #f87171; }
 /* ── v18 詳情頁：「重點」速讀頁＋「詳細」原文（放大字體、突出關鍵詞和角度） ── */
 /* 詳情頁背景改為完全不透明（之前 97%，後面清單的字會隱約透出）；補回深色主題的底色 RGB */
 html[data-theme="amber"] { --bg-rgb: 14,14,15; } html[data-theme="teal"] { --bg-rgb: 10,21,23; }
@@ -34003,6 +34021,28 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     if (tag) Q.tags = [clean(tag.textContent)];
     return Q;
   }
+  function extractCluster(d) {
+    var Q = { flows: [], assess: [], sol: [], tags: [], whys: [] };
+    function step(t) { t = clean(t).replace(/（[^）]{12,}）/g, '').replace(/^同時\s*/, '同時：'); return shorten(t, 30); }
+    String(d.chain || '').split(/；/).forEach(function (seg) {
+      var st = seg.split(/\s*[→←]\s*/).map(step).filter(function (x) { return x.length > 1; });
+      if (st.length >= 2) Q.flows.push({ head: '', steps: st.slice(0, 7) });
+    });
+    Q.flows = Q.flows.slice(0, 2);
+    Q.sol = (d.fixSequence || []).slice(0, 6).map(function (x, i) { return { k: '第 ' + (x.step || i + 1) + ' 步', v: clean(x.title) }; });
+    Q.solTitle = '解決順序（先做甚麼、後做甚麼）';
+    Q.tags = (d.members || []).map(function (m) { return clean(m.label).replace(/^[^\u3400-\u9fffA-Za-z]+/, ''); });
+    Q.tagsTitle = '這個組合包含';
+    if (d.caution) { var c = clean(d.caution).replace(/<[^>]+>/g, ''); var i = c.indexOf('。'); Q.caution = shorten(i > 10 ? c.slice(0, i + 1) : c, 120); }
+    if (d.commonIn) {
+      // 只按括號外的「、」分項
+      var parts = [], cur = '', depth = 0;
+      clean(d.commonIn).replace(/。$/, '').split('').forEach(function (ch) { if (ch === '（' || ch === '(') depth++; if (ch === '）' || ch === ')') depth = Math.max(0, depth - 1); if (ch === '、' && !depth) { parts.push(cur); cur = ''; } else cur += ch; });
+      parts.push(cur);
+      Q.common = parts.map(function (x) { return shorten(x.replace(/（[^）]{10,}）/g, '').trim(), 26); }).filter(Boolean).slice(0, 6);
+    }
+    return Q;
+  }
   function solIcon(k) { return /避免|禁忌|不要|注意|過量/.test(k) ? 'ban' : (/呼吸/.test(k) ? 'lungs' : (/動作|訓練|練習/.test(k) ? 'barbell' : 'target-arrow')); }
   function render(Q, cfg) {
     var h = '', blocks = 0;
@@ -34031,6 +34071,8 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
       cards = '<div class="k-cards3">' + Q.sol.map(function (s) { return '<div class="c"><div class="k">' + ic(solIcon(s.k)) + esc(s.k) + '</div><div class="v">' + esc(s.v) + '</div></div>'; }).join('') + '</div>';
       h += '<div><div class="k-q-h">' + ic('target-arrow') + (Q.solTitle || '處理方向') + '</div>' + cards + '</div>';
     }
+    if (Q.caution) { blocks++; h += '<div><div class="k-q-h">' + ic('alert-triangle') + '常見錯誤</div><div class="k-caution">' + esc(Q.caution) + '</div></div>'; }
+    if (Q.common && Q.common.length) h += '<div><div class="k-q-h">' + ic('users') + '常見族群</div><div class="k-chips2">' + Q.common.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div></div>';
     if (Q.tags.length) h += '<div><div class="k-q-h">' + ic('link') + (Q.tagsTitle || '常見伴隨問題') + '</div><div class="k-chips2">' + Q.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div></div>';
     if (Q.flags && Q.flags.length) h += '<button type="button" class="k-redflag" data-k="flags">' + ic('alert-triangle') + '<span><b>請先排除：</b>' + esc(shorten(Q.flags[0], 46)) + '</span><small>共 ' + Q.flags.length + ' 項紅旗 ›</small></button>';
     return { html: h, blocks: blocks };
@@ -34078,7 +34120,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
       var ov = body.closest('.pain-detail-overlay'), tEl = ov && ov.querySelector('[id$="-title"]');
       var cfg = tEl && window.kLookupItem ? window.kLookupItem(tEl.textContent.trim()) : null;
       var isNut = body.id === 'nt-body';
-      var Q = isNut ? extractNutrition(detail) : extract(detail);
+      var Q = cfg && cfg.cluster ? extractCluster(cfg.cluster) : isNut ? extractNutrition(detail) : extract(detail);
       // 原文常省略主語（「是目前證據……」），補回名稱
       if (Q.lead && tEl && /^(是|為|屬於|可以|能)/.test(Q.lead)) { var nm = tEl.textContent.trim().split(/\s+/)[0]; if (nm && nm.length < 12) Q.lead = nm + Q.lead; }
       if (isNut && Q.evidence) cfg = Object.assign({}, cfg || {}, { evidence: Q.evidence });
@@ -34086,7 +34128,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
       body.classList.toggle('k-has-quick', r.blocks >= 2);
       if (r.blocks < 2) { body.classList.add('k-has-quick'); return; } // 資料不夠就只顯示詳細（已放大）
       var q = document.createElement('div'); q.className = 'k-q'; q.innerHTML = r.html +
-        '<div class="k-q-more"><span>' + (isNut ? '完整作用機轉、證據說明、劑量與注意事項' : '完整機制解釋、常見迷思、訓練時程、矯正動作及相關連動鏈') + '</span><button type="button" data-k="detail">查看詳細 ›</button></div>';
+        '<div class="k-q-more"><span>' + (isNut ? '完整作用機轉、證據說明、劑量與注意事項' : cfg && cfg.cluster ? '完整總覽、為何會一起出現、每一步的詳細做法' : '完整機制解釋、常見迷思、訓練時程、矯正動作及相關連動鏈') + '</span><button type="button" data-k="detail">查看詳細 ›</button></div>';
       var tabs = document.createElement('div'); tabs.className = 'k-qtabs'; tabs.setAttribute('role', 'tablist');
       tabs.innerHTML = '<button type="button" role="tab" data-k="quick" class="on">' + ic('bolt') + '重點</button><button type="button" role="tab" data-k="detail">' + ic('list') + '詳細</button>' +
         '<button type="button" data-k="present" class="k-present-btn" title="全螢幕簡報，用於向客戶講解">' + (window.kIconSvg ? '' : '') + '<span aria-hidden="true" style="display:inline-flex;width:16px;height:16px">' + PRES_ICON + '</span>簡報</button>';
@@ -34230,6 +34272,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
       var i = /避免|禁忌|不要|注意|過量/.test(s.k) ? 'ban' : (/呼吸/.test(s.k) ? 'lungs' : (/動作|訓練|練習/.test(s.k) ? 'barbell' : 'target-arrow'));
       return '<div class="c"><div class="k">' + ic(i) + esc(s.k) + '</div><div class="v">' + num(s.v) + '</div></div>';
     }).join('') + '</div>');
+    if (Q.caution) out.push(kicker('alert-triangle', '常見錯誤') + '<div class="kp-list"><div>' + esc(Q.caution) + '</div></div>');
     var help = helpSlide(d);
     if (help) out.push(help);
     if (Q.flags && Q.flags.length) out.push(kicker('alert-triangle', '出現以下情況，請先求醫') + '<div class="kp-flags">' + Q.flags.map(function (f) { return '<div>' + esc(f) + '</div>'; }).join('') + '</div>');
@@ -34299,6 +34342,245 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     var hint = root.querySelector('.kp-hint'); setTimeout(function () { if (hint) hint.style.opacity = '0'; }, 3500);
     root.querySelector('[data-kp="close"]').focus();
   };
+})();
+</script>
+
+<style id="kwire-css">
+/* ── v24 線框圖：移除 3D 切換、重新設計外觀 ── */
+.viewport-toolbar .vt-toggle, #vt-hint-3d, #three-viewport { display: none !important; }
+.viewport-toolbar .vt-label { font-family: inherit; font-size: 13px; letter-spacing: .5px; color: var(--text); font-weight: 700; }
+.viewport-toolbar .vt-hint { font-size: 11.5px; color: var(--sub); letter-spacing: .3px; }
+.wire-picker { gap: 6px; padding: 8px 10px; background: transparent; border-bottom: 1px solid var(--border); }
+.wire-pick-btn { border-radius: 10px !important; border: 1px solid transparent !important; padding: 8px 6px !important; font-size: 14px !important; font-weight: 700; letter-spacing: .5px !important; font-family: inherit !important; color: var(--sub) !important; background: transparent !important; }
+.wire-pick-btn:hover { background: rgba(var(--ov,255,255,255),.04) !important; color: var(--text) !important; }
+.wire-pick-btn.active { background: rgba(var(--accent-rgb),.10) !important; border-color: rgba(var(--accent-rgb),.35) !important; color: var(--green) !important; box-shadow: none !important; }
+.wire-pick-btn::after { display: none !important; }
+.wire-pick-sub { font-size: 11px !important; font-weight: 500; letter-spacing: .3px !important; margin-top: 2px !important; }
+#wire-viewports .viewport { background:
+  radial-gradient(ellipse 55% 45% at 50% 42%, rgba(var(--accent-rgb),.06), transparent 70%),
+  radial-gradient(rgba(255,255,255,.045) 1px, transparent 1.2px) 0 0 / 22px 22px,
+  var(--bg); }
+#wire-viewports .vp-label { display: none; }
+.zoom-overlay { background: var(--bg) !important; }
+.zoom-overlay-title, .zoom-close, .zoom-footer-btn, .zoom-hint { font-family: inherit !important; letter-spacing: .5px !important; }
+.zoom-overlay-title { font-size: 14px !important; font-weight: 700; }
+.k-wlegend { position: absolute; left: 12px; bottom: 12px; z-index: 4; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; max-width: calc(100% - 24px);
+  padding: 7px 11px; border-radius: 10px; background: rgba(var(--bg-rgb),.82); border: 1px solid var(--border); font-size: 11.5px; color: var(--sub); pointer-events: none; }
+.k-wlegend span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.k-wlegend i { width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--c); background: #141416; }
+.k-wlegend i.ln { width: 14px; height: 3px; border: 0; border-radius: 2px; background: var(--c); }
+.k-wlegend b { color: var(--text); font-weight: 600; margin-right: 2px; }
+</style>
+<script id="kwire-js">
+// ── v24 線框圖重新設計（不改動原本的姿勢計算，只改繪圖外觀）──
+// 1. 高解像度畫布（按裝置像素比例）
+// 2. 關節節點改在最上層統一繪畫（之前骨骼線會穿過節點）
+// 3. 標籤改為中文膠囊標籤，自動排在關節外側，不再與節點重疊
+// 4. 骨骼加上柔和的身體輪廓、狀態顏色更易分辨（正常＝綠、輕度＝黃、明顯＝紅）
+(function () {
+  if (typeof drawFront !== 'function' || typeof ctxF === 'undefined') return;
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  window.__wireDpr = DPR;
+  var FONT = '"Rajdhani","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif';
+  var VARMAP = { '--accent': '#4ade80', '--green': '#4ade80', '--c-f59e0b': '#facc15', '--c-ef4444': '#f87171', '--c-d4c5a0': '#ece4d0',
+    '--c-3b82f6': '#60a5fa', '--c-7a8fa0': '#8fa3b8', '--c-10b981': '#34d399', '--c-fb923c': '#fb923c', '--c-a78bfa': '#a78bfa', '--sub': '#d6d3d1', '--border': '#141416' };
+  function mapCol(v) {
+    if (typeof v !== 'string') return v;
+    var m = v.match(/^var\(\s*(--[a-z0-9-]+)\s*(?:,\s*([^)]*))?\)/i);
+    if (!m) return v;
+    if (VARMAP[m[1]]) return VARMAP[m[1]];
+    var r = getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim();
+    return r || (m[2] || '#888').trim();
+  }
+  function rgba(hex, a) {
+    var m = /^#([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return null;
+    var n = parseInt(m[1], 16); return 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+  var CTXS = [ctxF, ctxS, ctxB];
+  var PROTO = CanvasRenderingContext2D.prototype;
+  CTXS.forEach(function (ctx) {
+    ['fillStyle', 'strokeStyle', 'shadowColor'].forEach(function (p) {
+      var d = Object.getOwnPropertyDescriptor(PROTO, p);
+      Object.defineProperty(ctx, p, { get: function () { return d.get.call(this); }, set: function (v) { d.set.call(this, mapCol(v)); }, configurable: true });
+    });
+  });
+
+  // ── 每一格畫面：收集節點與標籤，最後統一畫在最上層 ──
+  var F = new Map();
+  function start(ctx) { if (!F.has(ctx)) { F.set(ctx, { nodes: [], labels: [] }); Promise.resolve().then(function () { flush(ctx); }); } }
+  CTXS.forEach(function (ctx) {
+    var cr = ctx.clearRect;
+    ctx.clearRect = function (x, y, w, h) { cr.apply(this, arguments); if (w >= this.canvas.width && h >= this.canvas.height) start(this); };
+  });
+  var _dot = dot, _label = labelCanvas, _line = line;
+  dot = function (ctx, x, y, r, fill, stroke, sw) {
+    var f = F.get(ctx); if (!f) return _dot.apply(this, arguments);
+    var col = mapCol(stroke || fill);
+    if (col === '#60a5fa' || col === '#a78bfa') col = '#4ade80'; // 肩／膝的「正常」原本用藍／紫，統一為綠色
+    f.nodes.push({ x: x, y: y, r: r, col: col, sw: sw || 2, m: ctx.getTransform() });
+  };
+  labelCanvas = function (ctx, x, y, text, color, size) {
+    var f = F.get(ctx); if (!f) return _label.apply(this, arguments);
+    f.labels.push({ x: x, y: y, text: String(text), col: mapCol(color || 'var(--sub)'), m: ctx.getTransform() });
+  };
+  line = function (ctx, x1, y1, x2, y2, color, w, dash) {
+    // 骨骼下方加一層柔和的「身體」輪廓
+    if (F.has(ctx) && color === C.bone && !(dash && dash.length)) {
+      ctx.save(); ctx.strokeStyle = 'rgba(236,228,208,0.075)'; ctx.lineWidth = (w || 3) * 5.5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.restore();
+    }
+    return _line.apply(this, arguments);
+  };
+  arcIndicator = function (ctx, cx, cy, r, a0, a1, color, label) {
+    var sc = Math.min(ctx.canvas.width, ctx.canvas.height) / 520;
+    ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 2 * sc; ctx.setLineDash([3 * sc, 3 * sc]);
+    ctx.beginPath(); ctx.arc(cx, cy, r, a0, a1); ctx.stroke(); ctx.restore();
+    var f = F.get(ctx), mid = (a0 + a1) / 2;
+    if (f) f.labels.push({ x: cx + Math.cos(mid) * (r + 10 * sc), y: cy + Math.sin(mid) * (r + 10 * sc), text: String(label), col: mapCol(color), m: ctx.getTransform(), free: true });
+  };
+
+  var TR = { GH: '肩', EL: '肘', HIP: '髖', KN: '膝', ANK: '踝', WR: '腕' };
+  var WORD = { 'DIAPHRAGM': '橫膈膜', 'SCAP': '肩胛', 'SAC': '薦骨', 'APT↑': '骨盆前傾 ↑', 'PPT↓': '骨盆後傾 ↓', '→ rot': '旋轉 →', '← rot': '← 旋轉' };
+  function nice(t) {
+    var m = /^(GH|EL|HIP|KN|ANK|WR)(?:\.([LR]))?$/.exec(t);
+    if (m) return (m[2] ? (m[2] === 'L' ? '左' : '右') : '') + TR[m[1]];
+    m = /^(ASIS|PSIS)\.([LR])$/.exec(t); if (m) return (m[2] === 'L' ? '左 ' : '右 ') + m[1];
+    m = /^SCAP\.([LR])$/.exec(t); if (m) return (m[1] === 'L' ? '左' : '右') + '肩胛';
+    m = /^⚠ ([LR])前引$/.exec(t); if (m) return '⚠ ' + (m[1] === 'L' ? '左' : '右') + '肩胛前引';
+    return WORD[t] || t;
+  }
+  function flush(ctx) {
+    var f = F.get(ctx); if (!f) return; F.delete(ctx);
+    var W = ctx.canvas.width, H = ctx.canvas.height, sc = Math.min(W, H) / 520;
+    ctx.save();
+    f.nodes.forEach(function (n) {
+      ctx.setTransform(n.m);
+      var g = rgba(n.col, .22);
+      if (g) { var gr = ctx.createRadialGradient(n.x, n.y, n.r * .6, n.x, n.y, n.r * 2.4); gr.addColorStop(0, g); gr.addColorStop(1, rgba(n.col, 0)); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(n.x, n.y, n.r * 2.4, 0, 7); ctx.fill(); }
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, 7); ctx.fillStyle = '#141416'; ctx.fill();
+      ctx.lineWidth = n.sw; ctx.strokeStyle = n.col; ctx.stroke();
+      ctx.beginPath(); ctx.arc(n.x, n.y, Math.max(1.2 * sc, n.r * .36), 0, 7); ctx.fillStyle = n.col; ctx.fill();
+    });
+    // 標籤：關節標籤貼在節點外側；同一邊的標籤自動避開重疊
+    var fs = 12.5 * sc, ph = fs * 1.6, pad = fs * .45;
+    ctx.font = '600 ' + fs + 'px ' + FONT; ctx.textBaseline = 'middle';
+    var items = f.labels.map(function (l) {
+      var it = { t: nice(l.text), col: l.col, m: l.m, x: l.x, y: l.y - fs * .3, align: 'left' };
+      if (!l.free && /^(GH|EL|HIP|KN|ANK|WR|ASIS|PSIS)/.test(l.text)) {
+        var best = null, bd = 70 * sc;
+        // ASIS／PSIS 標籤與節點同色，只配對同色節點（避免貼錯在旁邊的手腕上）
+        var same = /^(ASIS|PSIS)/.test(l.text) ? f.nodes.filter(function (n) { return n.col === l.col; }) : f.nodes;
+        same.forEach(function (n) { var d = Math.hypot(n.x - l.x, n.y - l.y); if (d < bd) { bd = d; best = n; } });
+        if (best) {
+          var left = /\.L$/.test(l.text) ? true : /\.R$/.test(l.text) ? false : l.x < best.x;
+          it.align = left ? 'right' : 'left'; it.y = best.y;
+          it.x = left ? best.x - best.r - 7 * sc : best.x + best.r + 7 * sc;
+        }
+      } else if (l.free) { it.align = 'center'; }
+      it.w = ctx.measureText(it.t).width + pad * 2;
+      return it;
+    });
+    ['left', 'right', 'center'].forEach(function (al) {
+      var col = items.filter(function (i) { return i.align === al; }).sort(function (a, b) { return a.y - b.y; }), last = -1e9;
+      col.forEach(function (i) { if (i.y < last + ph + 3 * sc) i.y = last + ph + 3 * sc; last = i.y; });
+    });
+    items.forEach(function (i) {
+      ctx.setTransform(i.m);
+      var x0 = i.align === 'right' ? i.x - i.w : i.align === 'center' ? i.x - i.w / 2 : i.x, y0 = i.y - ph / 2;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x0, y0, i.w, ph, ph / 2); else ctx.rect(x0, y0, i.w, ph);
+      ctx.fillStyle = 'rgba(20,20,22,0.9)'; ctx.fill();
+      ctx.lineWidth = Math.max(1, sc * .8); ctx.strokeStyle = rgba(i.col, .45) || 'rgba(255,255,255,.2)'; ctx.stroke();
+      ctx.fillStyle = i.col; ctx.textAlign = 'center'; ctx.fillText(i.t, x0 + i.w / 2, i.y + fs * .05);
+    });
+    ctx.restore();
+  }
+
+  // ── 三個視圖的主繪畫函式：畫完即時合成節點與標籤 ──
+  [['drawFront', ctxF], ['drawSide', ctxS], ['drawBack', ctxB]].forEach(function (p) {
+    var orig = window[p[0]], ctx = p[1];
+    window[p[0]] = function () { start(ctx); try { return orig.apply(this, arguments); } finally { flush(ctx); } };
+  });
+  [['front', 'drawFrontZoomed', CF, ctxF, 'drawFront'], ['side', 'drawSideZoomed', CS, ctxS, 'drawSide'], ['back', 'drawBackZoomed', CB, ctxB, 'drawBack']].forEach(function (p) {
+    window[p[1]] = function () {
+      var st = vpState[p[0]], W = p[2].width, H = p[2].height, ctx = p[3];
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, W, H); ctx.save();
+      ctx.translate(st.ox, st.oy); ctx.scale(st.scale, st.scale);
+      ctx.translate(-W / 2 * (1 - 1 / st.scale) / (1 / st.scale), -H / 2 * (1 - 1 / st.scale) / (1 / st.scale));
+      window[p[4]](); ctx.restore(); flush(ctx);
+    };
+  });
+
+  // ── 高解像度：畫布實際像素＝顯示大小 × 裝置像素比例 ──
+  resize = function () {
+    [{ c: CF, id: 'vp-front' }, { c: CS, id: 'vp-side' }, { c: CB, id: 'vp-back' }].forEach(function (o) {
+      var el = document.getElementById(o.id);
+      if (el && el.classList.contains('active')) {
+        var w = el.clientWidth || o.c.parentElement.clientWidth, h = el.clientHeight || o.c.parentElement.clientHeight;
+        o.c.style.width = w + 'px'; o.c.style.height = h + 'px';
+        o.c.width = Math.round(w * DPR); o.c.height = Math.round(h * DPR);
+      }
+    });
+  };
+
+  // ── 介面文字與圖例 ──
+  var lab = document.querySelector('.viewport-toolbar .vt-label'); if (lab) lab.textContent = '人體線框圖';
+  var hint = document.getElementById('vt-hint-wire'); if (hint) hint.textContent = '滾輪縮放 · 拖曳平移 · 雙擊重置';
+  [['front', '正面', '左右對稱'], ['side', '側面', '前後 · ZOA'], ['back', '背面', '肩胛 · 脊椎']].forEach(function (p) {
+    var b = document.querySelector('.wire-pick-btn[data-vp="' + p[0] + '"]'); if (b) b.innerHTML = p[1] + '<span class="wire-pick-sub">' + p[2] + '</span>';
+  });
+  var vps = document.getElementById('wire-viewports');
+  if (vps && !vps.querySelector('.k-wlegend')) {
+    ['vp-front', 'vp-side', 'vp-back'].forEach(function (id) {
+      var vp = document.getElementById(id); if (!vp) return;
+      var lg = document.createElement('div'); lg.className = 'k-wlegend';
+      lg.innerHTML = '<span><b>關節</b></span><span><i style="--c:#4ade80"></i>正常</span><span><i style="--c:#facc15"></i>輕度受限</span><span><i style="--c:#fb923c"></i>需留意</span><span><i style="--c:#f87171"></i>明顯受限</span>' +
+        '<span><i class="ln" style="--c:#60a5fa"></i>胸廓／ZOA</span><span><i class="ln" style="--c:#ece4d0"></i>骨骼</span>';
+      vp.appendChild(lg);
+    });
+  }
+  try { if (typeof viewMode !== 'undefined' && viewMode === '3d' && typeof btnWire !== 'undefined') btnWire.click(); } catch (e) {}
+  resize(); render();
+})();
+</script>
+
+<script id="koverlay-js">
+// ── v24 詳情頁（彈出頁）管理 ──
+// 1. 切換到另一個分頁時，自動關閉仍然開著的詳情頁
+// 2. 詳情頁打開時，左邊清單自動收窄，內容重新排列，不會被詳情頁遮住
+(function () {
+  var OVS = function () { return Array.prototype.slice.call(document.querySelectorAll('.pain-detail-overlay')); };
+  var openedAt = new WeakMap();
+  function fit() {
+    var open = OVS().filter(function (o) { return o.classList.contains('open'); });
+    var panel = document.querySelector('.rail-panel.active');
+    document.querySelectorAll('.rail-panel[data-kfit]').forEach(function (p) { if (p !== panel || !open.length) { p.style.removeProperty('max-width'); p.removeAttribute('data-kfit'); } });
+    document.body.classList.toggle('k-ov-open', open.length > 0);
+    if (!open.length || !panel) return;
+    // 詳情頁的左邊界（用 CSS 計算值，不受滑入動畫影響）
+    var ovLeft = window.innerWidth - open[0].getBoundingClientRect().width;
+    panel.style.removeProperty('max-width');
+    var r = panel.getBoundingClientRect();
+    if (r.right > ovLeft + 1 && ovLeft - r.left > 220) { panel.style.setProperty('max-width', Math.floor(ovLeft - r.left) + 'px', 'important'); panel.setAttribute('data-kfit', '1'); }
+  }
+  var mo = new MutationObserver(function (list) { note(list); setTimeout(fit, 30); setTimeout(fit, 400); });
+  OVS().forEach(function (o) { mo.observe(o, { attributes: true, attributeFilter: ['class'] }); });
+  window.addEventListener('resize', function () { setTimeout(fit, 30); });
+  function note(list) { list.forEach(function (m) { if (m.target.classList.contains('open')) openedAt.set(m.target, Date.now()); }); }
+  window.kCloseOverlays = function () {
+    note(mo.takeRecords()); // 同一步驟內剛打開的詳情頁也要計入
+    var now = Date.now(), keep = function (o) { return now - (openedAt.get(o) || 0) < 350; }; // 剛剛由其他頁面帶過來打開的，保留
+    var targets = OVS().filter(function (o) { return o.classList.contains('open') && !keep(o); });
+    if (!targets.length) return;
+    // 完全關閉：清除「返回上一層」的紀錄，避免關閉後又彈出另一頁
+    window._painDetailHistory = []; window._assessReturnOverlay = null;
+    targets.forEach(function (o) { var c = o.querySelector('.pain-detail-close'); try { if (c) c.click(); } catch (e) {} });
+    OVS().forEach(function (o) { if (o.classList.contains('open') && !keep(o)) o.classList.remove('open'); });
+  };
+  if (typeof window.switchRail === 'function') {
+    var sr = window.switchRail;
+    window.switchRail = function () { window.kCloseOverlays(); var r = sr.apply(this, arguments); setTimeout(fit, 120); return r; };
+  }
 })();
 </script>
 
