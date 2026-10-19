@@ -250,3 +250,11 @@
   - 評估：26 條評估影片加入下肢／上肢評估的 📋 測試說明（例如主動髖屈、SLR、Ober's、股骨內外旋、頸椎旋轉／側屈、肩內外旋、軀幹旋轉、足弓評估）。
 - 截圖存於 `media/conor/`（只在本機，不上傳公開網站；公開網站載入不到截圖時會自動隱藏，只顯示文字）。中文筆記原始檔：`04_資料 Forms & Data/數據 Data/Conor Harris 影片/動作筆記.json`。
 - 備份位置：[versions/index-v25.html](versions/index-v25.html)
+
+## v26 — 2026-10-19
+- Conor Harris 影片第二批：Weightroom Exercise Playlist 全部 255 條（與第一批沒有重複）。
+  - 每條影片整理成中文筆記（功能、準備、步驟、要點、常見錯誤、變化）＋開始／中段／結尾三張截圖。
+  - 動作庫上肢拉／推／輔助、下肢單側／雙側推、髖鉸鏈、核心、熱身、負重行走等 255 個動作全部加入「影片示範」，「動作功能」改為根據影片整理的描述（取代原本同類通用文字）。
+  - 3 條沒有可用字幕的影片（Split Stance Low Row、Landmine Bent-Over Row、Deep Squat Alternating Curl）及 1 條字幕損壞的影片按畫面整理，標記為較低可信度。
+  - 兩個同名的「Wall-Referenced Bear Plank」分開：#237 改名為 (Towel Support) 版本。
+- 截圖仍只存本機（media/ 不上傳）。
