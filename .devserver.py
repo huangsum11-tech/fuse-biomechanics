@@ -8,11 +8,12 @@ worker that would otherwise keep serving stale copies in dev).
 
 Usage: python3 .devserver.py [port]
 """
+import os
 import sys
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
-ROOT = "/Users/huangchen/Documents/Claude/2. Biomechanics website"
+ROOT = os.path.dirname(os.path.abspath(__file__))
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8934
 
 

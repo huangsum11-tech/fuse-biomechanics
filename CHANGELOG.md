@@ -258,3 +258,14 @@
   - 3 條沒有可用字幕的影片（Split Stance Low Row、Landmine Bent-Over Row、Deep Squat Alternating Curl）及 1 條字幕損壞的影片按畫面整理，標記為較低可信度。
   - 兩個同名的「Wall-Referenced Bear Plank」分開：#237 改名為 (Towel Support) 版本。
 - 截圖仍只存本機（media/ 不上傳）。
+
+## v27 — 2026-10-20
+- Conor Harris 影片第三批：Positional Drills Playlist – Week 7（共 282 條；236 條新整理，另外 46 條與第一、二批重複，沒有重看，只加上 positional 標籤）。
+  - 236 條新影片整理成中文筆記（功能、準備、步驟、要點、常見錯誤、變化）＋開始／中段／結尾三張截圖。
+  - 動作庫「Positional Drills 體位訓練補充」全部 268 個原有動作加入「影片示範」，「動作功能」改為根據影片整理的描述。
+  - 新增 6 個網站原本沒有的動作：入門側臥外展位移（腿放凳上）、PRI 仰臥半伸展合併股直肌、短坐靠牆呼吸、站姿支撐雙側後髖關節囊伸展、胸小肌提起、頭前傾呼吸重建（仰臥雙腳放椅上）。
+  - 修正 #4「External Rotation Roll」：影片其實是全身側臥翻滾，不是肩外旋肌按摩，改名為「側臥外旋翻滾」，分類由 release 改為 rolling。
+  - 修正動作庫分類卡的動作數：加入新動作後重畫分類卡（之前顯示 268，實際 277）。
+  - 7 條沒有可用字幕或字幕損壞的影片按畫面整理，標記為較低可信度。
+- 截圖仍只存本機（media/ 不上傳）。
+- 備份位置：[versions/index-v27.html](versions/index-v27.html)
