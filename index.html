@@ -24839,195 +24839,192 @@ window.closeJointHub = function() {
 // ══════════════════════════════════════════════════════
 (function() {
 
-var BONE='var(--c-d4c5a0,#d4c5a0)', BONED='var(--c-aa8f60,#aa8f60)', FOAM='var(--c-5ab8c8,#5ab8c8)', FOAMD='var(--c-3a8898,#3a8898)',
-    WOOD='var(--c-c89858,#c89858)', WOODD='var(--c-9a7038,#9a7038)', CLOTH='var(--c-e8c878,#e8c878)', CLOTHD='var(--c-b89848,#b89848)',
-    SKIN='var(--c-d8b890,#d8b890)', SKIND='var(--c-b09060,#b09060)', NEUT='#555e72', BG='var(--bg,#080c14)', TEXT='var(--text2,#c5cde0)';
+// v29：統一為「精緻側面技術圖」風格——側面／剖面＋角度＋脛骨參考線＋底部偏向說明
+var FL = 166, BG = 'var(--bg,#080c14)', SUB = '#8c94a3', TXT = '#c5cde0', AMB = '#f0b44c', CY = '#7dd3fc', RED = '#f87171';
+var DEFS = '<defs>'
+  + '<linearGradient id="egFoam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b616b"/><stop offset="1" stop-color="#2a2e34"/></linearGradient>'
+  + '<linearGradient id="egGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd06a"/><stop offset="1" stop-color="#4f8f35"/></linearGradient>'
+  + '<linearGradient id="egPlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7b818c"/><stop offset=".5" stop-color="#3b3f46"/><stop offset="1" stop-color="#25282d"/></linearGradient>'
+  + '<linearGradient id="egSkin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9c4a2"/><stop offset="1" stop-color="#c2926c"/></linearGradient>'
+  + '<linearGradient id="egLeg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b98a68"/><stop offset=".5" stop-color="#e2b894"/><stop offset="1" stop-color="#c3946f"/></linearGradient>'
+  + '<linearGradient id="egCloth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efd58f"/><stop offset="1" stop-color="#b8954a"/></linearGradient>'
+  + '<linearGradient id="egRoller" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f7f8c"/><stop offset=".5" stop-color="#6cc6d4"/><stop offset="1" stop-color="#2f7f8c"/></linearGradient>'
+  + '<linearGradient id="egBlock" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9d8bd6"/><stop offset="1" stop-color="#5c4ba0"/></linearGradient>'
+  + '<linearGradient id="egPillow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7b2c8"/><stop offset="1" stop-color="#5d677d"/></linearGradient>'
+  + '<linearGradient id="egWood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a5a34"/><stop offset="1" stop-color="#a87e4c"/></linearGradient>'
+  + '<pattern id="egDots" width="5" height="5" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".6" fill="#fff" opacity=".08"/><circle cx="4" cy="3.8" r=".5" fill="#000" opacity=".25"/></pattern>'
+  + '</defs>';
 
-function sw(inner, vw, vh) {
-  vw = vw || 220; vh = vh || 170;
-  return '<svg viewBox="0 0 '+vw+' '+vh+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:'+vw+'px;height:auto;display:block">'
-    + '<rect width="'+vw+'" height="'+vh+'" fill="'+BG+'" rx="8"/>' + inner + '</svg>';
+function sw(inner, bias, view) {
+  return '<svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">' + DEFS
+    + '<rect width="320" height="220" fill="' + BG + '" rx="8"/>' + inner
+    + (view ? '<text x="14" y="20" fill="' + SUB + '" font-size="9.5" font-family="Arial,sans-serif">' + view + '</text>' : '')
+    + '<rect x="14" y="184" width="292" height="26" rx="6" fill="#1a1e24"/>'
+    + '<text x="160" y="201" fill="' + TXT + '" font-size="10.5" text-anchor="middle" font-family="Arial,sans-serif">' + bias + '</text></svg>';
 }
-function lbl(x,y,t,c,sz,anchor) { c=c||TEXT; sz=sz||10; anchor=anchor||'middle';
-  return '<text x="'+x+'" y="'+y+'" fill="'+c+'" font-size="'+sz+'" text-anchor="'+anchor+'" font-family="Arial,sans-serif" font-weight="600">'+t+'</text>'; }
-function slbl(x,y,t,c,sz) { c=c||NEUT; sz=sz||8.5;
-  return '<text x="'+x+'" y="'+y+'" fill="'+c+'" font-size="'+sz+'" text-anchor="middle" font-family="Arial,sans-serif">'+t+'</text>'; }
+function t(x, y, s, c, sz, anchor, w) {
+  return '<text x="' + x + '" y="' + y + '" fill="' + (c || SUB) + '" font-size="' + (sz || 10) + '" text-anchor="' + (anchor || 'middle') + '" font-family="Arial,sans-serif"' + (w ? ' font-weight="700"' : '') + '>' + s + '</text>';
+}
+function floor() { return '<line x1="14" y1="' + FL + '" x2="306" y2="' + FL + '" stroke="#3a404a" stroke-width="2"/>'; }
+function arc(cx, cy, r, a0, a1, label, lx, ly) {
+  var p = function (a) { a = a * Math.PI / 180; return [(cx + r * Math.cos(a)).toFixed(1), (cy - r * Math.sin(a)).toFixed(1)]; };
+  var s = p(a0), e = p(a1);
+  return '<path d="M ' + s[0] + ' ' + s[1] + ' A ' + r + ' ' + r + ' 0 0 ' + (a1 > a0 ? 0 : 1) + ' ' + e[0] + ' ' + e[1] + '" fill="none" stroke="' + AMB + '" stroke-width="1.6"/>'
+    + t(lx, ly, label, AMB, 11.5, 'middle', 1);
+}
+function bracket(x, y1, y2, label) {
+  return '<g stroke="' + RED + '" stroke-width="1.4"><line x1="' + x + '" y1="' + y1 + '" x2="' + x + '" y2="' + y2 + '"/><line x1="' + (x - 4) + '" y1="' + y1 + '" x2="' + (x + 4) + '" y2="' + y1 + '"/><line x1="' + (x - 4) + '" y1="' + y2 + '" x2="' + (x + 4) + '" y2="' + y2 + '"/></g>'
+    + t(x + 8, (y1 + y2) / 2 + 4, label, RED, 9.5, 'start');
+}
+// 內側視圖的腳（腳跟在左，腳尖向右）：hx,hy 為腳跟着地點；deg 正數 = 腳尖向下（腳跟較高）；lean = 小腿前傾角度
+var FOOT = 'M 8,0 C -2,0 -5,-14 0,-24 C 3,-32 8,-40 12,-46 L 36,-48 C 46,-40 70,-30 100,-20 C 120,-14 140,-11 148,-7 C 154,-5 154,0 146,0 L 118,0 C 100,-7 72,-12 52,-11 C 36,-9 22,0 8,0 Z';
+function foot(hx, hy, deg, lean, tibia) {
+  var r = deg * Math.PI / 180, c = Math.cos(r), s = Math.sin(r);
+  var P = function (x, y) { return [hx + x * c - y * s, hy + x * s + y * c]; };
+  var ab = P(12, -44), af = P(36, -46), L = 112 - (hy < FL - 30 ? 20 : 0), lr = lean * Math.PI / 180, dx = Math.sin(lr) * L, dy = -Math.cos(lr) * L;
+  var f2 = function (v) { return v.toFixed(1); };
+  var leg = '<path d="M ' + f2(ab[0]) + ' ' + f2(ab[1]) + ' C ' + f2(ab[0] - 9 + dx * .45) + ' ' + f2(ab[1] + dy * .45) + ' ' + f2(ab[0] - 6 + dx * .8) + ' ' + f2(ab[1] + dy * .8) + ' ' + f2(ab[0] - 2 + dx) + ' ' + f2(ab[1] + dy)
+    + ' L ' + f2(af[0] + 3 + dx) + ' ' + f2(af[1] + dy) + ' C ' + f2(af[0] + 2 + dx * .6) + ' ' + f2(af[1] + dy * .6) + ' ' + f2(af[0] + 1 + dx * .2) + ' ' + f2(af[1] + dy * .2) + ' ' + f2(af[0]) + ' ' + f2(af[1]) + ' Z" fill="url(#egLeg)"/>';
+  var mid = [(ab[0] + af[0]) / 2, (ab[1] + af[1]) / 2];
+  var tib = tibia === false ? '' : '<line x1="' + f2(mid[0]) + '" y1="' + f2(mid[1]) + '" x2="' + f2(mid[0] + dx) + '" y2="' + f2(mid[1] + dy) + '" stroke="' + CY + '" stroke-width="1.3" stroke-dasharray="4 3"/>';
+  return leg + '<g transform="translate(' + hx + ',' + hy + ') rotate(' + deg + ')"><path d="' + FOOT + '" fill="url(#egSkin)"/>'
+    + '<path d="M 118,0 C 100,-7 72,-12 52,-11 C 36,-9 22,0 8,0" fill="none" stroke="#8d6446" stroke-width="1" opacity=".7"/></g>' + tib;
+}
+function wedge(pts, fill) {
+  return '<polygon points="' + pts + '" fill="' + (fill || 'url(#egFoam)') + '" stroke="#6a717c" stroke-width="1"/><polygon points="' + pts + '" fill="url(#egDots)"/>';
+}
 
-// ── 1. Heel Wedge (腳跟楔形板) — angled foam/rubber wedge under heel ──
+// ── 1. 大楔形斜板（全腳掌、腳跟較高）──
+var SVG_SLANT_BOARD = sw(
+  floor() + wedge('70,' + FL + ' 70,' + (FL - 50) + ' 262,' + FL)
+  + foot(82, FL - 47, 14.6, 0)
+  + arc(262, FL, 44, 180, 165.4, '15°', 206, FL - 6)
+  + t(250, 52, '脛骨角度↓', CY, 10) + t(250, 66, '全腳掌踩上', SUB, 9.5) + t(250, 79, '腳跟在高的一端', SUB, 9.5),
+  '偏外旋 · 旋後 · 步態早期 · 減少內旋需求', '內側視圖');
+
+// ── 2. 腳跟楔形板（只墊腳跟，1.5–2.5cm）──
 var SVG_HEEL_WEDGE = sw(
-  // Floor line
-  '<line x1="20" y1="135" x2="200" y2="135" stroke="'+NEUT+'" stroke-width="2"/>'
-  // Wedge shape (right-angle triangle, thick end at heel)
-  +'<polygon points="60,135 160,135 160,95 60,128" fill="'+WOOD+'" stroke="'+WOODD+'" stroke-width="2"/>'
-  // Wedge surface highlight
-  +'<polygon points="64,131 156,99 156,103 64,135" fill="var(--c-e0b878,#e0b878)" opacity="0.4"/>'
-  // Foot outline standing on wedge (heel elevated)
-  +'<path d="M 70,128 Q 75,100 100,98 Q 130,96 150,108 L 150,128 Q 130,134 100,134 Q 82,134 70,128 Z" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5" opacity="0.85"/>'
-  // Ankle/leg
-  +'<rect x="92" y="55" width="22" height="48" rx="6" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5" opacity="0.85"/>'
-  // Height indicator
-  +'<line x1="168" y1="95" x2="168" y2="135" stroke="var(--c-e05050,#e05050)" stroke-width="1.5"/>'
-  +'<line x1="163" y1="95" x2="173" y2="95" stroke="var(--c-e05050,#e05050)" stroke-width="1.5"/>'
-  +'<line x1="163" y1="135" x2="173" y2="135" stroke="var(--c-e05050,#e05050)" stroke-width="1.5"/>'
-  + lbl(190,118,'1.5-','var(--c-e05050,#e05050)',10) 
-  + slbl(190,128,'2.5cm','var(--c-e05050,#e05050)',9)
-  + slbl(110,150,'楔形墊高腳跟·增加功能性踝背屈空間',NEUT,9)
-, 220, 165);
+  floor() + wedge('56,' + FL + ' 56,' + (FL - 20) + ' 104,' + (FL - 13) + ' 128,' + FL)
+  + foot(64, FL - 19, 9.3, 3)
+  + bracket(44, FL - 20, FL, '')
+  + t(44, FL - 28, '1.5–2.5cm', RED, 9.5, 'middle')
+  + t(252, 60, '只墊腳跟', SUB, 9.5) + t(252, 73, '前腳掌着地', SUB, 9.5),
+  '減少踝背屈需求 · 深蹲軀幹較直立 · 偏外旋', '內側視圖');
 
-// ── 2. 1st Metatarsal Wedge (大拇趾球部楔形墊) ──
+// ── 3. 腳跟墊槓片（中足懸空）──
+var SVG_HEEL_PLATE = sw(
+  floor() + '<rect x="50" y="' + (FL - 14) + '" width="46" height="14" rx="2" fill="url(#egPlate)" stroke="#8b919c" stroke-width="1"/>'
+  + foot(62, FL - 14, 6.8, 14)
+  + '<path d="M 100 ' + (FL - 3) + ' Q 140 ' + (FL - 14) + ' 172 ' + (FL - 3) + '" fill="none" stroke="' + AMB + '" stroke-width="1.2" stroke-dasharray="3 3"/>'
+  + t(136, FL + 13, '中足懸空 · 足弓拉長', AMB, 9.5)
+  + t(252, 60, '脛骨角度↑', CY, 10) + t(252, 74, '2.5–5 公斤槓片', SUB, 9.5),
+  '旋後但脛骨角度較大 · 步態後期（推進期）', '內側視圖');
+
+// ── 4. 小楔形墊（前腳掌墊高 ≤5–10°）──
+var SVG_MINI_WEDGE = sw(
+  floor() + wedge('142,' + FL + ' 236,' + FL + ' 236,' + (FL - 15) + ' 142,' + (FL - 7), 'url(#egGreen)')
+  + foot(66, FL, -5, 12)
+  + arc(142, FL, 38, 0, 5, '5°', 190, FL - 20)
+  + t(252, 60, '脛骨角度↑', CY, 10) + t(252, 74, '只墊前腳掌', SUB, 9.5) + t(252, 87, '不超過 5–10°', RED, 9.5),
+  '偏內旋 · 旋前 · 步態中期 · 引導膝前移', '內側視圖');
+
+// ── 5. 第一蹠骨頭楔形墊 ──
 var SVG_MET_WEDGE = sw(
-  '<line x1="20" y1="135" x2="200" y2="135" stroke="'+NEUT+'" stroke-width="2"/>'
-  // Foot from top view
-  +'<path d="M 50,110 Q 48,95 60,85 Q 80,72 110,72 Q 145,72 165,88 Q 175,98 172,112 Q 168,124 150,128 L 60,128 Q 50,122 50,110 Z" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="2" opacity="0.9"/>'
-  // Toes
-  +'<ellipse cx="172" cy="90" rx="10" ry="7" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5"/>'
-  +'<ellipse cx="178" cy="102" rx="8" ry="6" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5"/>'
-  +'<ellipse cx="178" cy="113" rx="7" ry="5" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5"/>'
-  +'<ellipse cx="174" cy="123" rx="6" ry="5" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5"/>'
-  // Wedge placed under 1st metatarsal head (big toe ball) — small triangular pad
-  +'<polygon points="145,82 178,86 175,100 142,98" fill="'+WOOD+'" stroke="'+WOODD+'" stroke-width="2"/>'
-  +'<polygon points="148,84 173,88 171,96 146,94" fill="var(--c-e0b878,#e0b878)" opacity="0.5"/>'
-  // Highlight arrow pointing to wedge
-  +'<line x1="160" y1="60" x2="160" y2="80" stroke="var(--c-e05050,#e05050)" stroke-width="2"/>'
-  +'<polygon points="160,82 156,74 164,74" fill="var(--c-e05050,#e05050)"/>'
-  + lbl(160,52,'1st Met Wedge','var(--c-e05050,#e05050)',10)
-  + slbl(110,150,'強制大拇趾球部觸地·激活腓骨長肌',NEUT,9)
-, 220, 165);
+  floor() + foot(70, FL, -2.8, 6, false)
+  + wedge('166,' + FL + ' 212,' + FL + ' 212,' + (FL - 10) + ' 166,' + (FL - 5), 'url(#egGreen)')
+  + '<line x1="189" y1="' + (FL - 38) + '" x2="189" y2="' + (FL - 14) + '" stroke="' + RED + '" stroke-width="1.6"/><polygon points="184,' + (FL - 18) + ' 194,' + (FL - 18) + ' 189,' + (FL - 10) + '" fill="' + RED + '"/>'
+  + t(189, FL - 44, '1st Met Wedge', RED, 10, 'middle', 1)
+  + t(252, 60, '只承托第一、二蹠骨頭', SUB, 9.5) + t(252, 73, '第三至五蹠骨頭', SUB, 9.5) + t(252, 86, '留在地面', SUB, 9.5),
+  '前足內翻 → 後足相對外翻（旋前）· 步態中期 · 內旋', '內側視圖');
 
-// ── 3. Lateral Wedge (足外側楔形墊) ──
+// ── 6. 足外側楔形墊（後視剖面）──
 var SVG_LATERAL_WEDGE = sw(
-  '<line x1="20" y1="135" x2="200" y2="135" stroke="'+NEUT+'" stroke-width="2"/>'
-  // Foot frontal/posterior view (heel cross-section)
-  +'<ellipse cx="110" cy="105" rx="48" ry="28" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="2" opacity="0.9"/>'
-  // Leg above
-  +'<rect x="92" y="50" width="36" height="55" rx="8" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5" opacity="0.85"/>'
-  // Wedge under LATERAL (outer/right) side — raises outer edge
-  +'<polygon points="142,128 168,128 162,108 142,118" fill="'+WOOD+'" stroke="'+WOODD+'" stroke-width="2"/>'
-  +'<polygon points="146,124 163,112 161,116 146,128" fill="var(--c-e0b878,#e0b878)" opacity="0.4"/>'
-  // Tilt arrow showing foot tilting inward (correcting supination)
-  +'<path d="M 130,80 Q 140,90 145,105" fill="none" stroke="var(--c-4080e0,#4080e0)" stroke-width="2" stroke-dasharray="3,2"/>'
-  +'<polygon points="148,108 138,104 144,114" fill="var(--c-4080e0,#4080e0)"/>'
-  + lbl(180,95,'外側',NEUT,9) + slbl(180,106,'Lateral',NEUT,8)
-  + lbl(70,95,'內側',NEUT,9) + slbl(70,106,'Medial',NEUT,8)
-  + slbl(110,150,'外側墊高·誘導距下關節旋前·改善高弓足',NEUT,9)
-, 220, 165);
+  floor() + wedge('152,' + FL + ' 218,' + FL + ' 218,' + (FL - 16), 'url(#egCloth)')
+  + '<path d="M 150 ' + (FL - 160) + ' C 148 ' + (FL - 120) + ' 152 ' + (FL - 90) + ' 154 ' + (FL - 62) + ' L 184 ' + (FL - 66) + ' C 186 ' + (FL - 92) + ' 190 ' + (FL - 120) + ' 188 ' + (FL - 160) + ' Z" fill="url(#egLeg)"/>'
+  + '<g transform="translate(147,' + FL + ') rotate(-13) translate(35,0)"><path d="M -35,0 L 35,0 C 40,-10 36,-26 26,-36 C 20,-44 16,-50 15,-60 L -15,-60 C -16,-50 -20,-44 -28,-36 C -38,-26 -40,-10 -35,0 Z" fill="url(#egSkin)"/>'
+  + '<ellipse cx="-17" cy="-52" rx="5" ry="6" fill="#d9ad88"/><ellipse cx="18" cy="-48" rx="5" ry="6" fill="#d9ad88"/></g>'
+  + '<path d="M 230 ' + (FL - 70) + ' Q 246 ' + (FL - 40) + ' 228 ' + (FL - 20) + '" fill="none" stroke="' + CY + '" stroke-width="1.5"/><polygon points="224,' + (FL - 24) + ' 232,' + (FL - 20) + ' 226,' + (FL - 15) + '" fill="' + CY + '"/>'
+  + t(118, FL - 30, '內側', SUB, 10) + t(262, FL - 70, '外側', SUB, 10) + t(266, FL - 40, '誘導旋前', CY, 9.5),
+  '外側墊高 · 誘導距下關節旋前 · 高弓足／旋後過度', '後視剖面（右腳）');
 
-// ── 4. Arch Support Insole (內側縱弓支撐鞋墊) ──
+// ── 7. 內側縱弓支撐鞋墊 ──
 var SVG_ARCH_SUPPORT = sw(
-  // Insole shape (top view, full foot length)
-  '<path d="M 60,30 Q 100,22 140,30 Q 158,40 160,75 Q 162,110 150,135 Q 130,148 100,148 Q 70,148 55,135 Q 45,110 46,75 Q 48,40 60,30 Z" fill="'+CLOTH+'" stroke="'+CLOTHD+'" stroke-width="2"/>'
-  // Medial arch bump (raised support area, left/inner side)
-  +'<ellipse cx="68" cy="90" rx="18" ry="32" fill="var(--c-f0d898,#f0d898)" stroke="'+CLOTHD+'" stroke-width="1.5" opacity="0.7"/>'
-  +'<ellipse cx="68" cy="90" rx="11" ry="22" fill="var(--c-fae8b8,#fae8b8)" opacity="0.6"/>'
-  // Heel cup
-  +'<ellipse cx="103" cy="132" rx="30" ry="14" fill="var(--c-e0c068,#e0c068)" opacity="0.5" stroke="'+CLOTHD+'" stroke-width="1"/>'
-  // Side profile inset (small) showing arch lift
-  +'<path d="M 30,140 L 30,150 L 175,150 L 175,144 Q 130,135 100,128 Q 70,122 55,140 Z" fill="none" stroke="var(--c-4080e0,#4080e0)" stroke-width="1.5" stroke-dasharray="3,2" opacity="0.7"/>'
-  + lbl(68,60,'內側縱弓',NEUT,9,'middle')
-  + slbl(68,72,'Medial Arch',NEUT,8)
-  + lbl(150,75,'楔形限制',NEUT,9)
-  + slbl(150,87,'(旋前限制)',NEUT,8)
-  + slbl(110,165,'支撐塌陷足弓·限制過度旋前',NEUT,9)
-, 220, 175);
+  floor() + '<path d="M 60 ' + FL + ' L 224 ' + FL + ' L 224 ' + (FL - 5) + ' L 196 ' + (FL - 5) + ' C 178 ' + (FL - 6) + ' 160 ' + (FL - 17) + ' 136 ' + (FL - 17) + ' C 112 ' + (FL - 16) + ' 96 ' + (FL - 7) + ' 80 ' + (FL - 7) + ' L 60 ' + (FL - 7) + ' Z" fill="url(#egCloth)" stroke="#b8954a" stroke-width="1"/>'
+  + foot(70, FL - 6, 0, 4, false)
+  + '<path d="M 250 ' + (FL - 44) + ' Q 200 ' + (FL - 44) + ' 146 ' + (FL - 15) + '" fill="none" stroke="' + AMB + '" stroke-width="1.4"/><circle cx="146" cy="' + (FL - 15) + '" r="2.5" fill="' + AMB + '"/>'
+  + t(262, FL - 62, '內側縱弓承托', AMB, 10, 'middle', 1)
+  + t(262, FL - 49, '鞋墊加厚位頂住足弓', SUB, 9),
+  '支撐足弓 · 限制過度旋前 · 扁平足／足弓塌陷', '內側視圖');
 
-// ── 5. Foam Roller / Yoga Block (泡棉滾筒/瑜伽磚 — 膝內側誘導) ──
+// 正面視圖的雙腳（仰臥屈膝 / 站立），kneeGap = 兩膝內側距離
+function kneesFront(prop) {
+  var leg = function (x, dir) {
+    return '<path d="M ' + x + ' 40 C ' + (x + dir * 4) + ' 70 ' + (x + dir * 10) + ' 92 ' + (x + dir * 12) + ' 104 C ' + (x + dir * 8) + ' 124 ' + (x + dir * 6) + ' 144 ' + (x + dir * 6) + ' ' + (FL - 6)
+      + ' L ' + (x + dir * 34) + ' ' + (FL - 6) + ' C ' + (x + dir * 34) + ' 144 ' + (x + dir * 38) + ' 124 ' + (x + dir * 42) + ' 104 C ' + (x + dir * 46) + ' 90 ' + (x + dir * 48) + ' 70 ' + (x + dir * 48) + ' 40 Z" fill="url(#egLeg)"/>'
+      + '<ellipse cx="' + (x + dir * 27) + '" cy="104" rx="13" ry="11" fill="#e8c3a1" opacity=".7"/>'
+      + '<path d="M ' + (x + dir * 4) + ' ' + (FL - 6) + ' L ' + (x + dir * 40) + ' ' + (FL - 6) + ' L ' + (x + dir * 42) + ' ' + FL + ' L ' + (x + dir * 2) + ' ' + FL + ' Z" fill="#c79a74"/>';
+  };
+  return floor() + leg(110, -1) + leg(210, 1) + prop
+    + '<polygon points="104,104 118,97 118,111" fill="' + RED + '"/><polygon points="216,104 202,97 202,111" fill="' + RED + '"/>';
+}
+// ── 8. 泡棉滾筒 / 瑜伽磚（雙膝之間）──
 var SVG_FOAM_BLOCK = sw(
-  // Thigh (cross section, lying position)
-  '<ellipse cx="70" cy="90" rx="38" ry="34" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="2" opacity="0.85"/>'
-  // Knee joint hint
-  +'<ellipse cx="70" cy="90" rx="20" ry="18" fill="var(--c-e0c8a8,#e0c8a8)" opacity="0.4"/>'
-  // Foam roller (cylinder) placed at medial knee
-  +'<rect x="108" y="55" width="32" height="70" rx="16" fill="'+FOAM+'" stroke="'+FOAMD+'" stroke-width="2"/>'
-  // Foam texture lines
-  +'<line x1="116" y1="62" x2="116" y2="118" stroke="'+FOAMD+'" stroke-width="1" opacity="0.5"/>'
-  +'<line x1="124" y1="58" x2="124" y2="122" stroke="'+FOAMD+'" stroke-width="1" opacity="0.5"/>'
-  +'<line x1="132" y1="62" x2="132" y2="118" stroke="'+FOAMD+'" stroke-width="1" opacity="0.5"/>'
-  // Pressure arrows (knee pressing inward against roller)
-  +'<polygon points="100,90 112,82 112,98" fill="var(--c-e05050,#e05050)"/>'
-  +'<line x1="100" y1="90" x2="108" y2="90" stroke="var(--c-e05050,#e05050)" stroke-width="2.5"/>'
-  // Opposite leg (other thigh, faint - for context)
-  +'<ellipse cx="170" cy="90" rx="32" ry="30" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5" opacity="0.5"/>'
-  + lbl(70,140,'股骨內側',NEUT,9)
-  + lbl(124,145,'泡棉滾筒/瑜伽磚',FOAM,10)
-  + slbl(124,157,'誘導髖內旋(IR)',NEUT,9)
-  + slbl(110,170,'夾於雙膝間或單側膝內側·誘導 Hip IR',NEUT,9)
-, 220, 180);
+  kneesFront('<rect x="128" y="84" width="64" height="40" rx="4" fill="url(#egBlock)" stroke="#b7a8ea" stroke-width="1"/><rect x="128" y="84" width="64" height="40" rx="4" fill="url(#egDots)"/>')
+  + t(160, 76, '瑜伽磚／滾筒', '#b7a8ea', 10, 'middle', 1) + t(160, 142, '3–5/10 力夾住', SUB, 9.5),
+  '內收／內旋參考 · 髖內旋受限 · 誘導 AF-IR', '正面視圖');
 
-// ── 6. Rolled Towel (毛巾捲 — 膝外側輔助IR/夾枕) ──
+// ── 9. 毛巾捲（雙膝之間）──
 var SVG_TOWEL = sw(
-  // Rolled towel (spiral cylinder)
-  '<rect x="60" y="50" width="100" height="42" rx="21" fill="'+CLOTH+'" stroke="'+CLOTHD+'" stroke-width="2"/>'
-  // Spiral pattern showing roll
-  +'<path d="M 75,50 Q 90,71 75,92" fill="none" stroke="'+CLOTHD+'" stroke-width="2" opacity="0.6"/>'
-  +'<path d="M 95,50 Q 110,71 95,92" fill="none" stroke="'+CLOTHD+'" stroke-width="2" opacity="0.6"/>'
-  +'<path d="M 115,50 Q 130,71 115,92" fill="none" stroke="'+CLOTHD+'" stroke-width="2" opacity="0.6"/>'
-  +'<path d="M 135,50 Q 150,71 135,92" fill="none" stroke="'+CLOTHD+'" stroke-width="2" opacity="0.6"/>'
-  // End cap (showing spiral cross-section)
-  +'<circle cx="60" cy="71" r="21" fill="var(--c-f0dca0,#f0dca0)" stroke="'+CLOTHD+'" stroke-width="2"/>'
-  +'<path d="M 60,50 A 21,21 0 0 1 60,92" fill="none" stroke="'+CLOTHD+'" stroke-width="1.5"/>'
-  +'<path d="M 60,57 A 14,14 0 0 1 60,85" fill="none" stroke="'+CLOTHD+'" stroke-width="1.2"/>'
-  +'<circle cx="60" cy="71" r="4" fill="'+CLOTHD+'"/>'
-  // Two knees squeezing towel (simple shapes)
-  +'<ellipse cx="40" cy="71" rx="16" ry="22" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5" opacity="0.7"/>'
-  +'<ellipse cx="180" cy="71" rx="16" ry="22" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5" opacity="0.7"/>'
-  // Squeeze arrows
-  +'<polygon points="155,71 168,65 168,77" fill="var(--c-e05050,#e05050)"/>'
-  +'<polygon points="65,71 52,65 52,77" fill="var(--c-e05050,#e05050)"/>'
-  + lbl(110,125,'毛巾捲 Rolled Towel',CLOTH,10)
-  + slbl(110,138,'夾於雙膝間·誘導髖IR/輕度內收',NEUT,9)
-, 220, 150);
+  kneesFront('<rect x="128" y="88" width="64" height="32" rx="16" fill="url(#egCloth)"/>'
+    + '<g fill="none" stroke="#9c7c38" stroke-width="1.4" opacity=".8"><path d="M 144 88 Q 150 104 144 120"/><path d="M 160 88 Q 166 104 160 120"/><path d="M 176 88 Q 182 104 176 120"/></g>')
+  + t(160, 80, '毛巾捲', AMB, 10, 'middle', 1) + t(160, 140, '輕夾即可', SUB, 9.5),
+  '臀橋／仰臥夾毛巾 · 誘導髖內旋 · 骨盆中立', '正面視圖');
 
-// ── 7. Side-Lying Pillow (側臥肩枕 — 肩IR誘導) ──
+// ── 10. 側臥軟枕（上臂下方）──
 var SVG_SIDE_PILLOW = sw(
-  // Person lying on side (simplified torso + arm)
-  '<ellipse cx="100" cy="100" rx="60" ry="38" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="2" opacity="0.55"/>'
-  // Upper arm (resting on pillow)
-  +'<rect x="130" y="65" width="22" height="55" rx="10" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.8" opacity="0.85"/>'
-  // Shoulder joint
-  +'<circle cx="140" cy="68" r="14" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.8" opacity="0.9"/>'
-  // Pillow under upper arm (the key prop)
-  +'<ellipse cx="150" cy="98" rx="38" ry="16" fill="'+CLOTH+'" stroke="'+CLOTHD+'" stroke-width="2"/>'
-  +'<ellipse cx="150" cy="92" rx="32" ry="10" fill="var(--c-f0dca0,#f0dca0)" opacity="0.5"/>'
-  // Forearm hanging down naturally (IR direction)
-  +'<rect x="138" y="118" width="16" height="40" rx="7" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="1.5" opacity="0.85" transform="rotate(15 146 118)"/>'
-  // Height indicator on pillow
-  +'<line x1="195" y1="82" x2="195" y2="114" stroke="var(--c-e05050,#e05050)" stroke-width="1.5"/>'
-  +'<line x1="190" y1="82" x2="200" y2="82" stroke="var(--c-e05050,#e05050)" stroke-width="1.5"/>'
-  +'<line x1="190" y1="114" x2="200" y2="114" stroke="var(--c-e05050,#e05050)" stroke-width="1.5"/>'
-  + lbl(110,150,'軟枕 2-3cm',CLOTH,10)
-  + slbl(110,162,'墊於上臂下方·側臥肩IR誘導放鬆',NEUT,9)
-, 220, 175);
+  floor() + '<rect x="30" y="' + (FL - 24) + '" width="58" height="24" rx="10" fill="url(#egPillow)"/>'
+  + '<ellipse cx="62" cy="' + (FL - 40) + '" rx="22" ry="18" fill="url(#egSkin)"/>'
+  + '<path d="M 82 ' + (FL - 52) + ' C 120 ' + (FL - 66) + ' 200 ' + (FL - 62) + ' 268 ' + (FL - 46) + ' C 290 ' + (FL - 40) + ' 292 ' + (FL - 6) + ' 268 ' + (FL - 2) + ' C 200 ' + FL + ' 120 ' + FL + ' 84 ' + (FL - 6) + ' Z" fill="url(#egLeg)"/>'
+  + '<ellipse cx="150" cy="' + (FL - 72) + '" rx="34" ry="12" fill="url(#egPillow)"/>'
+  + '<path d="M 112 ' + (FL - 60) + ' L 150 ' + (FL - 80) + ' L 160 ' + (FL - 72) + ' L 124 ' + (FL - 50) + ' Z" fill="#d9ad88"/>'
+  + '<path d="M 150 ' + (FL - 80) + ' L 154 ' + (FL - 40) + ' L 166 ' + (FL - 40) + ' L 160 ' + (FL - 74) + ' Z" fill="#e2b894"/>'
+  + bracket(196, FL - 84, FL - 60, '2–3cm') + t(150, FL - 92, '軟枕墊上臂', '#a7b2c8', 10, 'middle', 1),
+  '肘屈 90° 前臂自然下垂 · 肩內旋受限 · 放鬆肩後側', '側臥視圖');
 
-// ── 8. Lumbar Roll (腰枕 — 骨盆前傾腰椎支撐) ──
+// ── 11. 腰枕（坐姿）──
 var SVG_LUMBAR_ROLL = sw(
-  // Chair back (simplified seated profile)
-  '<rect x="40" y="30" width="14" height="120" rx="6" fill="'+WOOD+'" stroke="'+WOODD+'" stroke-width="2" opacity="0.6"/>'
-  // Torso leaning against chair back
-  +'<path d="M 60,40 Q 100,35 120,55 Q 130,90 122,130 Q 110,150 85,150 Q 62,148 58,120 Q 54,80 60,40 Z" fill="'+SKIN+'" stroke="'+SKIND+'" stroke-width="2" opacity="0.7"/>'
-  // Lumbar roll (cylindrical, between low back and chair)
-  +'<rect x="48" y="90" width="28" height="44" rx="14" fill="'+CLOTH+'" stroke="'+CLOTHD+'" stroke-width="2"/>'
-  +'<ellipse cx="62" cy="112" rx="11" ry="20" fill="var(--c-f0dca0,#f0dca0)" opacity="0.5"/>'
-  // Spine curve indicator (filling lumbar curve)
-  +'<path d="M 95,50 Q 80,90 88,130" fill="none" stroke="var(--c-4080e0,#4080e0)" stroke-width="2" stroke-dasharray="3,2" opacity="0.7"/>'
-  + lbl(150,75,'L4-L5',NEUT,9)
-  + slbl(150,87,'腰椎曲線處',NEUT,8)
-  + lbl(62,160,'腰枕 Lumbar Roll',CLOTH,10)
-  + slbl(110,18,'坐姿側視圖',NEUT,9)
-, 220, 175);
+  floor() + '<rect x="70" y="40" width="12" height="' + (FL - 40) + '" rx="4" fill="url(#egWood)"/>'
+  + '<rect x="70" y="' + (FL - 60) + '" width="150" height="10" rx="3" fill="url(#egWood)"/><rect x="206" y="' + (FL - 50) + '" width="10" height="50" fill="url(#egWood)"/>'
+  + '<path d="M 96 42 C 90 70 92 92 96 104 C 100 116 96 ' + (FL - 64) + ' 100 ' + (FL - 60) + ' L 200 ' + (FL - 60) + ' L 200 ' + (FL - 82) + ' L 136 ' + (FL - 82) + ' C 130 90 132 60 126 38 Z" fill="url(#egLeg)"/>'
+  + '<ellipse cx="112" cy="28" rx="16" ry="17" fill="url(#egSkin)"/>'
+  + '<path d="M 200 ' + (FL - 82) + ' L 214 ' + (FL - 82) + ' L 210 ' + (FL - 6) + ' L 196 ' + (FL - 6) + ' Z" fill="url(#egLeg)"/>'
+  + '<rect x="82" y="86" width="16" height="30" rx="8" fill="url(#egCloth)"/>'
+  + '<path d="M 112 50 Q 100 80 106 ' + (FL - 64) + '" fill="none" stroke="' + CY + '" stroke-width="1.3" stroke-dasharray="4 3"/>'
+  + t(56, 104, '腰枕', AMB, 10, 'end', 1) + t(56, 117, 'L4–L5', SUB, 9.5, 'end') + t(262, 70, '腰椎曲線', CY, 10),
+  '填充並支撐腰椎曲線 · 骨盆前傾者久坐 · 減少下背疲勞', '坐姿側視圖');
 
 // ── Equipment Database ────────────────────────────────────────────
 var EQUIPMENT_DB = [
+  { key:'slant_board', name:'大楔形斜板', en:'Slant Board', svg: SVG_SLANT_BOARD,
+    desc:'整隻腳踩上的大楔形斜板（EVA 發泡膠，10–15°）。腳跟向高處＝腳跟墊高；腳尖向高處＝腳尖墊高；側放＝外翻斜板。',
+    used_for:'踝背屈受限的深蹲（腳跟墊高）· 改善髖內旋的硬舉（腳尖墊高約 10°）· 外翻偏向側弓步（被動腳踩 10–15°）' },
   { key:'heel_wedge', name:'腳跟楔形板', en:'Heel Wedge', svg: SVG_HEEL_WEDGE,
-    desc:'放置於腳跟下方的楔形墊塊，常見高度 1-2.5cm，依踝背屈受限程度調整。',
+    desc:'放置於腳跟下方的楔形墊塊，常見高度 1.5–2.5cm，依踝背屈受限程度調整。',
     used_for:'雙側/單側踝背屈嚴重受限（<15°）· 深蹲時恢復矢狀面活動角度' },
+  { key:'heel_plate', name:'腳跟墊槓片', en:'Heel on Plate', svg: SVG_HEEL_PLATE,
+    desc:'只把腳跟放在 2.5–5 公斤槓片上，前足平放地面，中足懸空。和整隻腳踩斜板不同，脛骨角度反而較大。',
+    used_for:'在旋後位下練步態後期（推進期）· 腳跟踏槓片分腿蹲、扶持單腳深蹲（腳跟墊 5 磅槓片）' },
+  { key:'mini_wedge', name:'小楔形墊（前腳掌）', en:'Mini Wedge – Forefoot', svg: SVG_MINI_WEDGE,
+    desc:'5–10° 的小楔形墊，只承托前腳掌、腳跟着地；也可單獨墊在支撐腳跟下作微調。',
+    used_for:'前腳尖墊高分腿蹲（約 5°，引導膝前移及脛骨內旋）· 單腳下踏支撐腳跟下墊 5–10°' },
   { key:'met_wedge', name:'1st 大拇趾球部楔形墊', en:'1st Metatarsal Wedge', svg: SVG_MET_WEDGE,
-    desc:'置於前足內側（大拇趾球部）下方的小型楔形墊，強制前足接觸地面。',
-    used_for:'Left/Right AIC 模式合併踝背屈嚴重受限 · 激活腓骨長肌·誘導足弓旋前' },
+    desc:'置於前足內側（大拇趾球部）下方的小型楔形墊，強制前足接觸地面；只用較淺一端，第三至第五蹠骨頭留在地面。',
+    used_for:'Left/Right AIC 模式合併踝背屈嚴重受限 · 激活腓骨長肌·誘導足弓旋前 · 旋前偏向分腿蹲' },
   { key:'lateral_wedge', name:'足外側楔形墊', en:'Lateral Wedge', svg: SVG_LATERAL_WEDGE,
     desc:'墊於足部外側緣下方，誘導距下關節旋前，改善足弓過高/旋後過度問題。',
     used_for:'足弓值 > 4（旋後過度/高弓足）· 減少距下關節過度旋後' },
   { key:'arch_support', name:'內側縱弓支撐鞋墊', en:'Arch Support Insole', svg: SVG_ARCH_SUPPORT,
-    desc:'客製化或現成鞋墊，內側縱弓處增厚支撐，限制足弓塌陷。',
+    desc:'客製化或現成鞋墊，內側縱弓處增厚支撐，限制足弓塌陷。屬日常穿着的被動支撐，不是訓練用楔形墊。',
     used_for:'足弓值 < -4（扁平足/旋前過度）· 減少代償性膝外翻及脛骨內旋' },
   { key:'foam_block', name:'泡棉滾筒 / 瑜伽磚', en:'Foam Roller / Yoga Block', svg: SVG_FOAM_BLOCK,
     desc:'圓柱形泡棉滾筒或瑜伽磚，置於膝內側，訓練動作中持續施加阻力誘導髖內旋方向。',
