@@ -295,3 +295,13 @@
   - **矯正訓練／呼吸訓練**：加入 Conor 影片變式（退階／標準／進階），以「⭐ 首選」「常用」標記。
   - 原有「Jefferson Split Squat（髖屈肌離心）」的描述與 Conor 示範不符，改為「半跪髖屈肌伸展（同側前伸）」。
 - 備份位置：[versions/index-v30.html](versions/index-v30.html)
+
+## v31 — 2026-10-26
+- **修正矯正動作「動作庫詳情」連錯動作**：Positional（1–268）同 Breathing（1–48）嘅編號同 weightroom 撞號，跳轉函數順序搵到第一個就停，例如 Diamond Bear Plank（#235）會去咗 positional #235（PRI 90/90 Right Glute Max）。而家冇指定分類時只喺 weightroom 搵，連結亦可以指定 positional／breathing。
+- **矯正動作同動作庫重新配對**：已連結由 95 個增至 225 個（逐個人手對過動作同目的，唔肯定就唔連）；修正 4 個錯配（Contralateral Step-Down 連咗 Ipsilateral 版、Goblet Squat 置中連咗 Lateral Goblet、兩個 Jefferson）。5 個其實係普通分腿蹲嘅「Jefferson Split Squat」改名做「Split Squat 分腿蹲」。
+- **修正 Upper Push／Accessory 撳落去開咗 Upper Pull**：幾個分類共用 key（upper／lower），而家用分類位置打開。
+- **Weightroom 8 個分類加「訓練目的＋難度」篩選**：上肢、下肢、核心／行走各自一套目的（例如上肢拉：後側胸廓擴張、背闊肌、上背；單側下肢推：髖內旋（對側負重）、髖外旋（同側負重）、髖屈曲深度、股四頭肌）。難度按動作設定重新分級（支撐／躺臥＝初階、分腿／單側＝中階、自由槓／RFE／單腳硬拉＝進階），唔再 216 個都係中階。
+- **打開右邊詳情時左邊清單唔會再縮一下**：清單預先收窄到詳情頁左邊界。
+- **關節術語示意圖全部重繪（26 張）**，統一道具圖庫嘅技術圖風格（起始位置虛線＋動作後實色＋角度弧＋底部一句重點），修正文字被切走嘅問題；新增肩胛「前傾」「後傾」兩個術語。
+- **全站取消文字截短（…）**：「問題如何形成」、常見問題、簡報、清單副標題等改為完整顯示。
+- 備份位置：[versions/index-v31.html](versions/index-v31.html)
