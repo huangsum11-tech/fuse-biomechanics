@@ -20577,6 +20577,7 @@ function _getBestEnglishVoice() {
   if (voices && voices.length) _cachedVoices = voices;
   if (!voices || !voices.length) return null;
   var natural = voices.filter(function(v){ return /^en/i.test(v.lang); })
+    .sort(function(a, b){ function r(v){ return /Premium/i.test(v.name) ? 0 : /Natural|Neural|Wavenet/i.test(v.name) ? 1 : /Enhanced/i.test(v.name) ? 2 : /Google/i.test(v.name) ? 3 : 9; } return r(a) - r(b); })
     .find(function(v){ return /Google|Natural|Neural|Premium|Enhanced|Wavenet/i.test(v.name); });
   if (natural) return natural;
   var enUS = voices.find(function(v){ return v.lang === 'en-US'; });
@@ -20602,6 +20603,20 @@ window.speakMuscleName = function(latinName) {
   // 集中乾淨，不會被逐個字母的簡寫拖慢節奏。
   var cleanText = String(latinName || '').replace(/\s*\([^)]*\)\s*/g, '').trim();
   if (!cleanText) return;
+  // v32：優先播放預先錄好的神經網絡真人語音（audio/muscles/*.mp3，由 audio/make_audio.py 生成），
+  // 檔案唔存在或者載入失敗先退返瀏覽器內建語音
+  var slug = String(latinName || '').replace(/\s*\([^)]*\)\s*/g, ' ').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (window._muscleAudio) { try { window._muscleAudio.pause(); } catch (e) {} }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  var au = new Audio('audio/muscles/' + slug + '.mp3');
+  window._muscleAudio = au;
+  var fellBack = false;
+  function fallback() { if (fellBack || window._muscleAudio !== au) return; fellBack = true; _speakTTS(cleanText); }
+  au.addEventListener('error', fallback);
+  var pr = au.play(); if (pr && pr.catch) pr.catch(fallback);
+};
+function _speakTTS(cleanText) {
+  if (typeof window.speechSynthesis === 'undefined') return;
   window.speechSynthesis.cancel(); // 停下之前可能還播緊的語音，避免疊聲
   var utter = new SpeechSynthesisUtterance(cleanText);
   utter.lang = 'en-US';
@@ -20610,7 +20625,7 @@ window.speakMuscleName = function(latinName) {
   var voice = _getBestEnglishVoice();
   if (voice) utter.voice = voice;
   window.speechSynthesis.speak(utter);
-};
+}
 
 // 手機：選了肌肉/骨骼後，將面板捲回去3D模型頂部，等詳情卡的標題（名稱、
 // ✂移除、✕）不會被置頂的3D模型遮住。
@@ -34516,6 +34531,8 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     document.body.classList.toggle('k-ov-open', open.length > 0);
     // v31：無論詳情頁有冇打開，都預先收窄到詳情頁左邊界——打開時左邊清單唔會再縮一下
     var ref = open[0] || OVS()[0];
+    // 3D 人體面板自己用晒成個闊度放模型，未開詳情頁時唔可以預先收窄（v31 曾經令模型消失）
+    if (!open.length && panel && panel.id === 'rail-anatomy') ref = null;
     if (!panel || !ref || window.innerWidth < 900) { if (panel) { panel.style.removeProperty('max-width'); panel.removeAttribute('data-kfit'); } return; }
     // 詳情頁的左邊界（用 CSS 計算值；translateX 唔影響闊度，所以關閉狀態都量得到）
     var ovLeft = window.innerWidth - ref.getBoundingClientRect().width;
