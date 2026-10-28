@@ -4,7 +4,7 @@
 // - 3D模型(.bin.gz)、Three.js、字體：第一次載入後快取，之後離線都用到
 // - 其他同源檔案：先出快取、背後更新（stale-while-revalidate）
 // 改咗網站內容唔使手動改呢度；只有想強制全部用戶重新下載快取先需要加 VERSION。
-const VERSION = 'fuse-v34';
+const VERSION = 'fuse-v35';
 const SHELL = [
   './', './index.html', './coach.html', './fit.html', './anatomy3d.js', './tracker.js',
   './manifest.webmanifest', './manifest-fit.webmanifest',
