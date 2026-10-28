@@ -34012,6 +34012,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     function addFlow(head, body) {
       var steps = body.split(/\s*(?:→|➜|⟶)\s*/).map(function (x) { return x.replace(/[。．]$/, '').trim(); }).filter(Boolean);
       if (steps.length < 3 || steps.some(function (x) { return x.length > 40; })) return false;
+      if (steps.some(function (x) { return /^[\d.\/\s（(]+$/.test(x); })) return false; // 「1→2→3/10 力」這類力度遞增不是因果流程
       var key = steps.join('|'); if (seenF[key]) return false; seenF[key] = 1;
       flows.push({ head: head, steps: steps }); return true;
     }
