@@ -516,3 +516,12 @@
   - 三個分型：上交叉型、下交叉型、左右不對稱型（連去 ucs／lcs 頁）。
   - 矯正動作 7 個全部連到動作庫並直連影片：90/90 抬髖＋氣球、坐姿前彎後側擴張、膕繩肌橋（過頭前伸）、右側臥左內收肌後拉、側臥臀大肌、站姿支撐外展位移、牆面支撐疊放。移除 Dead Bug + Jefferson Split Squat、Integration Circuit、Loaded Carry 等。
 - 備份位置：[versions/index-v53.html](versions/index-v53.html)
+
+## v54 — 2026-10-28
+- **O 型腿（varum）按 Conor 課程重寫**，並加入「重點」頁（POSTURE_PLUS）：
+  - 成因：《下肢基礎》腳跟隨髖同骨盆旋轉；Week 6 外側膝（脛骨外旋、髕骨偏外、通常唔能旋前）；Week 4 右脛骨外旋、右腳旋後；Week 6 三級代償股骨外旋大於內旋。結構性部分標明一般醫學資料。
+  - 三個分型：單側外旋型（多數右側）、雙側外旋型（三級代償）、結構性。
+  - 矯正動作 7 個全部連到動作庫並直連影片，用 Week 9 限制條件：90/90 半橋、四足夾磚內旋、扶架分腿蹲（前移髖位移）、前腳尖墊高分腿蹲、旋前偏向分腿蹲、倒退拉雪橇（內旋偏向）、側向雪橇。移除 Short Foot、Cossack Squat、Single Leg RDL 等。
+  - 評估刪除「Hip ER >55°」「Hip IR <25°」「足弓 >4」等冇出處數字，改用 Week 5／6 標準。
+  - 「好看」改為「美觀」；舊話術「看落」已隨重寫移除。
+- 備份位置：[versions/index-v54.html](versions/index-v54.html)
