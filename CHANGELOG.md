@@ -593,3 +593,11 @@
   - 26 個是相近示範（例如蚌式→側臥臀大肌啟動、Cable IR/ER→PRI 阻力肩內旋、楔形墊單腿 RDL→扶架單腿 RDL、漸進深蹲→高腳杯蹲箱），按鈕標示「▶ 相近示範影片」，不會冒充同一動作。
   - 其餘 102 個（例如北歐膕繩肌、Alfredson 離心提踵、鐘擺運動、神經滑動、Y-T-W）Conor 影片庫沒有對應動作，維持 YouTube 搜尋。
 - 備份位置：[versions/index-v63.html](versions/index-v63.html)
+
+## v64 — 2026-10-31
+- **Conor 影片庫沒有的動作改連其他頻道的 YouTube 示範片**：新增 `DRILL_YT` 對照表，為 93 個動作（74 條影片）直接連結物理治療／復健頻道的短示範片（例如 E3 Rehab、AskDoctorJo、[P]rehab、Physiotutors、Rehab My Patient、Hinge Health）。痛症／復健／訓練三類共 243 個動作，直連影片由 141 個增至 234 個。
+  - 例子：北歐膕繩肌（E3 Rehab）、Alfredson 離心提踵（Physiotutors）、鐘擺運動、Sleeper Stretch、股四頭肌等長收縮、彈力帶肩外旋（AskDoctorJo）、Bird Dog、Dead Bug（Hinge Health）、Terminal Knee Extension（E3 Rehab）。
+  - 11 個只找到相近示範（例如 Calf Raise + 毛巾→毛巾抓趾、Retroversion Abduction→側臥髖外展），按鈕標示「▶ 相近示範影片」。
+  - 全部影片 ID 已用 YouTube oEmbed 核對仍然在線。
+  - 9 個找不到合適影片，維持 YouTube 搜尋：高跪姿 Bear Hug Reach、高跪姿對側肩外旋、90/90 髖內旋誘導呼吸蹲、側臥髖鉸鏈、單腳跳繩落地控制、腕關節中立位握力、高跪姿頭頸延長呼吸、站姿 ZOA 推舉、Cable Fly（Posterior Expansion）。
+- 備份位置：[versions/index-v64.html](versions/index-v64.html)
