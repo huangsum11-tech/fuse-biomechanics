@@ -144,9 +144,10 @@ function resolvePartIndexes(atlas, ids) {
 export function createAnatomyViewer(container, atlas, { onSelect, onProgress, onError } = {}) {
   const el = container;
   let disposed = false, frame = 0, dirty = true, ready = false, lastView = '', lastReset = -1, lastIsolate = '', layoutKey = '', amount = 0;
-  let lastVisKey = null, lastSelKey = null, lastIsolateVal = null, lastHidKey = null, forceRecompute = true;
+  let lastVisKey = null, lastSelKey = null, lastIsolateVal = null, lastHidKey = null, lastHlKey = null, forceRecompute = true;
   const abort = new AbortController();
-  const state = { explode: 0, visible: DEFAULT_VISIBLE.slice(), selected: [], isolate: false, view: 'front', rotate: false, reset: 0, hidden: [] };
+  // highlight：淺綠色標示（不隔離、不放大）；context：隔離時仍顯示的系統（例如肌群模式保留骨骼作參照）
+  const state = { explode: 0, visible: DEFAULT_VISIBLE.slice(), selected: [], isolate: false, view: 'front', rotate: false, reset: 0, hidden: [], highlight: [], context: [] };
 
   let renderer;
   try { renderer = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' }); }
@@ -206,7 +207,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
       shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvec2 stateUv = vec2((partIndex + 0.5) / stateWidth, 0.5); vec4 state = texture2D(partState, stateUv); transformed += state.xyz; partVisible = state.w; partSelected = texture2D(selectionState, stateUv).r;');
       shader.fragmentShader = 'varying float partVisible; varying float partSelected;\n' + shader.fragmentShader;
       shader.fragmentShader = shader.fragmentShader.replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (partVisible < 0.5) discard;');
-      shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n');
+      shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\nif (partSelected > 0.5) diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.22, 0.86, 0.42), 0.78);');
     };
     materials.push(m); return m;
   };
@@ -310,13 +311,13 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   const animate = () => {
     if (disposed) return; frame = requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), 0.05), s = state;
-    const visKey = s.visible.join(','), selKey = s.selected.join(','), hidKey = s.hidden.join(',');
-    const changed = forceRecompute || visKey !== lastVisKey || selKey !== lastSelKey || s.isolate !== lastIsolateVal || hidKey !== lastHidKey;
+    const visKey = s.visible.join(','), selKey = s.selected.join(','), hidKey = s.hidden.join(','), hlKey = s.highlight.join(',') + '|' + s.context.join(',');
+    const changed = forceRecompute || visKey !== lastVisKey || selKey !== lastSelKey || s.isolate !== lastIsolateVal || hidKey !== lastHidKey || hlKey !== lastHlKey;
     const moving = Math.abs(amount - s.explode) > 0.0001;
     if (moving) { amount = T.MathUtils.damp(amount, s.explode, 8, dt); dirty = true; }
     if (changed || moving || lastExtent < 0) {
-      const visible = new Set(s.visible), selection = new Set(s.selected), hiddenSet = new Set(s.hidden);
-      const visibleParts = atlas.parts.filter(p => s.isolate ? selection.has(p.id) : visible.has(p.system) || selection.has(p.id));
+      const visible = new Set(s.visible), selection = new Set(s.selected), hiddenSet = new Set(s.hidden), highlight = new Set(s.highlight), context = new Set(s.context);
+      const visibleParts = atlas.parts.filter(p => s.isolate ? selection.has(p.id) || context.has(p.system) : visible.has(p.system) || selection.has(p.id));
       const nextLayoutKey = visibleParts.map(p => p.id).join(',') + ':' + camera.aspect.toFixed(3);
       if (nextLayoutKey !== layoutKey) {
         const layout = createExplosionLayout(visibleParts, camera.aspect);
@@ -335,14 +336,14 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
           dx = T.MathUtils.lerp(Math.sin(angle) * 0.48, destination.x - c.x, t); dy = T.MathUtils.lerp((c.y - 0.85) * 0.28, destination.y - c.y, t); dz = T.MathUtils.lerp(Math.cos(angle) * 0.48, -c.z, t);
         }
         const selected = selection.has(p.id);
-        const baseVisible = s.isolate ? selected : visible.has(p.system) || selected;
+        const baseVisible = s.isolate ? selected || context.has(p.system) : visible.has(p.system) || selected;
         data.set([dx, dy, dz, (baseVisible && !hiddenSet.has(p.id)) ? 1 : 0], i * 4);
-        selectedData[i * 4] = selected ? 255 : 0;
+        selectedData[i * 4] = highlight.has(p.id) ? 255 : 0;
         markerPositions.set(data[i * 4 + 3] > 0.5 ? [c.x + dx, c.y + dy, c.z + dz] : [10000, 10000, 10000], i * 3);
         const mesh = pickers[i]; if (mesh) { mesh.position.set(dx, dy, dz); mesh.updateMatrix(); mesh.updateMatrixWorld(true); }
       });
       partTexture.needsUpdate = true; selectionTexture.needsUpdate = true; markerGeometry.attributes.position.needsUpdate = true;
-      lastVisKey = visKey; lastSelKey = selKey; lastIsolateVal = s.isolate; lastHidKey = hidKey; forceRecompute = false; lastExtent = amount; dirty = true;
+      lastVisKey = visKey; lastSelKey = selKey; lastIsolateVal = s.isolate; lastHidKey = hidKey; lastHlKey = hlKey; forceRecompute = false; lastExtent = amount; dirty = true;
     }
     if (s.view !== lastView || s.reset !== lastReset) { fit(s.view, amount); lastView = s.view; lastReset = s.reset; }
     if (moving && !s.isolate) fit(amount > 0.5 ? 'front' : s.view, Math.max(0, (amount - 0.3) / 0.7));
@@ -404,11 +405,15 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
       dirty = true;
       return idxs.map(i => atlas.parts[i]);
     },
-    clearSelection() { state.selected = []; state.isolate = false; dirty = true; },
+    clearSelection() { state.selected = []; state.isolate = false; state.context = []; dirty = true; },
+    setHighlight(partIds) { state.highlight = (partIds || []).slice(); dirty = true; },
+    setHighlightByIds(ids) { const idxs = resolvePartIndexes(atlas, ids); state.highlight = idxs.map(i => atlas.parts[i].id); dirty = true; return idxs.map(i => atlas.parts[i]); },
+    getHighlight() { return state.highlight.slice(); },
+    setIsolateContext(systemIds) { state.context = (systemIds || []).slice(); dirty = true; },
     setExplode(v) { state.explode = Math.max(0, Math.min(1, v)); },
     setView(v) { state.view = v; },
     setRotate(v) { state.rotate = !!v; },
-    resetCamera() { state.reset++; state.isolate = false; state.selected = []; state.explode = 0; },
+    resetCamera() { state.reset++; state.isolate = false; state.selected = []; state.highlight = []; state.context = []; state.explode = 0; },
     getState() { return state; },
     setPanMode(v) { panMode = !!v; dirty = true; },
     getPanMode() { return panMode; },

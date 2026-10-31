@@ -11136,7 +11136,7 @@ window.buildSessionFlowHTML = function(phaseIdx, sessionData) {
 //  的 BodyParts3D concept id（models/atlas.json 的 "concepts"），
 //  給 openAtlas3D() 用來選擇、放大顯示對應結構。
 // ════════════════════════════════════════════════════════════
-window.MUSCLE_TO_ATLAS = {"abdPollLong":["FMA38515"],"abductDigMinFoot":["FMA37451"],"abductHall":["FMA37448"],"abductPolBrevis":["FMA37373"],"addBrevis":["FMA22442"],"addHallucis":["FMA46012"],"addLong":["FMA22441"],"addMag":["FMA22443"],"anconeus":["FMA37704"],"bicepsBrachii":["FMA37682", "FMA37683"],"bicepsFemLong":["FMA45887"],"bicepsFemShort":["FMA45890"],"brachialis":["FMA37667"],"brachioradialis":["FMA38485"],"coracoBrachialis":["FMA37664"],"deltA":["FMA34677"],"deltM":["FMA34678"],"deltPBack":["FMA34679"],"diaphragm":["FMA13295"],"ecrb":["FMA38494", "FMA38497"],"erectors":["FMA77177", "FMA77178", "FMA77179"],"extCarpiUln":["FMA38506"],"extDigComm":["FMA38500"],"extDigLong":["FMA22534"],"extHallBrevis":["FMA51141"],"extHallLong":["FMA22533"],"extIndicis":["FMA38524"],"extPollLong":["FMA38521"],"fcr":["FMA38459"],"fcu":["FMA38615", "FMA38616"],"fdpDeep":["FMA38478"],"fdsFront":["FMA38469"],"fibuTertius":["FMA22538"],"flexDigBrevis":["FMA37450"],"flexDigLong":["FMA51071"],"flexDigMiniBrevis":["FMA37383"],"flexHallBrevis":["FMA45963"],"flexHallLong":["FMA22593"],"gastrocnemius":["FMA45956", "FMA45959"],"gemelli":["FMA22318", "FMA22320"],"glutMax":["FMA22314"],"glutMed":["FMA22315"],"glutMin":["FMA22317"],"glutMinFront":["FMA22317"],"gracilis":["FMA43882"],"iliacus":["FMA22310", "FMA18060"],"iliocostalis":["FMA77177"],"infraspinatus":["FMA32546"],"interosseiHand":["FMA42404", "FMA42405", "FMA42402", "FMA42403"],"interspinales":["FMA22841"],"levScap":["FMA32519"],"longissimus":["FMA77178"],"longusColli":["FMA46279"],"lumbricals":["FMA42398", "FMA42399"],"lumbricalsFoot":["FMA37453"],"oblExt":["FMA13335"],"obturatorExt":["FMA22299"],"obturatorInt":["FMA22298"],"omohyoid":["FMA13342"],"opponensPollic":["FMA37379"],"palmLong":["FMA38462"],"pecMaj":["FMA13373", "FMA13374"],"pectMinor":["FMA13109"],"pectineus":["FMA22440"],"peroneals":["FMA22539", "FMA22540"],"piriformis":["FMA19082"],"plantaris":["FMA22543"],"platysma":["FMA45738"],"popliteus":["FMA22590"],"pronQuad":["FMA38453"],"pronTeres":["FMA38558", "FMA38559"],"quadFem":["FMA22321"],"quadPlant":["FMA37452"],"recFem":["FMA22430"],"rhomboids":["FMA13379", "FMA13380"],"rotatores":["FMA23081"],"sartorius":["FMA22353"],"scalenesAnt":["FMA13385"],"scalenesMid":["FMA13386"],"scalenesPost":["FMA13387"],"scm":["FMA13407"],"semimem":["FMA22438"],"semispinalis":["FMA22823"],"semiten":["FMA22357"],"serrPostInf":["FMA13402"],"serrPostSup":["FMA13401"],"serratus":["FMA13397"],"soleus":["FMA22542"],"spinalis":["FMA77179"],"splenius":["FMA22653"],"subclavius":["FMA13410"],"suboccipitals":["FMA32525", "FMA32526", "FMA32527", "FMA32528"],"subscap":["FMA13413"],"supinator":["FMA38512"],"suprasp":["FMA9629"],"suprasp_back":["FMA9629"],"teresMaj":["FMA32549"],"teresMinor":["FMA32550"],"tfl":["FMA22423"],"tibAnt":["FMA22532"],"tibPost":["FMA51099"],"transverseThoracis":["FMA9760"],"trapLower":["FMA32555"],"trapMid":["FMA32556"],"trapUpper":["FMA32557"],"tricepsBack":["FMA37692", "FMA37693", "FMA37694"],"vasInt":["FMA22433"],"vasLat":["FMA22431"],"vasMed":["FMA22432"]};
+window.MUSCLE_TO_ATLAS = {"abdPollLong":["FMA38515"],"abductDigMinFoot":["FMA37451"],"abductHall":["FMA37448"],"abductPolBrevis":["FMA37373"],"addBrevis":["FMA22442"],"addHallucis":["FMA46012"],"addLong":["FMA22441"],"addMag":["FMA22443"],"anconeus":["FMA37704"],"bicepsBrachii":["FMA37682", "FMA37683"],"bicepsFemLong":["FMA45887"],"bicepsFemShort":["FMA45890"],"brachialis":["FMA37667"],"brachioradialis":["FMA38485"],"coracoBrachialis":["FMA37664"],"deltA":["FMA34677"],"deltM":["FMA34678"],"deltPBack":["FMA34679"],"diaphragm":["FMA13295"],"ecrb":["FMA38494", "FMA38497"],"erectors":["FMA77177", "FMA77178", "FMA77179"],"extCarpiUln":["FMA38506"],"extDigComm":["FMA38500"],"extDigLong":["FMA22534"],"extHallBrevis":["FMA51141"],"extHallLong":["FMA22533"],"extIndicis":["FMA38524"],"extPollLong":["FMA38521"],"fcr":["FMA38459"],"fcu":["FMA38615", "FMA38616"],"fdpDeep":["FMA38478"],"fdsFront":["FMA38469"],"fibuTertius":["FMA22538"],"flexDigBrevis":["FMA37450"],"flexDigLong":["FMA51071"],"flexDigMiniBrevis":["FMA37455"],"flexHallBrevis":["FMA45963"],"flexHallLong":["FMA22593"],"gastrocnemius":["FMA45956", "FMA45959"],"gemelli":["FMA22318", "FMA22320"],"glutMax":["FMA22314"],"glutMed":["FMA22315"],"glutMin":["FMA22317"],"glutMinFront":["FMA22317"],"gracilis":["FMA43882"],"iliacus":["FMA22310", "FMA18060"],"iliocostalis":["FMA77177"],"infraspinatus":["FMA32546"],"interosseiHand":["FMA42404", "FMA42405", "FMA42402", "FMA42403"],"interspinales":["FMA22841"],"levScap":["FMA32519"],"longissimus":["FMA77178"],"longusColli":["FMA46279"],"lumbricals":["FMA42398", "FMA42399"],"lumbricalsFoot":["FMA37453"],"oblExt":["FMA13335"],"obturatorExt":["FMA22299"],"obturatorInt":["FMA22298"],"omohyoid":["FMA13342"],"opponensPollic":["FMA37379"],"palmLong":["FMA38462"],"pecMaj":["FMA13373", "FMA13374"],"pectMinor":["FMA13109"],"pectineus":["FMA22440"],"peroneals":["FMA22539", "FMA22540"],"piriformis":["FMA19082"],"plantaris":["FMA22543"],"platysma":["FMA45738"],"popliteus":["FMA22590"],"pronQuad":["FMA38453"],"pronTeres":["FMA38558", "FMA38559"],"quadFem":["FMA22321"],"quadPlant":["FMA37452"],"recFem":["FMA22430"],"rhomboids":["FMA13379", "FMA13380"],"rotatores":["FMA23081"],"sartorius":["FMA22353"],"scalenesAnt":["FMA13385"],"scalenesMid":["FMA13386"],"scalenesPost":["FMA13387"],"scm":["FMA13407"],"semimem":["FMA22438"],"semispinalis":["FMA22823"],"semiten":["FMA22357"],"serrPostInf":["FMA13402"],"serrPostSup":["FMA13401"],"serratus":["FMA13397"],"soleus":["FMA22542"],"spinalis":["FMA77179"],"splenius":["FMA22653"],"subclavius":["FMA13410"],"suboccipitals":["FMA32525", "FMA32526", "FMA32527", "FMA32528"],"subscap":["FMA13413"],"supinator":["FMA38512"],"suprasp":["FMA9629"],"suprasp_back":["FMA9629"],"teresMaj":["FMA32549"],"teresMinor":["FMA32550"],"tfl":["FMA22423"],"tibAnt":["FMA22532"],"tibPost":["FMA51099"],"transverseThoracis":["FMA9760"],"trapLower":["FMA32555"],"trapMid":["FMA32556"],"trapUpper":["FMA32557"],"tricepsBack":["FMA37692", "FMA37693", "FMA37694"],"vasInt":["FMA22433"],"vasLat":["FMA22431"],"vasMed":["FMA22432"]};
 window.BONE_TO_ATLAS = {"sternum":["FMA7485"],"clavicle":["FMA13321"],"skull":["FMA46565"],"mandible":["FMA52748"],"humerus":["FMA13303"],"scapula":["FMA13394"],"ribs":["FMA7480"],"pelvis":["FMA16580"],"thoracicSpine":["FMA9139"],"lumbarSpine":["FMA9921"],"cervicalSpine":["FMA9915","FMA12519","FMA12520"],"sacrum":["FMA16202"],"femur":["FMA9611"],"tibiaFibula":["FMA24476","FMA24479"],"patella":["FMA24485"],"radiusUlna":["FMA23463","FMA23466"],"footBones":["FMA24496","FMA9708","FMA24527","FMA24518","FMA24520","FMA24519","FMA24502","FMA24503","FMA24504","FMA24505","FMA24506"],"handBones":["FMA23899","FMA23900","FMA23901","FMA23902","FMA23903","FMA23727","FMA23730","FMA23712","FMA23718","FMA23709","FMA23721","FMA23724","FMA23945","FMA23946","FMA23947","FMA23948","FMA23949","FMA23918","FMA23919","FMA23920","FMA23921","FMA23922","FMA23933","FMA23934","FMA23935","FMA23936"]};
 
 window._atlas3d = null;       // { viewer, atlas } once mounted
@@ -11178,6 +11178,7 @@ window.atlas3dSearchInput = function(q) {
 };
 window.atlas3dSelectPart = function(partId) {
   if (!window._atlas3d) return;
+  window._atlas3d.viewer.setHighlight([]);
   window._atlas3d.viewer.setSelected([partId], true);
   document.getElementById('atlas3d-search-results').style.display = 'none';
 };
@@ -11195,6 +11196,7 @@ window.openAtlas3D = function(conceptIds, label) {
 
   function applySelection() {
     if (!window._atlas3d) return;
+    window._atlas3d.viewer.setHighlight([]);
     if (conceptIds && conceptIds.length) {
       var found = window._atlas3d.viewer.setSelectedByIds(conceptIds, true);
       if (!found.length) window._atlas3d.viewer.resetCamera();
@@ -11208,7 +11210,7 @@ window.openAtlas3D = function(conceptIds, label) {
   window._atlas3dLoading = true;
   loading.style.display = 'flex';
   Promise.all([
-    import('./anatomy3d.js'),
+    import('./anatomy3d.js?v=65'),
   ]).then(function(mods) {
     var mod = mods[0];
     window._atlas3dSYSTEMS = mod.SYSTEMS;
@@ -11218,7 +11220,12 @@ window.openAtlas3D = function(conceptIds, label) {
       var viewer = mod.createAnatomyViewer(host, atlas, {
         onProgress: function(pct) { document.getElementById('atlas3d-loading-pct').textContent = pct + '%'; if (pct >= 100) loading.style.display = 'none'; },
         onError: function(msg) { loading.innerHTML = '<div style="color:var(--c-fbbf24,#fbbf24)">⚠️ ' + msg + '</div>'; },
-        onSelect: function(part) { window._atlas3d.viewer.setSelected([part.id], true); },
+        onSelect: function(part) {
+          // v65：第一下淺綠色標示，再按同一塊才放大
+          var v = window._atlas3d.viewer, hl = v.getHighlight();
+          if (hl.length === 1 && hl[0] === part.id) { v.setHighlight([]); v.setSelected([part.id], true); }
+          else v.setHighlight([part.id]);
+        },
       });
       viewer.setVisible(window._atlas3dSystemFilter);
       window._atlas3d = { viewer: viewer, atlas: atlas };
@@ -20339,17 +20346,81 @@ window.toggleAnatXray = function() {
 // resolves the clicked mesh part back to a Fuse MUSCLES/BONES key (via
 // the concept-id reverse maps above) and opens the same detail panel
 // jumpToMuscle()/the search box use, so all three entry points stay consistent.
+// v65：第一下只將那塊染成淺綠色（全身保持不變），再按同一塊才放大獨立顯示。
 function anat3dOnSelect(part) {
   var conceptIds = anat3d.partIdToConceptIds.get(part.id) || [];
   for (var i = 0; i < conceptIds.length; i++) {
     var mKey = anat3d.conceptToMuscle.get(conceptIds[i]);
-    if (mKey) { selectedMuscle = mKey; selectedBone = null; showMuscleDetail(mKey); return; }
+    if (mKey) {
+      if (mKey === selectedMuscle) { anat3d.zoomed = true; anat3dUpdateZoomBtn(); draw(); return; }
+      selectedMuscle = mKey; selectedBone = null; anat3d.zoomed = false; showMuscleDetail(mKey); draw(); return;
+    }
   }
   for (var j = 0; j < conceptIds.length; j++) {
     var bKey = anat3d.conceptToBone.get(conceptIds[j]);
-    if (bKey) { selectedBone = bKey; selectedMuscle = null; showBoneDetail(bKey); return; }
+    if (bKey) {
+      if (bKey === selectedBone) { anat3d.zoomed = true; anat3dUpdateZoomBtn(); draw(); return; }
+      selectedBone = bKey; selectedMuscle = null; anat3d.zoomed = false; showBoneDetail(bKey); draw(); return;
+    }
   }
 }
+// 詳情卡上的「🔍 放大這塊／↩ 返回全身」按鈕（與再按一下模型效果相同）
+function anat3dUpdateZoomBtn() {
+  var rm = document.getElementById('anat-muscle-remove-btn');
+  if (!rm || !rm.parentNode) return;
+  var b = document.getElementById('anat-zoom-btn');
+  if (!b) {
+    b = document.createElement('button');
+    b.id = 'anat-zoom-btn';
+    b.style.cssText = 'font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.4);color:var(--c-4ade80,#4ade80);cursor:pointer;margin-right:6px;white-space:nowrap';
+    b.onclick = function() { anat3d.zoomed = !anat3d.zoomed; anat3dUpdateZoomBtn(); draw(); };
+    rm.parentNode.insertBefore(b, rm);
+  }
+  var has = !!(selectedMuscle || selectedBone);
+  b.style.display = has ? 'inline-block' : 'none';
+  b.textContent = anat3d.zoomed ? '↩ 返回全身' : '🔍 放大這塊';
+  b.title = anat3d.zoomed ? '回到全身模型（這塊保持淺綠色）' : '只顯示並放大這塊（或在模型上再按一下）';
+}
+window.anat3dUpdateZoomBtn = anat3dUpdateZoomBtn;
+
+// v65：肌群模式——在3D模型只顯示該肌群的肌肉（保留骨骼作參照），左欄列出成員肌肉。
+window.anat3dShowGroup = function(key) {
+  var g = MUSCLE_GROUPS[key];
+  if (!g) return;
+  anat3d.group = key; anat3d.zoomed = false;
+  selectedMuscle = null; selectedBone = null;
+  var detail = document.getElementById('anat-detail');
+  if (detail && detail.style.display !== 'none') closeAnatomyDetail();
+  var container = document.getElementById('musclelist-body');
+  if (container) {
+    var missing = [];
+    var rows = (g.muscles || []).map(function(mm) {
+      var m = MUSCLES[mm.id]; if (!m) return '';
+      var no3d = !(window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[mm.id]);
+      if (no3d) missing.push(m.name);
+      return '<div class="pain-list-item muscle-list-row" onclick="window.anat3dSelectMuscle(\'' + mm.id + '\')">'
+        + '<span class="pli-emoji" style="color:var(--c-4ade80,#4ade80)">●</span>'
+        + '<div class="pli-text"><div class="pli-name">' + m.name + (no3d ? ' <small style="color:var(--sub)">（3D 模型未收錄）</small>' : '') + '</div><div class="pli-sub">' + (m.latin || '') + (mm.role ? '　' + mm.role : '') + '</div></div>'
+        + '<span class="pli-arrow">›</span></div>';
+    }).join('');
+    container.innerHTML =
+      '<div style="display:flex;gap:6px;align-items:center;margin:2px 0 8px">'
+      + '<button class="musclelist-filter-btn" onclick="window.anat3dExitGroup()">← 返回肌群</button>'
+      + '<button class="musclelist-filter-btn" onclick="openMuscleGroupDetail(\'' + key + '\')">ⓘ 肌群說明</button></div>'
+      + '<div class="musclelist-group-header" style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--green);padding:6px 2px">' + g.emoji + ' ' + g.name + ' · ' + (g.muscles || []).length + '條</div>'
+      + '<div style="font-size:10.5px;color:var(--sub,#9aa3b5);line-height:1.5;margin-bottom:6px">3D 模型只顯示這組肌肉（骨骼保留作參照）。按一條肌肉：先在模型上變淺綠色，再按一下放大。</div>'
+      + rows;
+  }
+  draw();
+};
+window.anat3dExitGroup = function() {
+  anat3d.group = null; anat3d.zoomed = false;
+  if (selectedMuscle || selectedBone) closeAnatomyDetail();
+  renderMuscleGroupsList();
+  draw();
+};
+window.anat3dGroupActive = function() { return !!anat3d.group; };
+window.anat3dExitGroupSilently = function() { anat3d.group = null; draw(); };
 
 function initAnat3D() {
   if (anat3d.viewer || anat3d.loading) return;
@@ -20357,7 +20428,7 @@ function initAnat3D() {
   if (!host) return;
   anat3d.loading = true;
   var loadingEl = document.getElementById('anat-3d-loading');
-  import('./anatomy3d.js').then(function(mod) {
+  import('./anatomy3d.js?v=65').then(function(mod) {
     return mod.loadAtlas('models/').then(function(atlas) {
       anat3d.atlas = atlas;
       anat3dBuildReverseMaps();
@@ -20393,14 +20464,31 @@ function draw() {
   // 顯示全身肌肉／骨骼，等移除了之後暴露出來的深層肌肉可以真是讓人見到。
   var selectedMuscleRemoved = selectedMuscle && window._anat3dManuallyRemoved && window._anat3dManuallyRemoved.indexOf(selectedMuscle) !== -1;
 
-  if (selectedMuscle && !selectedMuscleRemoved && window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[selectedMuscle]) {
-    viewer.setSelectedByIds(window.MUSCLE_TO_ATLAS[selectedMuscle], true);
+  var focusIds = null;
+  if (selectedMuscle && !selectedMuscleRemoved && window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[selectedMuscle]) focusIds = window.MUSCLE_TO_ATLAS[selectedMuscle];
+  else if (selectedBone && window.BONE_TO_ATLAS && window.BONE_TO_ATLAS[selectedBone]) focusIds = window.BONE_TO_ATLAS[selectedBone];
+  if (!focusIds) anat3d.zoomed = false;
+  // 第二下（或「🔍 放大這塊」）：只顯示並放大這塊，保留原本顏色
+  if (focusIds && anat3d.zoomed) {
+    viewer.setHighlight([]); viewer.setIsolateContext([]);
+    viewer.setSelectedByIds(focusIds, true);
     return;
   }
-  if (selectedBone && window.BONE_TO_ATLAS && window.BONE_TO_ATLAS[selectedBone]) {
-    viewer.setSelectedByIds(window.BONE_TO_ATLAS[selectedBone], true);
-    return;
+  // 第一下：淺綠色標示，畫面不變
+  viewer.setHighlightByIds(focusIds || []);
+  // 肌群模式：所選肌肉不屬於該肌群時（例如從搜尋跳過來）就離開肌群模式
+  if (anat3d.group && selectedMuscle && MUSCLE_GROUPS[anat3d.group] && !(MUSCLE_GROUPS[anat3d.group].muscles || []).some(function(mm) { return mm.id === selectedMuscle; })) anat3d.group = null;
+  var grp = anat3d.group && MUSCLE_GROUPS[anat3d.group];
+  if (grp) {
+    var gIds = [];
+    (grp.muscles || []).forEach(function(mm) { var c = window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[mm.id]; if (c) gIds = gIds.concat(c); });
+    if (gIds.length) {
+      viewer.setIsolateContext(['skeletal']);
+      viewer.setSelectedByIds(gIds, true);
+      return;
+    }
   }
+  viewer.setIsolateContext([]);
 
   // No single structure selected (or it was just removed from the model)
   // — either show the full body, or (if a region/layer filter is active)
@@ -20745,6 +20833,7 @@ function showMuscleDetail(id) {
     removeBtn.title = isRemoved ? '在3D模型度重新顯示這塊肌肉' : '暫時在3D模型度移除這塊肌肉，查看下方深層肌肉';
     removeBtn.onclick = function() { window.anat3dToggleRemoveMuscle(id); };
   }
+  anat3dUpdateZoomBtn();
 
   var detail = document.getElementById('anat-detail');
   if (detail) {
@@ -20782,6 +20871,7 @@ function showBoneDetail(id) {
   if (el('anat-muscle-links')) el('anat-muscle-links').innerHTML = '';
   var removeBtn = el('anat-muscle-remove-btn');
   if (removeBtn) removeBtn.style.display = 'none';
+  anat3dUpdateZoomBtn();
 
   var detail = document.getElementById('anat-detail');
   if (detail) {
@@ -20799,6 +20889,7 @@ function showBoneDetail(id) {
 function closeAnatomyDetail() {
   selectedMuscle = null;
   selectedBone = null;
+  anat3d.zoomed = false;
   var detail = document.getElementById('anat-detail');
   if (detail) {
     detail.style.display = 'none';
@@ -21266,8 +21357,8 @@ window.showBoneDetail = showBoneDetail;
 // draw()/selectedMuscle/selectedBone need an exposed setter too, otherwise
 // jumpToMuscle's own `typeof draw === 'function'` guard just silently
 // evaluates false and the 3D model never actually jumps to the result.
-window.anat3dSelectMuscle = function(id) { selectedMuscle = id; selectedBone = null; showMuscleDetail(id); draw(); };
-window.anat3dSelectBone = function(id) { selectedBone = id; selectedMuscle = null; showBoneDetail(id); draw(); };
+window.anat3dSelectMuscle = function(id) { selectedMuscle = id; selectedBone = null; anat3d.zoomed = false; showMuscleDetail(id); draw(); };
+window.anat3dSelectBone = function(id) { selectedBone = id; selectedMuscle = null; anat3d.zoomed = false; showBoneDetail(id); draw(); };
 
 // ── Full-body muscle index (結構 → 肌肉): render + live search + jump ──
 // Lists every entry in MUSCLES grouped by region (trunk/upper/lower),
@@ -21629,7 +21720,7 @@ window.renderMuscleGroupsList = function() {
     html += '<div class="musclelist-group-header" style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--green);padding:10px 2px 6px;border-top:1px solid var(--border);margin-top:4px">'+regionLabels[r]+' · '+keys.length+'組</div>';
     keys.forEach(function(key) {
       var g = MUSCLE_GROUPS[key];
-      html += '<div class="pain-list-item" onclick="openMuscleGroupDetail(\''+key+'\')"><span class="pli-emoji">'+g.emoji+'</span><div class="pli-text"><div class="pli-name">'+g.name+'</div><div class="pli-sub">'+g.sub+'</div></div><span class="pli-arrow">›</span></div>';
+      html += '<div class="pain-list-item" onclick="window.anat3dShowGroup(\''+key+'\')"><span class="pli-emoji">'+g.emoji+'</span><div class="pli-text"><div class="pli-name">'+g.name+'</div><div class="pli-sub">'+g.sub+'</div></div><span class="pli-arrow">›</span></div>';
     });
   });
   container.innerHTML = html;
@@ -21643,6 +21734,7 @@ window._muscleListLayerFilter = 'all';
 
 window.setMuscleListFilter = function(filter) {
   window._muscleListRegionFilter = filter;
+  if (window.anat3dGroupActive && window.anat3dGroupActive()) window.anat3dExitGroupSilently();
   var ids = ['all','headneck','trunk','upper','lower','groups'];
   ids.forEach(function(f) {
     var btn = document.getElementById('mlf-'+f);
