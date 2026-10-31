@@ -622,3 +622,11 @@
   - 出處已加入 `models/ATTRIBUTION.md` 及 3D 檢視器底部；這兩個檔案以 CC BY-SA 4.0 分享。
   - 注意：BodyParts3D 的腹外斜肌網格包含腹前壁的腱膜，所以腹直肌在全身模型上大部分被遮住；按第二下（或「🔍 放大這塊」）即可單獨查看。
 - 備份位置：[versions/index-v67.html](versions/index-v67.html)
+
+## v68 — 2026-10-31
+- **獨立顯示肌肉時保留骨骼**：放大單一肌肉、按「區域」或「層次（獨立顯示）」篩選、以及全螢幕 3D 檢視器，都會同時顯示骨骼，可以看到肌肉附着在骨骼哪裡（肌群模式之前已保留骨骼）。
+- **更多動作直連 Conor 影片**：
+  - 矯正動作清單（DRILLS）：52 個之中只有 12 個直連，其餘是 Conor 動作名加了說明字眼（例如「Goblet Squat — 90° Box + Ball Between Knees (IR Goal)」）而對不上；人手逐一對應後增至 51 個（餘下 1 項是「完整動作庫」入口，不是動作）。
+  - 呼吸／骨盆體位動作：28 個對應到 Conor 的 PRI 呼吸／體位影片（例如側臥屈髖抬膝臀肌激活 = Sidelying Glute Max Activation、跪坐後靠童式呼吸 = Child's Pose Breathing、墊高青蛙式呼吸 = Frog Breathing Progression），相近的標「相近」。動作庫「呼吸」分類由 0/48 增至 27/48 有影片卡；痛症頁呼吸處方 26/41、訓練頁 27/46、體態頁 27/28。
+  - 其餘 21 個呼吸體位動作在 Conor 影片庫沒有對應，維持 YouTube 搜尋（動作庫內保留原始教材截圖）。
+- 備份位置：[versions/index-v68.html](versions/index-v68.html)
