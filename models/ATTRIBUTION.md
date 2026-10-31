@@ -27,3 +27,13 @@ Earlier repository revisions included female reference anatomy: Kristen Browne a
 Adaptations: translated native meter/Y-up coordinates onto the stage, coincident vertices welded and source normals averaged, geometry simplified with a 0.2% per-structure relative error bound, and normals quantized. Colors and display systems are curated for this interface. All 888 source meshes are represented, with 1,073 source nodes available as selectable individual or compound concepts.
 
 This is a reference assembly with whole-body surface and selected organs, including female reproductive anatomy. Its skeleton and muscle coverage is partial. It is not a complete model of every human structure or a single-person scan. Eight placenta/umbilical structures are classified under Pregnancy reference and hidden by default.
+
+## Supplementary muscles (Z-Anatomy)
+
+BodyParts3D 4.0 has no meshes for these muscles, so they are added from Z-Anatomy: latissimus dorsi, rectus abdominis, internal abdominal oblique, transversus abdominis, quadratus lumborum, multifidus (colli, thoracis, lumborum), extensor digitorum brevis, dorsal interossei of foot (left and right).
+
+- Source: Z-Anatomy, https://github.com/LluisV/Z-Anatomy — `Resources/Models/FBX/MuscularSystem100.fbx` (Z-Anatomy project by Gauthier Kervyn et al., itself derived from BodyParts3D).
+- License: Creative Commons Attribution-ShareAlike 4.0 International, https://creativecommons.org/licenses/by-sa/4.0/
+- Files: `atlas-extra.json` and `extra-0.bin.gz`. These two files are adaptations of Z-Anatomy and are shared under CC BY-SA 4.0.
+
+Adaptations: extracted the listed meshes from the FBX, converted from centimetres to metres, and aligned to the BodyParts3D stage with a similarity transform fitted by ICP against neighbouring BodyParts3D muscles (trunk: mean surface distance about 3 mm; each foot fitted separately, about 3 mm). Vertex normals recomputed and quantized to signed 16-bit. Geometry otherwise unchanged. Build script kept locally (tools/build_extra_muscles.py, not published).

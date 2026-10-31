@@ -615,3 +615,10 @@
 - **髂脛束接上 3D 模型**：模型本身有 iliotibial tract，之前未對應，現在可標示及放大。
 - 仍未能在 3D 顯示（BodyParts3D 4.0 沒有這些網格）：背闊肌、腹直肌、腹內斜肌、腹橫肌、多裂肌、腰方肌、趾短伸肌、足背骨間肌。
 - 備份位置：[versions/index-v66.html](versions/index-v66.html)
+
+## v67 — 2026-10-31
+- **補回 3D 模型缺少的 8 塊肌肉**：背闊肌、腹直肌、腹內斜肌、腹橫肌、腰方肌、多裂肌（頸／胸／腰段）、趾短伸肌、足背骨間肌。BodyParts3D 4.0 本身沒有這些網格，改由 Z-Anatomy（CC BY-SA 4.0，同樣源自 BodyParts3D）的 MuscularSystem100.fbx 抽出，用鄰近肌肉做 ICP 對齊（軀幹及雙腳平均誤差約 3 mm）。現在全部肌肉都能在 3D 模型標示、放大，並出現在相關肌群（例如肩伸肌群的背闊肌、腹壁肌群、脊椎伸肌群）。
+  - 新檔案：`models/atlas-extra.json`、`models/extra-0.bin.gz`（約 3 MB），原本的 BodyParts3D 資料不變；`anatomy3d.js` 載入時合併，載入失敗亦不影響主模型。
+  - 出處已加入 `models/ATTRIBUTION.md` 及 3D 檢視器底部；這兩個檔案以 CC BY-SA 4.0 分享。
+  - 注意：BodyParts3D 的腹外斜肌網格包含腹前壁的腱膜，所以腹直肌在全身模型上大部分被遮住；按第二下（或「🔍 放大這塊」）即可單獨查看。
+- 備份位置：[versions/index-v67.html](versions/index-v67.html)

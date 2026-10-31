@@ -94,6 +94,22 @@ class PointerTap {
   cancel(id) { this.active.delete(id); this.blocked = true; }
 }
 
+/** BodyParts3D 4.0 沒有的肌肉（背闊肌、腹直肌、腹內斜肌、腹橫肌、腰方肌、多裂肌、
+ *  趾短伸肌、足背骨間肌）由 Z-Anatomy（CC BY-SA 4.0）補上，已對齊本模型座標。
+ *  放在獨立的 atlas-extra.json + extra-N.bin.gz，原本的 BodyParts3D 資料不變；
+ *  載入失敗就照常只顯示 BodyParts3D。EXTRA_VERSION 改了才會重新下載。 */
+const EXTRA_VERSION = '67';
+async function mergeExtra(atlas, baseUrl) {
+  try {
+    const r = await fetch(baseUrl + 'atlas-extra.json?v=' + EXTRA_VERSION);
+    if (!r.ok) return;
+    const extra = await r.json(), offset = atlas.chunks.length;
+    extra.chunks.forEach(c => atlas.chunks.push({ ...c, url: baseUrl + c.url.split('/').pop() + '?v=' + EXTRA_VERSION, gzip: c.gzip && baseUrl + c.gzip.split('/').pop() + '?v=' + EXTRA_VERSION }));
+    extra.parts.forEach(p => atlas.parts.push({ ...p, chunk: p.chunk + offset }));
+    atlas.concepts.push(...extra.concepts);
+  } catch (e) { /* 補充肌肉載入失敗不影響主模型 */ }
+}
+
 let atlasPromise = null;
 async function fetchAtlas(baseUrl) {
   for (let attempt = 0; ; attempt++) {
@@ -102,6 +118,7 @@ async function fetchAtlas(baseUrl) {
       if (!r.ok) throw new Error('atlas.json fetch failed: ' + r.status);
       const atlas = await r.json();
       atlas.chunks.forEach(c => { c.url = baseUrl + c.url.split('/').pop(); if (c.gzip) c.gzip = baseUrl + c.gzip.split('/').pop(); });
+      await mergeExtra(atlas, baseUrl);
       return atlas;
     } catch (e) {
       if (attempt >= 2) throw e;
