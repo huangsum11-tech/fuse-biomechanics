@@ -20528,7 +20528,7 @@ window.anat3dShowGroup = function(key) {
       + '<button class="musclelist-filter-btn" onclick="openMuscleGroupDetail(\'' + key + '\')">ⓘ 肌群說明</button></div>'
       + '<div class="musclelist-group-header" style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--green);padding:6px 2px">' + g.emoji + ' ' + g.name + ' · ' + (g.muscles || []).length + '條</div>'
       + '<div style="font-size:10.5px;color:var(--sub,#9aa3b5);line-height:1.5;margin-bottom:6px">3D 模型只顯示這組肌肉（骨骼保留作參照）。按一條肌肉：先在模型上變淺綠色，再按一下放大。</div>'
-      + rows;
+      + rows + (window.mgExtraHTML ? window.mgExtraHTML(key, true) : '');
   }
   draw();
 };
@@ -21471,6 +21471,9 @@ window.addEventListener('resize', function() {
 window.MUSCLE_GROUPS = MUSCLE_GROUPS;
 window.MUSCLE_GROUP_REGION_LABELS = { neck: '🙆 頸部 Neck', shoulder: '💪 肩關節 / 肩胛骨 Shoulder & Scapula', elbow: '🦾 肘與前臂 Elbow & Forearm', wrist: '🖐️ 手腕 Wrist', trunk: '🧍 軀幹 Trunk', hip: '🦴 髖關節 Hip', knee: '🦵 膝關節 Knee', ankle: '🦶 踝與足 Ankle & Foot' };
 window.MUSCLE_GROUP_REGION_ORDER = ['neck', 'shoulder', 'elbow', 'wrist', 'trunk', 'hip', 'knee', 'ankle'];
+
+// v71：肌群補充——Conor 觀點、訓練動作（[影片ID, 程度, 說明, 頻道（非 Conor 才有）]）、相關測試
+window.MUSCLE_GROUP_EXTRA = {"hipFlexors": {"conor": "Conor 認為髖屈肌「緊」通常是結果而不是原因：要先問身體為甚麼需要它（例如骨盆前傾是為了取得髖內旋），單純伸展只處理症狀（《生物力學藍圖》）。步態中，腰大肌在站立末期離心工作（Week 2）。", "tests": ["t-hip-flex"], "train": [["q0ZPfKQeExY", "入門", "仰臥抗阻屈髖，先建立髖屈曲控制"], ["j5UhGpb89jA", "標準", "站姿扶架抗阻屈髖"], ["irFRSUZ38s0", "進階", "屈髖偏向的支撐弓步，取得屈髖深度"]]}, "hipExtensors": {"conor": "步態中，臀大肌在腳跟著地時離心吸收衝擊、在站立中至末期向心推進；內收大肌在站立中期亦協助伸髖（Week 2）。Conor 指常見股四頭肌比膕繩肌強，要先多用膕繩肌和腹斜肌，令骨盆和胸廓回到較中立的位置（《防彈訓練》）。", "tests": ["t-slr"], "train": [["EJRQHamriEg", "入門", "90/90 膕繩肌橋式，膕繩肌主導伸髖"], ["C52Cjb8Sj8U", "入門", "側臥臀大肌啟動"], ["-1n4uDfhrIU", "標準", "45° 髖伸展"], ["MKPlFZ295NY", "進階", "扶架單腳羅馬尼亞硬舉"], ["lete6c5-GZE", "進階", "後腳墊高分腿蹲（髖鉸鏈偏向）"]]}, "hipAbductors": {"conor": "Conor 指訓練臀中肌要符合實際動作：它在步態站立中期穩定髖關節，此時骨盆轉向該側、足部處於較高足弓（旋後）的狀態，所以要在這個情境下訓練（《生物力學藍圖》）。", "tests": ["t-hip-abd", "t-obers"], "train": [["J_tImKG76AI", "入門", "短槓桿側棒（臀中肌）"], ["mhb3ZHn64oU", "入門", "PRI 側臥前臀中肌＋抑制闊筋膜張肌"], ["fNxWCosboy4", "標準", "側向單腳支撐髖鉸鏈"], ["0tmgJ4Kc564", "進階", "外翻偏向側弓步"]]}, "hipAdductors": {"conor": "步態中，內收肌在腳掌著地至站立中期向心工作（產生內收），內收大肌在站立中期協助伸髖（Week 2）；但在前側定向的代償中，內收肌有時處於向心縮短的狀態（Week 6）。", "tests": ["t-hip-abd"], "train": [["HRtWaxtyn-I", "入門", "側臥內收肌後拉"], ["FYXn43XQS9A", "標準", "側臥內收肌伸髖抬起"], ["qqr0i_Tw10Q", "標準", "90/90 哥本哈根棒式"], ["l33tnc-qLzM", "進階", "動態哥本哈根棒式"]]}, "hipIR": {"conor": "Conor 的核心觀點：髖內旋不足時，身體會用骨盆前傾等代償去「借」內旋，所以先恢復內旋，再處理體態（《生物力學藍圖》）。站立中至末期，內旋肌群離心控制（Week 2）。訓練時對側負重偏向內旋。", "tests": ["t-hip-irer"], "train": [["esAJfQmbv00", "入門", "PRI 俯臥彈力帶股骨內旋"], ["2irYxg4B5tc", "入門", "90/90 抬髖（被動股骨髖臼內旋）"], ["8eiWx0mkyUQ", "標準", "滑輪輔助分腿蹲（對側負重）"], ["hG94g3Zr__U", "進階", "錯步硬舉（後腳趾墊高、對側負重）"]]}, "hipER": {"conor": "腳跟著地時骨盆相對外旋，之後移向內旋——外旋代表吸收衝擊的方向（Week 2）。訓練時同側負重偏向外旋／外展。", "tests": ["t-hip-irer"], "train": [["C52Cjb8Sj8U", "入門", "側臥臀大肌啟動"], ["aS2IRxbGH3Y", "入門", "改良鴿子式（股骨外旋伸展）"], ["_FTTyNaN-Bw", "標準", "滑輪輔助分腿蹲（同側負重）"], ["EBkrJ3y0lpQ", "進階", "錯步硬舉（後腳跟墊高、同側負重）"]]}, "shoulderFlexors": {"conor": "手臂上舉時，肩胛需要後傾以貼住凸起的胸廓，胸大肌和背闊肌會變為較離心的狀態（Week 3）。", "tests": ["t-sh-abd"], "train": [["Ze7gXwnVbZk", "入門", "屈膝仰臥滑輪 Y 字上舉"], ["LFw8Wnt8jDQ", "標準", "短坐交替地雷管推舉"], ["4nEy1rAhAJs", "進階", "短坐 Arnold 推舉（靠牆）"]]}, "shoulderExtensors": {"conor": "背闊肌附着肩胛下角及肱骨結節間溝，同時令肱骨內旋（Week 3）。Conor 指力量型運動員的背闊肌常長期縮短，要先降低它的張力，深層的旋轉袖才能工作（《防彈訓練》）。", "tests": ["t-sh-ir"], "train": [["0ic3CHA1AKI", "入門", "短坐交替水平滑輪划船（背闊肌）"], ["oTSlItnBAi0", "標準", "短坐交替滑輪下拉"], ["VdO5AkjB6eY", "標準", "單手滑輪划船（肱骨伸展）"], ["4PI0YVp5DkM", "進階", "徒手引體上升"]]}, "shoulderAbductors": {"conor": "", "tests": ["t-sh-abd"], "train": [["HlLQ8TcJ5Jc", "入門", "屈膝仰臥側平舉（腕帶）"], ["g8jC1j-Vl2U", "標準", "單手啞鈴側平舉"], ["HBGE3_fiBMk", "進階", "滑輪側平舉（側向擠壓）"]]}, "shoulderAdductors": {"conor": "", "tests": ["t-sh-abd"], "train": [["cp0s0g0infE", "入門", "90/90 啞鈴地板臥推"], ["oceCp8Rlug8", "標準", "胸部支撐滑輪下拉"], ["2FYLrzJWr2Y", "標準", "斜板滑輪背闊肌內拉"]]}, "shoulderIR": {"conor": "肱骨內旋肌：肩胛下肌（T2–8）、背闊肌、大圓肌、三角肌前束（Week 3）。", "tests": ["t-sh-ir"], "train": [["QUjaLnrKN7w", "入門", "PRI 仰臥彈力帶肩內旋"], ["XerC9dDyMYA", "標準", "PRI 阻力肩內旋（墊毛巾）"], ["t2_ErE-CpVc", "進階", "屈膝仰臥交替啞鈴臥推"]]}, "shoulderER": {"conor": "肱骨外旋肌：棘下肌、小圓肌（T6–8）、三角肌後束（Week 3）。", "tests": ["t-sh-er"], "train": [["XerC9dDyMYA", "入門", "阻力肩外旋（左手持鈴版本）"], ["Igj0SDvwbvU", "標準", "側臥啞鈴後三角飛鳥"], ["M3WiqcEO4vQ", "進階", "倒拉雪橇（外旋偏向）"]]}, "rotatorCuff": {"conor": "Conor 指要令表層之下的小肌肉（例如旋轉袖）工作，先要抑制及降低靠近表層的大肌肉（例如背闊肌）的長期張力，方法是誘發腹斜肌、膕繩肌並促進胸廓擴張（《防彈訓練》）。", "tests": ["t-sh-ir", "t-sh-er"], "train": [["QUjaLnrKN7w", "入門", "PRI 仰臥彈力帶肩內旋"], ["XerC9dDyMYA", "標準", "PRI 阻力內旋（可加外旋）"], ["HlLQ8TcJ5Jc", "標準", "屈膝仰臥側平舉（腕帶）"], ["QkLub6Jwhwc", "進階", "屈膝仰臥彈力帶 D2 屈曲"]]}, "scapularUpwardRotators": {"conor": "肩胛上旋肌：上斜方肌（C7–鎖骨）、下斜方肌（T6–12）、前鋸肌（T1–8）（Week 3）。", "tests": ["t-sh-abd"], "train": [["c1Df_Td1yUE", "入門", "PRI 站姿前鋸肌深蹲"], ["Ze7gXwnVbZk", "標準", "屈膝仰臥滑輪 Y 字上舉"], ["v3B099XbydA", "標準", "伏地挺身"], ["SYSZEf6iW8U", "進階", "PRI 彈力帶髖鉸鏈前鋸肌推拳"]]}, "scapularRetractors": {"conor": "肩胛下旋肌：肩胛提肌、菱形肌（T2–5）、胸小肌（T3–5）、肱三頭肌長頭（Week 3）。肩胛需要貼住胸廓，胸廓形狀改變時肩胛位置亦會跟著改變。", "tests": ["t-sh-er"], "train": [["J18Hm4RNfp0", "入門", "短坐彈力帶拉開"], ["czaLM6naAsc", "標準", "胸部支撐交替啞鈴划船（上背）"], ["rYrQcPQ5eBk", "標準", "坐姿單手滑輪水平划船（後三角）"], ["p6_ggXAEq14", "進階", "俯身滑輪後三角飛鳥"]]}, "elbowFlexors": {"conor": "Conor 的二頭肌動作選擇包括呼吸式牧師椅彎舉、蜘蛛彎舉、深蹲彎舉、外踏旋後彎舉等，配合胸廓位置選擇（Week 10、《防彈訓練》）。", "tests": [], "train": [["TLX4TZ1C1p0", "入門", "屈膝仰臥滑輪二頭彎舉"], ["fHaUi5VqU2w", "標準", "呼吸式牧師椅彎舉"], ["rKz7KYO6w4E", "標準", "坐姿交替啞鈴彎舉"], ["j17DkQwJvPw", "進階", "外踏旋後彎舉"]]}, "elbowExtensors": {"conor": "Conor：「肱三頭肌＝上肢的膕繩肌」。長頭附着肩胛外緣，參與肩胛下旋（Week 3）；一側肩胛偏上旋時需要多練肱三頭肌（Week 4）。", "tests": [], "train": [["ttJ1Fu9iiG0", "入門", "屈膝仰臥三頭伸展"], ["vS_X100uur0", "標準", "仰臥倒置交替三頭伸展"], ["f3ETHhlWRjU", "標準", "90/90 交替三頭伸展"], ["SREHTshyaFk", "進階", "單手過頭滑輪三頭伸展（長頭）"]]}, "forearmPronators": {"conor": "", "tests": [], "train": [["VV7zsl6LafM", "入門", "前臂旋前旋後", "Baptist Health"], ["gHxGA4ZDOMo", "標準", "手腕旋前旋後", "AskDoctorJo"]]}, "forearmSupinators": {"conor": "", "tests": [], "train": [["uC5i-zI73ro", "入門", "靠牆旋後彎舉"], ["j17DkQwJvPw", "標準", "外踏旋後彎舉"], ["VV7zsl6LafM", "入門", "前臂旋前旋後", "Baptist Health"]]}, "wristExtensors": {"conor": "", "tests": [], "train": [["D5QaYLd_JA0", "入門", "離心伸腕（網球肘）", "Rehab My Patient"], ["xdEwDxcHwoY", "標準", "離心伸腕詳解", "Momenta Chiropractic"]]}, "wristFlexors": {"conor": "", "tests": [], "train": [["jBNNSCOSZLM", "入門", "離心屈腕", "The Active Life"], ["cGThxYunuFI", "標準", "離心屈腕（高爾夫球肘）", "Dr. Alex St.Pierre"]]}, "kneeExtensors": {"conor": "Conor 指常見股四頭肌比膕繩肌強（《防彈訓練》）；在前側定向的代償中，股四頭肌與背部伸肌、腰方肌處於向心縮短的狀態（Week 6）。", "tests": ["t-squat"], "train": [["4zKkaV5fGGM", "入門", "坐姿腿伸展"], ["ve_TTkbLOYI", "標準", "前腳跟墊高分腿蹲（對側負重）"], ["Ab2EOeY7Z7U", "標準", "坐姿腿伸展（髖位移）"], ["95xUK7hb8dQ", "進階", "滑輪輔助反向北歐彎舉"]]}, "kneeFlexors": {"conor": "步態中，膕繩肌在腳跟著地時與腹斜肌一起向心工作；遠端纖維在站立中至末期離心控制（Week 2）。", "tests": ["t-slr"], "train": [["Ibnw9SIHeA0", "入門", "俯臥腿彎舉（背屈偏向）"], ["XapN-2VsAbw", "標準", "坐姿單腳腿彎舉"], ["Vav8EXy1rtU", "標準", "TRX 腿彎舉（膝夾球）"], ["96MvBtIDEpY", "進階", "滑墊腿彎舉"]]}, "anklePlantarflexors": {"conor": "步態中，小腿肌在腳掌著地至站立中期離心工作，站立中至末期向心推進（Week 2）。Conor 的下肢計劃用坐姿節奏提踵（3:1:3）強化小腿（《下肢基礎》）。", "tests": [], "train": [["gEH1qaWOiRI", "入門", "坐姿提踵（腳掌墊高，比目魚肌）"], ["aD2NhWvuL8Y", "標準", "離心提踵", "MGH Orthopaedics"], ["HmgXnST4Mdw", "進階", "提踵進階", "Physio REHAB"]]}, "ankleDorsiflexors": {"conor": "步態中，脛骨前肌在腳掌著地時工作，踝背屈肌在站立末期離心（Week 2）。", "tests": [], "train": [["VzIcGAgBiaM", "入門", "靠牆脛前肌提起", "The Barefoot Sprinter"], ["TIQztY1_p_8", "標準", "4 個脛骨前肌動作", "Rehab Science"]]}, "footInvertors": {"conor": "步態中，脛骨後肌在站立中期離心、在站立中至末期向心工作（Week 2）。", "tests": [], "train": [["50YDq8_OA_w", "入門", "彈力帶踝內翻", "AskDoctorJo"], ["XBvfk3zwiiE", "標準", "脛骨後肌強化（扁平足）", "Physiotutors"], ["11-TJR_ZihY", "進階", "脛骨後肌由易到難", "Jenn Chew"]]}, "footEvertors": {"conor": "", "tests": [], "train": [["xfrncpP5ONQ", "入門", "彈力帶踝外翻", "AskDoctorJo"], ["0tmgJ4Kc564", "標準", "外翻偏向側弓步"], ["fNxWCosboy4", "進階", "側向單腳支撐髖鉸鏈（外翻偏向）"]]}, "abdominals": {"conor": "Conor：很多運動員用腹直肌（六塊腹肌）多於腹斜肌，但正確呼吸是由腹斜肌推動，所以呼氣時要感到腹斜肌而不是六塊腹肌（《防彈訓練》）；呼氣至感到腹斜肌收緊、停五秒，再保持少許腹斜肌張力吸氣（Week 3）。", "tests": ["t-trunk-rot"], "train": [["Q9d3EjpEHCw", "入門", "仰臥死蟲（交替伸腿）"], ["9CDGGxnzpWg", "入門", "90/90 短槓桿側棒"], ["MZ-6_sJ2SU8", "標準", "反向捲腹進階"], ["PXXsP-REngI", "標準", "分腿站姿 Pallof 推"], ["Ll6MbVvxoDU", "進階", "滑墊鋸式"]]}, "spinalExtensors": {"conor": "在前側定向的代償中，推力通常來自處於向心縮短的背部伸肌、股四頭肌、腰方肌（Week 6）。後下胸廓（肩胛以下）由背闊肌、背部伸肌、腰方肌包覆（Week 3），所以這些肌肉縮短會限制後下胸廓擴張。", "tests": ["t-trunk-rot"], "train": [["NgBuvRKx_pY", "入門", "45° 羅馬椅髖伸展等長"], ["xEDnlOxeJH4", "入門", "鳥狗式", "Hinge Health"], ["-1n4uDfhrIU", "標準", "45° 髖伸展"], ["K1kL0Yv9yfM", "進階", "45° 髖伸展（抱槓片）"]]}, "neckFlexors": {"conor": "", "tests": ["t-cerv-rot", "t-cerv-lat"], "train": [["X7U9zOwX3Z4", "入門", "深層頸屈肌強化", "[P]rehab"], ["yemVMNDrFqs", "標準", "靠牆收下巴（深層頸屈肌）", "Dr. Alex St.Pierre"], ["chlsRARiEW4", "標準", "頭前傾呼吸重建（Conor）"]]}, "neckExtensors": {"conor": "", "tests": ["t-cerv-rot", "t-cerv-lat"], "train": [["iCiOE7pKVRk", "入門", "等長頸伸展", "AskDoctorJo"], ["HbLiEFFH2Sg", "標準", "頸伸肌強化", "CCGI"], ["R1lzCQ-IewY", "進階", "頸伸展活動度與力量", "Physio REHAB"]]}, "scapularElevators": {"conor": "肩胛前傾與上提：上斜方肌、肩胛提肌、菱形肌（Week 3）。", "tests": ["t-cerv-rot"], "train": [["X7NtgY9kCCM", "入門", "聳肩繞圈", "Rehab My Patient"], ["kdLS5R7kPHk", "標準", "手提箱行走（對側上提控制）"], ["cJRVVxmytaM", "標準", "啞鈴聳肩", "ScottHermanFitness"]]}};
 window.MUSCLES = MUSCLES;
 window.showMuscleDetail = showMuscleDetail;
 window.showBoneDetail = showBoneDetail;
@@ -32006,6 +32009,37 @@ function showMuscleGroupInline(key) {
 }
 window.showMuscleGroupInline = showMuscleGroupInline;
 
+
+// v71：肌群補充內容（Conor 觀點／訓練動作／相關測試）。compact＝3D 人體左欄用的精簡版
+window.mgExtraHTML = function (key, compact) {
+  var x = window.MUSCLE_GROUP_EXTRA && window.MUSCLE_GROUP_EXTRA[key];
+  if (!x) return '';
+  function esc(t) { return String(t || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var lvOrder = { '入門': 1, '標準': 2, '進階': 3 };
+  var tr = (x.train || []).slice().sort(function (a, b) { return (lvOrder[a[1]] || 2) - (lvOrder[b[1]] || 2); });
+  var tests = (x.tests || []).map(function (tid) {
+    var t = (window.SEQ_GUIDE_TESTS || []).filter(function (q) { return q.test === tid; })[0];
+    return t ? '<button class="kh-btn ghost mg-test" onclick="goTestFromDetail(\'' + tid + '\')">📐 ' + esc(t.name || t.label || tid) + '</button>' : '';
+  }).join('');
+  if (compact) {
+    return (tr.length ? '<div class="musclelist-group-header" style="font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--green);padding:12px 2px 6px">訓練這組肌肉 · ' + tr.length + '個</div>' + tr.map(function (d) {
+      var v = window.KVIDEO && KVIDEO[d[0]];
+      var name = v ? v.en : d[2];
+      return '<a class="pain-list-item mg-train" href="https://www.youtube.com/watch?v=' + d[0] + '" target="_blank" rel="noopener" style="text-decoration:none">'
+        + '<span class="pli-emoji">▶</span><div class="pli-text"><div class="pli-name">' + esc(d[2]) + '</div><div class="pli-sub">' + esc(d[1]) + ' · ' + esc(v ? name : (d[3] || 'YouTube')) + '</div></div></a>';
+    }).join('') : '') + (tests ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">' + tests + '</div>' : '');
+  }
+  var conor = x.conor ? '<div class="pd-section pd-full"><div class="pd-section-title">🧭 Conor 觀點</div><div class="pd-text">' + esc(x.conor) + '</div></div>' : '';
+  var train = tr.length ? '<div class="pd-section pd-full"><div class="pd-section-title">🏋 訓練這組肌肉 Training</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">' + tr.map(function (d) {
+    var v = window.KVIDEO && KVIDEO[d[0]];
+    var head = '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="k-lv">' + esc(d[1]) + '</span><b style="color:var(--text);font-size:13px">' + esc(d[2]) + '</b></div>';
+    var media = v ? window.kVideoCard(d[0])
+      : '<a href="https://www.youtube.com/watch?v=' + d[0] + '" target="_blank" rel="noopener" class="kh-btn ghost" style="align-self:flex-start;text-decoration:none">▶ 觀看示範影片 · ' + esc(d[3] || 'YouTube') + '</a>';
+    return '<div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--border);border-radius:10px">' + head + media + '</div>';
+  }).join('') + '</div></div>' : '';
+  var tst = tests ? '<div class="pd-section pd-full"><div class="pd-section-title">📐 相關評估測試</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">' + tests + '</div></div>' : '';
+  return { conor: conor, train: train, tests: tst };
+};
 function openMuscleGroupDetail(key) {
   var g = (typeof MUSCLE_GROUPS !== 'undefined') ? MUSCLE_GROUPS[key] : null;
   if (!g) return;
@@ -32039,9 +32073,12 @@ function openMuscleGroupDetail(key) {
       '</div>';
   }).join('');
 
+  var mx = window.mgExtraHTML(key) || {};
   document.getElementById('pd-body').innerHTML =
     '<div class="pd-section pd-full"><div class="pd-section-title">▸ 群組概覽 Group Overview</div><div class="pd-text">' + g.overview + '</div></div>' +
+    (mx.conor || '') +
     '<div class="pd-section pd-full"><div class="pd-section-title">💪 組成肌肉 Muscles in this Group</div><div style="margin-top:6px">' + muscleItems + '</div></div>' +
+    (mx.train || '') + (mx.tests || '') +
     '<div style="font-size:10.5px;color:var(--sub);line-height:1.6;padding-top:6px;border-top:1px solid var(--border)">按任何肌肉可以查看它的起止點/神經支配/相關痛症與訓練的完整資料。</div>';
   document.getElementById('pain-detail-overlay').classList.add('open');
 }
