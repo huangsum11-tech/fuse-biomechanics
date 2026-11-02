@@ -630,3 +630,13 @@
   - 呼吸／骨盆體位動作：28 個對應到 Conor 的 PRI 呼吸／體位影片（例如側臥屈髖抬膝臀肌激活 = Sidelying Glute Max Activation、跪坐後靠童式呼吸 = Child's Pose Breathing、墊高青蛙式呼吸 = Frog Breathing Progression），相近的標「相近」。動作庫「呼吸」分類由 0/48 增至 27/48 有影片卡；痛症頁呼吸處方 26/41、訓練頁 27/46、體態頁 27/28。
   - 其餘 21 個呼吸體位動作在 Conor 影片庫沒有對應，維持 YouTube 搜尋（動作庫內保留原始教材截圖）。
 - 備份位置：[versions/index-v68.html](versions/index-v68.html)
+
+## v69 — 2026-11-02
+- **新預設主題：黑白（mono）**，參考 Ember 介面風格，Pro 和 Fit 兩版共用：
+  - 配色：近黑底（#0C0C0C）、略亮的側欄（#111）和卡片（深灰漸層＋髮絲灰邊＋頂部微光）、白字＋灰字；主色改為白色，所以主按鈕是白底黑字。
+  - 字體：介面改用 Geist，標籤和數字用 Geist Mono（中文自動用蘋方／思源黑體），取代 Rajdhani／Share Tech Mono。
+  - 側欄選中項目改為灰色膠囊＋細邊；品牌改為圓形標記＋無襯線名稱，副題及「切換版本」改灰色；首頁大標題改為大而輕的字（像「October 2026」），日期用等寬灰字。
+  - 分段按鈕、篩選按鈕（包括 3D 人體的層次／解剖深度，原本橙／紅）選中時統一為灰膠囊；進度條、滑桿、捲軸改灰白。
+  - 有意義的顏色保留：紅綠狀態、左右側、肌肉緊／弱的示意色、3D 淺綠標示、YouTube 紅按鈕等。
+- 舊主題仍可使用：網址加 `?theme=amber`（之前的預設）、`teal`、`cobalt`、`violet`、`bone`（淺色）。
+- 備份位置：[versions/index-v69.html](versions/index-v69.html)

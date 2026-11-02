@@ -9,13 +9,13 @@
 <link rel="apple-touch-icon" id="app-touch-icon" href="icons/apple-touch-icon.png">
 <script>
 // Kinesis 兩個版本：教練版 Kinesis Pro（預設）／愛好者版 Kinesis Fit，由網址 ?edition=fit 決定。
-// 配色由 ?theme= 決定，預設 amber（Carbon and amber 深色，兩版共用）；bone（淺色）、teal、
-// cobalt、violet 仍然保留，方便對比：例如 ?edition=fit&theme=teal。
+// 配色由 ?theme= 決定，預設 mono（v69 黑白，參考 Ember 介面，兩版共用）；amber、bone（淺色）、
+// teal、cobalt、violet 仍然保留，方便對比：例如 ?edition=fit&theme=amber。
 // 在最前面決定好，等 manifest／圖示／主題色／導覽都一致。
 (function () {
   var qs = new URLSearchParams(location.search);
   var ed = qs.get('edition') === 'fit' ? 'fit' : 'coach';
-  var th = ['bone', 'cobalt', 'violet', 'teal', 'amber'].indexOf(qs.get('theme')) !== -1 ? qs.get('theme') : 'amber';
+  var th = ['mono', 'bone', 'cobalt', 'violet', 'teal', 'amber'].indexOf(qs.get('theme')) !== -1 ? qs.get('theme') : 'mono';
   window.FUSE_EDITION = ed;
   window.FUSE_THEME_NAME = th;
   window.FUSE_HIDDEN_RAILS = ed === 'fit' ? ['clients', 'wedge', 'coaching', 'kineticchain', 'screen'] : [];
@@ -28,7 +28,8 @@
     cobalt: { bg: '#0B1220', stage: '#0B1220', accentHex: 0x4F7DFF, accentDarkHex: 0x152a66, bgHex: 0x0B1220, panelHex: 0x121B2E, platformHex: 0x1a2640 },
     violet: { bg: '#110E1D', stage: '#110E1D', accentHex: 0x8B6FFF, accentDarkHex: 0x2a1f66, bgHex: 0x110E1D, panelHex: 0x1A1630, platformHex: 0x251f45 },
     teal:   { bg: '#0A1517', stage: '#0A1517', accentHex: 0x3FD0C0, accentDarkHex: 0x114a45, bgHex: 0x0A1517, panelHex: 0x112024, platformHex: 0x1c3338 },
-    amber:  { bg: '#0E0E0F', stage: '#0E0E0F', accentHex: 0xF2A93B, accentDarkHex: 0x5a3c0c, bgHex: 0x0E0E0F, panelHex: 0x18181A, platformHex: 0x27272a }
+    amber:  { bg: '#0E0E0F', stage: '#0E0E0F', accentHex: 0xF2A93B, accentDarkHex: 0x5a3c0c, bgHex: 0x0E0E0F, panelHex: 0x18181A, platformHex: 0x27272a },
+    mono:   { bg: '#0C0C0C', stage: '#0F0F0F', accentHex: 0xBFBFBF, accentDarkHex: 0x3a3a3a, bgHex: 0x0F0F0F, panelHex: 0x161616, platformHex: 0x222222 }
   };
   window.FUSE_THEME = th === 'bone' ? T.bone[ed] : T[th];
   var root = document.documentElement;
@@ -34876,6 +34877,96 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 .kv-sec ol { margin: 0; padding-left: 20px; }
 .kv-yt { display: inline-block; margin-top: 10px; font-size: 12px; color: var(--green); text-decoration: none; }
 .test-detail .kv-wrap { margin-top: 10px; }
+</style>
+
+<style id="mono-theme">
+/* ══ v69 黑白主題（預設）：參考 Ember 介面——近黑底、略亮的側欄與卡片、髮絲灰邊框、白字＋灰字、
+   Geist／Geist Mono 字體、白色為主色。有意義的顏色（紅綠狀態、左右側、3D 標示）保留。
+   全部規則都限定 html[data-theme="mono"]，其他主題不受影響。 ══ */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+html[data-theme="mono"] {
+  --bg: #0C0C0C; --bg-rgb: 12,12,12; --panel: #151515; --panel2: #1A1A1A;
+  --border: #262626; --border2: #333333;
+  --text: #EDEDED; --text2: #C9C9C9; --sub: #8C8C8C;
+  --accent: #F2F2F2; --accent-rgb: 242,242,242; --accent-fill: #F2F2F2;
+  --sans: 'Geist', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --mono: 'Geist Mono', 'SF Mono', ui-monospace, 'PingFang TC', monospace;
+  --k-card-bg: linear-gradient(180deg, #181818 0%, #131313 100%);
+  --k-card-hi: inset 0 1px 0 rgba(255,255,255,.045);
+}
+html[data-theme="mono"] body { font-family: var(--sans); -webkit-font-smoothing: antialiased; letter-spacing: -.005em; }
+html[data-theme="mono"] ::selection { background: rgba(255,255,255,.18); }
+
+/* 側欄：比主區略亮，選中項目是灰色膠囊＋細邊（Ember 的 Overview 樣式） */
+html[data-theme="mono"] #knav, html[data-theme="mono"] .sidebar { background: #111111; border-right-color: #1E1E1E; }
+html[data-theme="mono"] #knav .rail-btn.active, html[data-theme="mono"] #knav .rail-group-buttons .rail-btn.active,
+html[data-theme="mono"] #knav .rail-btn[data-rail="home"].active {
+  background: linear-gradient(180deg, #262626, #1F1F1F); color: #FFFFFF; box-shadow: inset 0 0 0 1px #343434, inset 0 1px 0 rgba(255,255,255,.06);
+}
+html[data-theme="mono"] #knav .rail-btn:hover:not(.active), html[data-theme="mono"] #knav .rail-group-header:hover:not(.active) { background: #1A1A1A; color: var(--text); }
+html[data-theme="mono"] #knav .rail-group-header { color: var(--text2); }
+html[data-theme="mono"] #knav .rail-group-header .rail-label { font-weight: 500; }
+html[data-theme="mono"] #knav .rail-group-buttons.expanded::before { background: #232323; }
+html[data-theme="mono"] #global-search-input { background: #161616 !important; border: 1px solid #262626 !important; border-radius: 9px !important; color: var(--text) !important; }
+/* 品牌：像 Ember 的 Logo＋名稱（無襯線、正常字距），副題與版本切換改灰色 */
+html[data-theme="mono"] #knav .logo h1 { font-family: var(--sans) !important; font-size: 18px !important; font-weight: 600 !important; letter-spacing: -.01em !important; color: #F5F5F5 !important; text-transform: none; }
+html[data-theme="mono"] #knav .logo h1::before { content: ''; display: inline-block; width: 16px; height: 16px; margin-right: 9px; vertical-align: -2px; border-radius: 50%; background: conic-gradient(from 210deg, #F5F5F5 0 42%, #5A5A5A 42% 58%, #F5F5F5 58% 100%); box-shadow: inset 0 0 0 1px rgba(0,0,0,.25); }
+html[data-theme="mono"] #knav .logo p { font-family: var(--mono) !important; font-size: 10px !important; letter-spacing: 0 !important; color: #6E6E6E !important; margin-top: 6px; line-height: 1.5; }
+html[data-theme="mono"] #knav .trk-edition a { color: #9A9A9A !important; text-decoration: none; border-bottom: 1px dashed #3A3A3A; }
+html[data-theme="mono"] #knav .trk-edition a:hover { color: #EDEDED !important; }
+html[data-theme="mono"] #global-search-input { padding-right: 44px !important; }
+html[data-theme="mono"] .k-kbd { background: #1E1E1E; border-color: #303030; color: #9A9A9A; }
+
+/* 頁首與首頁：大而輕的標題（像「October 2026」），日期用等寬灰字 */
+html[data-theme="mono"] .k-pagehead, html[data-theme="mono"] #ktop { border-bottom-color: #1E1E1E; }
+html[data-theme="mono"] #k-title { font-weight: 500; }
+html[data-theme="mono"] .kh-date { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0; color: var(--sub); }
+html[data-theme="mono"] .kh-hello { font-size: 34px; font-weight: 400; letter-spacing: -.025em; margin: 4px 0 22px; }
+html[data-theme="mono"] .kh-grid { gap: 16px; }
+
+/* 卡片：深灰漸層＋髮絲邊＋頂部微光 */
+html[data-theme="mono"] .kh-card, html[data-theme="mono"] .pd-section, html[data-theme="mono"] .k-card {
+  background: var(--k-card-bg); border: 1px solid #242424; border-radius: 14px; box-shadow: var(--k-card-hi);
+}
+html[data-theme="mono"] .kh-card { padding: 18px 20px; }
+html[data-theme="mono"] .kh-h { font-size: 13.5px; color: #A3A3A3; }
+html[data-theme="mono"] .kh-h .k-ico, html[data-theme="mono"] .kh-tool .k-ico { color: #8C8C8C; }
+html[data-theme="mono"] .kh-title { font-weight: 500; letter-spacing: -.01em; }
+html[data-theme="mono"] .kh-item small, html[data-theme="mono"] .kh-h .kh-more { font-family: var(--mono); font-size: 11.5px; }
+html[data-theme="mono"] .kh-item:hover, html[data-theme="mono"] .kh-tool:hover { color: #FFFFFF; }
+html[data-theme="mono"] .kh-tool { background: #141414; border-color: #262626; border-radius: 10px; }
+html[data-theme="mono"] .kh-tool:hover { border-color: #3A3A3A; background: #191919; }
+html[data-theme="mono"] .kh-av { background: #222; color: #EDEDED; box-shadow: inset 0 0 0 1px #333; }
+
+/* 按鈕：主按鈕白底黑字；次要按鈕透明＋細邊；分段按鈕選中＝灰膠囊 */
+html[data-theme="mono"] .kh-btn { background: #F2F2F2; color: #0C0C0C; border-radius: 9px; font-weight: 500; }
+html[data-theme="mono"] .kh-btn:hover { background: #FFFFFF; }
+html[data-theme="mono"] .kh-btn.ghost { background: transparent; color: var(--text); border: 1px solid #2E2E2E; }
+html[data-theme="mono"] .kh-btn.ghost:hover { border-color: #444; background: #171717; }
+html[data-theme="mono"] .kh-seg { border-color: #2A2A2A; border-radius: 9px; background: #121212; }
+html[data-theme="mono"] .kh-seg button + button { border-left-color: #2A2A2A; }
+html[data-theme="mono"] .kh-seg button.on { background: #262626; color: #FFFFFF; box-shadow: inset 0 0 0 1px #363636; }
+html[data-theme="mono"] .kh-steps i { background: #262626; }
+html[data-theme="mono"] .kh-steps i.done { background: #EDEDED; }
+html[data-theme="mono"] .kh-steps i.cur { background: #6B6B6B; }
+html[data-theme="mono"] .k-ghost { border-color: #2E2E2E; border-radius: 9px; }
+html[data-theme="mono"] .k-ghost:hover { border-color: #444; background: #171717; }
+
+/* 詳情頁、清單與標籤 */
+html[data-theme="mono"] .pain-detail-overlay { border-left-color: #1E1E1E; }
+html[data-theme="mono"] .pain-list-item { border-radius: 10px; }
+html[data-theme="mono"] .pain-list-item:hover { background: #181818; }
+html[data-theme="mono"] .pd-section-title { color: #A3A3A3 !important; }
+html[data-theme="mono"] .k-qtabs button { font-family: var(--sans); }
+html[data-theme="mono"] #mnav { background: #111111; border-top-color: #1E1E1E; }
+html[data-theme="mono"] #mnav button.active { color: #FFFFFF; box-shadow: inset 0 2px 0 #FFFFFF; }
+/* 3D 人體篩選列：選中項目統一為灰膠囊（原本層次＝橙、解剖深度＝紅） */
+html[data-theme="mono"] .anat-layer-btn.active, html[data-theme="mono"] .anat-dissect-btn.active,
+html[data-theme="mono"] .anat-region-btn.active, html[data-theme="mono"] .anat-view-btn.active,
+html[data-theme="mono"] .musclelist-filter-btn.active { background: #262626 !important; border-color: #3A3A3A !important; color: #FFFFFF !important; }
+html[data-theme="mono"] input[type="range"] { accent-color: #EDEDED; }
+html[data-theme="mono"] * { scrollbar-color: #2A2A2A transparent; }
+html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
 </style>
 </body>
 </html>
