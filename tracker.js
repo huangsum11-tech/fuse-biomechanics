@@ -258,7 +258,33 @@
     return '<div class="trk-stats"><div class="trk-stat"><b>' + wk.length + '</b><span>近7日訓練</span></div>' +
       '<div class="trk-stat"><b>' + (vol >= 1000 ? fmt(vol / 1000) + 't' : fmt(vol) + 'kg') + '</b><span>近7日總量</span></div>' +
       '<div class="trk-stat"><b>' + prs.length + '</b><span>近30日 PR</span></div></div>' +
-      (prs.length ? '<div class="trk-hint">🏆 ' + esc(prs.slice(0, 5).join('、')) + '</div>' : '');
+      (prs.length ? '<div class="trk-hint">🏆 ' + esc(prs.slice(0, 5).join('、')) + '</div>' : '') +
+      weekMapHtml(wk);
+  }
+
+  // 近7日訓練部位熱圖：按動作名稱推斷肌肉區域（musclemap.js），以完成組數（或有填次數的組）計算
+  function weekMapHtml(wk) {
+    if (!window.kBodyMap || !window.kMapForExercise || !wk.length) return '';
+    var cnt = {}, unknown = [];
+    wk.forEach(function (s) {
+      s.exercises.forEach(function (ex) {
+        var sets = ex.sets.filter(function (x) { return x.done || num(x.reps) > 0; }).length;
+        if (!sets || !ex.name) return;
+        var reg = window.kMapForExercise(ex.name);
+        if (!reg.length) { if (unknown.indexOf(ex.name) < 0) unknown.push(ex.name); return; }
+        reg.forEach(function (r) { cnt[r] = (cnt[r] || 0) + sets; });
+      });
+    });
+    var keys = Object.keys(cnt);
+    if (!keys.length) return '';
+    var max = Math.max.apply(null, keys.map(function (k) { return cnt[k]; })), lv = {};
+    keys.forEach(function (k) { lv[k] = cnt[k] / max; });
+    keys.sort(function (a, b) { return cnt[b] - cnt[a]; });
+    return '<div class="trk-card" style="margin-top:10px"><div class="trk-hint" style="margin:0 0 8px">近7日訓練部位（顏色越亮＝組數越多）</div>' +
+      window.kBodyMap(lv) +
+      '<div class="trk-hint" style="margin-top:8px;line-height:1.8">' + keys.map(function (k) { return esc((window.KMAP_LABEL || {})[k] || k) + ' ' + cnt[k] + ' 組'; }).join('　') + '</div>' +
+      (unknown.length ? '<div class="trk-hint">未能辨認部位：' + esc(unknown.slice(0, 4).join('、')) + (unknown.length > 4 ? '…' : '') + '</div>' : '') +
+      '</div>';
   }
 
   function historyHtml() {

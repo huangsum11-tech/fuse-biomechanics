@@ -21712,8 +21712,11 @@ window.openMuscleDetail = function(id) {
       + '</div>';
   }
 
+  var mapLv = window.kMapForMuscles ? window.kMapForMuscles([id]) : {};
+  var bodyMapHTML = Object.keys(mapLv).length ? '<div class="pd-section pd-full"><div class="pd-section-title">🗺 位置 Location</div>' + window.kBodyMap(mapLv, { auto: true, small: true }) + '</div>' : '';
   document.getElementById('pd-body').innerHTML =
     layerBadgeHTML
+    + bodyMapHTML
     + '<div class="pd-section pd-full"><div class="pd-section-title">📍 起止點 Origin / Insertion</div><div class="pd-text"><b style="color:var(--c-fbbf24,#fbbf24)">起點：</b>'+m.origin+(m.originEn ? '<div style="font-size:10px;color:var(--sub,#9aa3b5);margin:2px 0 6px;white-space:pre-line">'+escHtml(m.originEn)+'</div>' : '<br>')+'<b style="color:var(--c-22d3ee,#22d3ee)">止點：</b>'+m.insertion+(m.insertionEn ? '<div style="font-size:10px;color:var(--sub,#9aa3b5);margin:2px 0 6px;white-space:pre-line">'+escHtml(m.insertionEn)+'</div>' : '')+(m.innervation ? '<b style="color:var(--c-818cf8,#818cf8)">神經：</b>'+m.innervation+(m.innervationEn ? '<div style="font-size:10px;color:var(--sub,#9aa3b5);margin:2px 0 0;white-space:pre-line">'+escHtml(m.innervationEn)+'</div>' : '') : '')+'</div>'+boneAttachHTML+'</div>'
     + '<div class="pd-section pd-full"><div class="pd-section-title">🎯 主要動作 Action</div><div class="pd-text">'+m.action+(m.actionEn ? '<div style="font-size:10px;color:var(--sub,#9aa3b5);margin:4px 0 0;white-space:pre-line">'+escHtml(m.actionEn)+'</div>' : '')+'</div>'+actionByPositionHTML+'</div>'
     + (m.note ? '<div class="pd-section pd-full"><div class="pd-section-title">🩺 臨床意義 Clinical Significance</div><div class="pd-text">'+m.note+'</div></div>' : '')
@@ -32076,6 +32079,7 @@ function openMuscleGroupDetail(key) {
   var mx = window.mgExtraHTML(key) || {};
   document.getElementById('pd-body').innerHTML =
     '<div class="pd-section pd-full"><div class="pd-section-title">▸ 群組概覽 Group Overview</div><div class="pd-text">' + g.overview + '</div></div>' +
+    (window.kBodyMap ? '<div class="pd-section pd-full"><div class="pd-section-title">🗺 位置 Location</div>' + window.kBodyMap(window.kMapForMuscles(g.muscles.map(function (m) { return m.id; })), { auto: true }) + '</div>' : '') +
     (mx.conor || '') +
     '<div class="pd-section pd-full"><div class="pd-section-title">💪 組成肌肉 Muscles in this Group</div><div style="margin-top:6px">' + muscleItems + '</div></div>' +
     (mx.train || '') + (mx.tests || '') +
@@ -32750,6 +32754,7 @@ input[type="range"]:focus-visible { outline-offset: 4px; }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 </script>
+<script src="musclemap.js?v=72"></script>
 <script src="tracker.js"></script>
 <nav id="mnav" aria-label="頁面切換">
   <button type="button" data-mv="input" class="active"><span>📝</span>輸入</button>

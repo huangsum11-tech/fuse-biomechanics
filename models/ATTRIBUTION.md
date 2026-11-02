@@ -37,3 +37,31 @@ BodyParts3D 4.0 has no meshes for these muscles, so they are added from Z-Anatom
 - Files: `atlas-extra.json` and `extra-0.bin.gz`. These two files are adaptations of Z-Anatomy and are shared under CC BY-SA 4.0.
 
 Adaptations: extracted the listed meshes from the FBX, converted from centimetres to metres, and aligned to the BodyParts3D stage with a similarity transform fitted by ICP against neighbouring BodyParts3D muscles (trunk: mean surface distance about 3 mm; each foot fitted separately, about 3 mm). Vertex normals recomputed and quantized to signed 16-bit. Geometry otherwise unchanged. Build script kept locally (tools/build_extra_muscles.py, not published).
+
+## 2D muscle map (MuscleMap)
+
+`musclemap.js` contains the front/back male body path data from MuscleMap by Melih Colpan (https://github.com/melihcolpan/MuscleMap), converted from Swift source to JSON; the shapes are unchanged. Used under the MIT License:
+
+```
+MIT License
+
+Copyright (c) 2026 Melih Colpan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
