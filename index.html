@@ -3121,6 +3121,15 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
         <button class="anat-view-btn active" id="anat-attach-btn" onclick="window.toggleAnatAttach()" title="選擇肌肉時，以顏色標示起點及止點所在的骨">📍 起止點</button>
         <button class="anat-view-btn" id="anat-ghost-btn" onclick="window.toggleAnatGhost()" title="獨立顯示時，其餘肌肉骨骼變淡而不是消失">👻 淡化其他</button>
         <button class="anat-view-btn" id="anat-clip-btn" onclick="window.toggleAnatClip()" title="以一個切面切開模型">🔪 切面</button>
+        <button class="anat-view-btn" id="anat-move-btn" onclick="window.toggleAnatMove()" title="示範關節動作，並標示主要發力肌群">🎬 關節動作</button>
+      </div>
+      <div id="anat-move-row" style="display:none;gap:4px;padding:5px 8px;flex-shrink:0;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border)">
+        <select id="anat-move-sel" onchange="window.anatMoveUpdate(true)" style="font-family:var(--mono);font-size:11px;padding:3px 4px;background:var(--panel,#111);color:var(--text);border:1px solid var(--border);border-radius:4px"></select>
+        <button class="anat-layer-btn active" data-mside="R" onclick="window.anatMoveSide('R')">右</button>
+        <button class="anat-layer-btn" data-mside="L" onclick="window.anatMoveSide('L')">左</button>
+        <input type="range" id="anat-move-ang" min="0" max="100" value="60" oninput="window.anatMoveUpdate()" style="flex:1;min-width:80px" aria-label="角度">
+        <button class="anat-layer-btn" id="anat-move-play" onclick="window.anatMovePlay()">▶ 播放</button>
+        <span id="anat-move-lab" style="font-family:var(--mono);font-size:10px;color:var(--sub);min-width:46px"></span>
       </div>
       <div id="anat-clip-row" style="display:none;gap:4px;padding:5px 8px;flex-shrink:0;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border)">
         <button class="anat-layer-btn active" data-clip="y" onclick="window.setAnatClipAxis('y')">橫切</button>
@@ -11323,7 +11332,7 @@ window.openAtlas3D = function(conceptIds, label) {
   window._atlas3dLoading = true;
   loading.style.display = 'flex';
   Promise.all([
-    import('./anatomy3d.js?v=80'),
+    import('./anatomy3d.js?v=81'),
   ]).then(function(mods) {
     var mod = mods[0];
     window._atlas3dSYSTEMS = mod.SYSTEMS;
@@ -20577,6 +20586,60 @@ window.setAnatClipAxis = function(ax) {
   anat3dApplyClip();
 };
 window.setAnatClipPos = function(v) { if (!anat3d.clip) return; anat3d.clip.t = v / 100; anat3dApplyClip(); };
+// v81：關節動作示範（簡化：骨骼按肢段整塊轉動，跨關節的肌肉按位置平滑拉伸；肩胛骨不隨肩動作轉動）
+var MVX = [1, 0, 0], MVY = [0, 1, 0], MVZ = [0, 0, 1];
+var ANAT_MOVES = [
+  { k: 'hipFlex', name: '髖屈曲', limb: 'leg', max: 120, g: 'hipFlexors', pose: function(a) { return [[[MVX, -a]]]; } },
+  { k: 'hipExt', name: '髖伸展', limb: 'leg', max: 20, g: 'hipExtensors', pose: function(a) { return [[[MVX, a]]]; } },
+  { k: 'hipAbd', name: '髖外展', limb: 'leg', max: 45, g: 'hipAbductors', pose: function(a, R) { return [[[MVZ, R ? -a : a]]]; } },
+  { k: 'hipIR', name: '髖內旋（坐姿）', limb: 'leg', max: 40, g: 'hipIR', pose: function(a, R) { return [[[MVX, -90], [MVY, R ? a : -a]], [[MVX, 90]]]; } },
+  { k: 'hipER', name: '髖外旋（坐姿）', limb: 'leg', max: 45, g: 'hipER', pose: function(a, R) { return [[[MVX, -90], [MVY, R ? -a : a]], [[MVX, 90]]]; } },
+  { k: 'kneeFlex', name: '膝屈曲', limb: 'leg', max: 130, g: 'kneeFlexors', pose: function(a) { return [[], [[MVX, a]]]; } },
+  { k: 'ankleDF', name: '踝背屈', limb: 'leg', max: 20, g: 'ankleDorsiflexors', pose: function(a) { return [[], [], [[MVX, -a]]]; } },
+  { k: 'anklePF', name: '踝蹠屈', limb: 'leg', max: 50, g: 'anklePlantarflexors', pose: function(a) { return [[], [], [[MVX, a]]]; } },
+  { k: 'shFlex', name: '肩屈曲', limb: 'arm', max: 160, g: 'shoulderFlexors', pose: function(a) { return [[[MVX, -a]]]; } },
+  { k: 'shExt', name: '肩伸展', limb: 'arm', max: 50, g: 'shoulderExtensors', pose: function(a) { return [[[MVX, a]]]; } },
+  { k: 'shAbd', name: '肩外展', limb: 'arm', max: 160, g: 'shoulderAbductors', pose: function(a, R) { return [[[MVZ, R ? -a : a]]]; } },
+  { k: 'elbowFlex', name: '肘屈曲', limb: 'arm', max: 145, g: 'elbowFlexors', pose: function(a) { return [[], [[MVX, -a]]]; } }
+];
+anat3d.move = null;
+window.toggleAnatMove = function() {
+  var on = !anat3d.move, row = document.getElementById('anat-move-row'), sel = document.getElementById('anat-move-sel');
+  if (sel && !sel.options.length) sel.innerHTML = ANAT_MOVES.map(function(m) { return '<option value="' + m.k + '">' + m.name + '</option>'; }).join('');
+  anat3d.move = on ? { side: 'R' } : null;
+  if (row) row.style.display = on ? 'flex' : 'none';
+  var b = document.getElementById('anat-move-btn'); if (b) b.classList.toggle('active', on);
+  if (!on) { anat3d.movePlaying = false; if (anat3d.viewer) anat3d.viewer.setPose(0); if (anat3d.overlay && /^mv:/.test(anat3d.overlay.key)) window.anat3dSetOverlay(null); return; }
+  window.anatMoveUpdate(true);
+};
+window.anatMoveSide = function(sd) { if (!anat3d.move) return; anat3d.move.side = sd; qsa('[data-mside]').forEach(function(x) { x.classList.toggle('active', x.getAttribute('data-mside') === sd); }); window.anatMoveUpdate(true); };
+window.anatMoveUpdate = function(changed) {
+  var v = anat3d.viewer, mv = anat3d.move; if (!v || !mv) return;
+  var m = ANAT_MOVES.filter(function(x) { return x.k === document.getElementById('anat-move-sel').value; })[0] || ANAT_MOVES[0], R = mv.side === 'R';
+  var a = Math.round(m.max * (+document.getElementById('anat-move-ang').value) / 100);
+  var chain = (m.limb === 'leg' ? 1 : 3) + (R ? 0 : 1);
+  if (!v.setPose(chain, m.pose(a, R))) { document.getElementById('anat-move-lab').textContent = '模型載入中…'; return; }
+  document.getElementById('anat-move-lab').textContent = a + '°';
+  if (changed) {
+    var g = MUSCLE_GROUPS[m.g], ids = [];
+    (g && g.muscles || []).forEach(function(mm) { ids = ids.concat(kIdsOf([mm.id])); });
+    var parts = v.partIdsBySide(ids, mv.side), map = {}; parts.forEach(function(id) { map[id] = '#f97316'; });
+    window.anat3dSetOverlay({ key: 'mv:' + m.k + mv.side, map: map, alpha: 0.85,
+      legend: '<b>' + (R ? '右' : '左') + m.name + '</b><br><span style="color:#f97316">●</span> 主要發力：' + (g ? g.name : '') + '<br><span style="color:var(--sub)">簡化示意：骨骼按肢段轉動、肌肉按位置拉伸' + (m.limb === 'arm' ? '；肩胛骨不隨動' : '') + '</span>' });
+    if (parts.length) v.faceParts(parts);
+  }
+};
+window.anatMovePlay = function() {
+  var btn = document.getElementById('anat-move-play'), el = document.getElementById('anat-move-ang');
+  anat3d.movePlaying = !anat3d.movePlaying; if (btn) btn.textContent = anat3d.movePlaying ? '⏸ 暫停' : '▶ 播放';
+  if (!anat3d.movePlaying) return;
+  var t0 = performance.now();
+  (function tick(now) {
+    if (!anat3d.movePlaying || !anat3d.move) { if (btn) btn.textContent = '▶ 播放'; return; }
+    el.value = Math.round(50 - 50 * Math.cos((now - t0) / 1800 * Math.PI)); window.anatMoveUpdate();
+    requestAnimationFrame(tick);
+  })(t0);
+};
 
 function anat3dBuildReverseMaps() {
   var atlas = anat3d.atlas;
@@ -20769,7 +20832,7 @@ function initAnat3D() {
   if (!host) return;
   anat3d.loading = true;
   var loadingEl = document.getElementById('anat-3d-loading');
-  import('./anatomy3d.js?v=80').then(function(mod) {
+  import('./anatomy3d.js?v=81').then(function(mod) {
     return mod.loadAtlas('models/').then(function(atlas) {
       anat3d.atlas = atlas;
       anat3dBuildReverseMaps();
