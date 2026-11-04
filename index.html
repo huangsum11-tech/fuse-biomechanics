@@ -2537,6 +2537,7 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
       <button onclick="openRedFlagCard()" style="font-family:var(--mono);font-size:11px;padding:9px 8px;border-radius:6px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--c-f87171,#f87171);cursor:pointer;text-align:center;line-height:1.4">🚩 紅旗禁忌<br><span style="font-size:9px;color:var(--sub)">現在不該做什麼</span></button>
       <button onclick="openUnilateralSuggestions()" style="font-family:var(--mono);font-size:11px;padding:9px 8px;border-radius:6px;background:rgba(165,180,252,.08);border:1px solid rgba(165,180,252,.3);color:var(--c-a5b4fc,#a5b4fc);cursor:pointer;text-align:center;line-height:1.4">⚖️ 對稱訓練<br><span style="font-size:9px;color:var(--sub)">單側補償建議</span></button>
       <button onclick="openSessionBuilder()" style="grid-column:1/3;font-family:var(--mono);font-size:11px;padding:9px 8px;border-radius:6px;background:rgba(var(--accent-rgb,0,229,160),.08);border:1px solid rgba(var(--accent-rgb,0,229,160),.3);color:var(--green);cursor:pointer;text-align:center;line-height:1.4">📝 今日課表快速組合器 · 勾選動作一鍵生成當日課表</button>
+      <button onclick="window.kShow3DAssessment()" style="grid-column:1/3;font-family:var(--mono);font-size:11px;padding:9px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.04);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:center">🧊 3D 看受限測試相關肌肉</button>
     </div>
     <div class="card" style="--accent:var(--blue)">
       <div class="card-title">SPECTRUM OF PATTERNS — 模式判讀</div>
@@ -11322,7 +11323,7 @@ window.openAtlas3D = function(conceptIds, label) {
   window._atlas3dLoading = true;
   loading.style.display = 'flex';
   Promise.all([
-    import('./anatomy3d.js?v=79'),
+    import('./anatomy3d.js?v=80'),
   ]).then(function(mods) {
     var mod = mods[0];
     window._atlas3dSYSTEMS = mod.SYSTEMS;
@@ -20486,6 +20487,45 @@ window.kShow3DExercise = function(name) {
   window.kShow3DOverlay({ key: 'ex:' + name, map: map, alpha: 0.85, faceIds: ids,
     legend: '<b>' + name + '</b><br><span style="color:#f97316">●</span> 主要發力部位<br><span style="color:var(--sub)">' + regs.map(function(r) { return (window.KMAP_LABEL || {})[r] || r; }).join('、') + '（按動作分類推斷）</span>' });
 };
+// v80：評估結果 → 3D。讀取各測試的數值，未達標的測試把相關肌肉在受限一側染紅。
+// 依據：Week 5（測試代表甚麼）、Week 6（前側定向的推力來自背伸肌、股四頭肌、內收肌、腰方肌；三級代償深層外旋肌及臀肌縮短）、
+// Week 3（上胸前後腔室的覆蓋肌）；其餘標「一般解剖」。
+var KASSESS_RULES = [
+  { id: 'squat-depth', name: '深蹲', side: 'B', fail: function(v) { return v < 110; }, unit: '°', m: ['erectors', 'ql', 'recFem', 'addLong', 'addMag'], src: 'Week 6：前側定向' },
+  { id: 'obers-#', name: "Ober's", fail: function(v) { return v < 1; }, fmt: function() { return '未過'; }, m: ['tfl', 'itband', 'glutMed', 'glutMin'], src: '一般解剖' },
+  { id: 'hip-#-flex', name: '主動髖屈', fail: function(v) { return v < 100; }, unit: '°', m: ['erectors', 'ql', 'recFem'], src: 'Week 6：前側定向' },
+  { id: 'slr-#', name: '直腿抬高', fail: function(v) { return v < 45; }, unit: '°', m: ['piriformis', 'gemelli', 'obturatorInt', 'quadFem', 'glutMax', 'bicepsFemLong', 'semiten', 'semimem'], src: 'Week 5／6：後骨盆受壓、深層外旋肌' },
+  { id: 'hip-#-abd', name: '髖外展', fail: function(v) { return v < 40; }, unit: '°', m: ['addLong', 'addMag', 'addBrevis', 'gracilis', 'pectineus'], src: '一般解剖' },
+  { id: 'hip-#-ir', name: '股骨內旋', fail: function(v) { return v < 30; }, unit: '°', m: ['piriformis', 'gemelli', 'obturatorInt', 'obturatorExt', 'quadFem', 'glutMax'], src: 'Week 6：深層外旋肌' },
+  { id: 'hip-#-er', name: '股骨外旋', fail: function(v) { return v < 35; }, unit: '°', m: ['tfl', 'glutMinFront', 'glutMed', 'addLong', 'pectineus'], src: '一般解剖' },
+  { id: 'trunk-rot-#', name: '軀幹旋轉', fail: function(v) { return v < 60; }, unit: '°', m: ['oblExt', 'oblInt', 'ql', 'latDorsi'], src: '一般解剖' },
+  { id: 'sh-ir-#', name: '肩內旋', fail: function(v) { return v < 70; }, unit: '°', m: ['pectMinor', 'pecMaj', 'infraspinatus', 'teresMinor', 'deltPBack'], src: 'Week 3 前上胸覆蓋肌＋一般解剖' },
+  { id: 'sh-er-#', name: '肩外旋', fail: function(v) { return v < 80; }, unit: '°', m: ['trapMid', 'rhomboids', 'levScap', 'subscap', 'latDorsi'], src: 'Week 3 後上胸覆蓋肌＋一般解剖' },
+  { id: 'sh-abd-#', name: '肩外展', fail: function(v) { return v < 45; }, unit: '°', m: ['latDorsi', 'teresMaj', 'rhomboids', 'trapMid'], src: 'Week 5：後上胸擴張' },
+  { id: 'cerv-rot-#', name: '頸椎旋轉', side2: 'B', fail: function(v) { return v < 30; }, unit: '°', m: ['scm', 'levScap', 'trapUpper', 'splenius', 'scalenesAnt', 'scalenesMid'], src: '一般解剖' },
+  { id: 'cerv-lat-#', name: '頸椎側屈', side2: 'B', fail: function(v) { return v < 30; }, unit: '°', m: ['scm', 'levScap', 'trapUpper', 'scalenesAnt', 'scalenesMid', 'scalenesPost'], src: '一般解剖' }
+];
+window.kShow3DAssessment = function() {
+  var go = function() {
+    var v3 = anat3d.viewer, map = {}, all = [], lines = [];
+    KASSESS_RULES.forEach(function(r) {
+      (r.side === 'B' ? [['B', r.id]] : [['L', r.id.replace('#', 'l')], ['R', r.id.replace('#', 'r')]]).forEach(function(pair) {
+        var el = document.getElementById('val-' + pair[1]); if (!el) return;
+        var v = +el.value; if (!r.fail(v)) return;
+        var ids = v3.partIdsBySide(kIdsOf(r.m), r.side2 === 'B' ? 'B' : pair[0]);
+        ids.forEach(function(id) { map[id] = '#ff2d2d'; }); all = all.concat(ids);
+        lines.push((pair[0] === 'L' ? '左' : pair[0] === 'R' ? '右' : '') + r.name + ' ' + (r.fmt ? r.fmt(v) : v + r.unit) + ' <span style="color:var(--sub)">· ' + r.src + '</span>');
+      });
+    });
+    if (!all.length) { window.anat3dSetOverlay(null); alert('目前各項測試都在正常範圍（或未輸入數值）。'); return; }
+    window.anat3dSetOverlay({ key: 'as:' + lines.join('|'), map: map, alpha: 0.85, faceIds: all,
+      legend: '<b>未達標測試</b>（<span style="color:#ff2d2d">●</span> 可能限制該動作的肌肉）<br>' + lines.join('<br>') });
+    v3.faceParts(all);
+  };
+  var tries = 0;
+  window.kShow3DOverlay(null);
+  (function wait() { if (anat3d.viewer && anat3d.viewer.isReady && anat3d.viewer.isReady()) go(); else if (tries++ < 120) setTimeout(wait, 250); })();
+};
 // 訓練日誌：近 7 日各區域組數 → 3D 熱圖（三級顏色）
 window.kShow3DWeek = function() {
   var cnt = window._trkWeekCnt || {}, keys = Object.keys(cnt); if (!keys.length) return;
@@ -20729,7 +20769,7 @@ function initAnat3D() {
   if (!host) return;
   anat3d.loading = true;
   var loadingEl = document.getElementById('anat-3d-loading');
-  import('./anatomy3d.js?v=79').then(function(mod) {
+  import('./anatomy3d.js?v=80').then(function(mod) {
     return mod.loadAtlas('models/').then(function(atlas) {
       anat3d.atlas = atlas;
       anat3dBuildReverseMaps();
