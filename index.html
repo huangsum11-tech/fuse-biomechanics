@@ -11309,7 +11309,7 @@ window.openAtlas3D = function(conceptIds, label) {
   window._atlas3dLoading = true;
   loading.style.display = 'flex';
   Promise.all([
-    import('./anatomy3d.js?v=67'),
+    import('./anatomy3d.js?v=78'),
   ]).then(function(mods) {
     var mod = mods[0];
     window._atlas3dSYSTEMS = mod.SYSTEMS;
@@ -20392,6 +20392,7 @@ function drawBone(id, b, isHovered, isSelected, dimAll) {
 // functions below) — draw() just syncs whichever of those changed onto
 // the live viewer instance instead of repainting a <canvas>.
 var anat3d = { viewer:null, atlas:null, conceptToMuscle:null, conceptToBone:null, partIdToConceptIds:null, conceptElements:null, loading:false };
+window._anat3dInfo = function() { return anat3d; };
 
 function anat3dBuildReverseMaps() {
   var atlas = anat3d.atlas;
@@ -20584,7 +20585,7 @@ function initAnat3D() {
   if (!host) return;
   anat3d.loading = true;
   var loadingEl = document.getElementById('anat-3d-loading');
-  import('./anatomy3d.js?v=67').then(function(mod) {
+  import('./anatomy3d.js?v=78').then(function(mod) {
     return mod.loadAtlas('models/').then(function(atlas) {
       anat3d.atlas = atlas;
       anat3dBuildReverseMaps();
@@ -20633,6 +20634,8 @@ function draw() {
   }
   // 第一下：淺綠色標示，畫面不變
   viewer.setHighlightByIds(focusIds || []);
+  // v78：由清單／搜尋選擇時（不是直接在模型上點），自動轉到看得見的一面（後側肌肉轉到背面）
+  if (anat3d.autoFace) { anat3d.autoFace = false; if (focusIds && viewer.faceParts) viewer.faceParts(focusIds); }
   // 肌群模式：所選肌肉不屬於該肌群時（例如從搜尋跳過來）就離開肌群模式
   if (anat3d.group && selectedMuscle && MUSCLE_GROUPS[anat3d.group] && !(MUSCLE_GROUPS[anat3d.group].muscles || []).some(function(mm) { return mm.id === selectedMuscle; })) anat3d.group = null;
   var grp = anat3d.group && MUSCLE_GROUPS[anat3d.group];
@@ -21520,7 +21523,7 @@ window.showBoneDetail = showBoneDetail;
 // draw()/selectedMuscle/selectedBone need an exposed setter too, otherwise
 // jumpToMuscle's own `typeof draw === 'function'` guard just silently
 // evaluates false and the 3D model never actually jumps to the result.
-window.anat3dSelectMuscle = function(id) { selectedMuscle = id; selectedBone = null; anat3d.zoomed = false; showMuscleDetail(id); draw(); };
+window.anat3dSelectMuscle = function(id) { selectedMuscle = id; selectedBone = null; anat3d.zoomed = false; anat3d.autoFace = true; showMuscleDetail(id); draw(); };
 window.anat3dSelectBone = function(id) { selectedBone = id; selectedMuscle = null; anat3d.zoomed = false; showBoneDetail(id); draw(); };
 
 // ── Full-body muscle index (結構 → 肌肉): render + live search + jump ──

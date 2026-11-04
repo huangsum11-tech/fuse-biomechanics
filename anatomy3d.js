@@ -192,6 +192,21 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   const selectedData = new Uint8Array(width * 4), selectionTexture = new T.DataTexture(selectedData, width, 1); selectionTexture.needsUpdate = true;
   const materials = [], geometries = [], pickers = [];
   const centers = atlas.parts.map(p => new T.Vector3().fromArray(p.bounds[0]).add(new T.Vector3().fromArray(p.bounds[1])).multiplyScalar(0.5));
+  // v78：判斷一組結構從前面還是後面看得較清楚——每塊結構數一數前方／後方覆蓋着它的肌肉、骨骼（+z＝前），前方較多就投「背面」一票；不按體積加權，因長肌腱的包圍盒會過大
+  const bodyIdx = atlas.parts.map((p, i) => i).filter(i => atlas.parts[i].system === 'muscular' || atlas.parts[i].system === 'skeletal');
+  const facingOf = idxs => {
+    let sum = 0, wsum = 0;
+    idxs.forEach(i => {
+      const c = centers[i]; let front = 0, back = 0;
+      bodyIdx.forEach(j => {
+        if (j === i) return; const q = atlas.parts[j].bounds;
+        if (q[0][0] <= c.x && q[1][0] >= c.x && q[0][1] <= c.y && q[1][1] >= c.y) { const z = centers[j].z; if (z > c.z + 0.003) front++; else if (z < c.z - 0.003) back++; }
+      });
+      sum += front - back > 1 ? 1 : -1; wsum++;
+    });
+    return wsum && sum > 0 ? 'back' : 'front';
+  };
+  let faceSeq = 0, lastFaceSeq = 0, faceView = 'front', fitView = 'front', isoFace = 'front';
   const offsets = [], bounds = atlas.parts.map(p => new T.Box3(new T.Vector3().fromArray(p.bounds[0]), new T.Vector3().fromArray(p.bounds[1])));
   let packingWidth = 1, packingHeight = 1;
   const markerPositions = new Float32Array(atlas.parts.length * 3), markerGeometry = new T.BufferGeometry();
@@ -282,6 +297,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     const atlasDistance = Math.max(packingHeight, packingWidth / availableAspect) / (2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2))) * 1.08;
     const distance = T.MathUtils.lerp(normalDistance, Math.max(0.2, atlasDistance), extent);
     if (extent > 0.8) view = 'front';
+    fitView = view;
     const direction = view === 'front' ? new T.Vector3(0, 0.02, 1) : view === 'back' ? new T.Vector3(0, 0.02, -1) : view === 'side' ? new T.Vector3(1, 0.02, 0) : new T.Vector3(0.35, 0.06, 1).normalize();
     controls.target.set(extent > 0.1 && !mobile ? -packingWidth * 0.12 : 0, extent > 0.1 || mobile ? 0.85 : 0.68, 0);
     camera.position.copy(controls.target).addScaledVector(direction, distance); controls.update(); dirty = true;
@@ -290,7 +306,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     layoutKey = ''; forceRecompute = true;
     renderer.setPixelRatio(Math.min(devicePixelRatio, el.clientWidth < 560 || el.clientHeight < 600 ? 1.5 : 2));
     camera.aspect = el.clientWidth / Math.max(1, el.clientHeight); camera.updateProjectionMatrix();
-    renderer.setSize(el.clientWidth, el.clientHeight); fit(state.view, amount);
+    renderer.setSize(el.clientWidth, el.clientHeight); fit(fitView, amount);
   };
   const observer = new ResizeObserver(resize); observer.observe(el);
 
@@ -363,11 +379,14 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
       lastVisKey = visKey; lastSelKey = selKey; lastIsolateVal = s.isolate; lastHidKey = hidKey; lastHlKey = hlKey; forceRecompute = false; lastExtent = amount; dirty = true;
     }
     if (s.view !== lastView || s.reset !== lastReset) { fit(s.view, amount); lastView = s.view; lastReset = s.reset; }
+    if (faceSeq !== lastFaceSeq) { lastFaceSeq = faceSeq; if (!s.isolate) fit(faceView, amount); }
     if (moving && !s.isolate) fit(amount > 0.5 ? 'front' : s.view, Math.max(0, (amount - 0.3) / 0.7));
     const isolateKey = s.isolate ? s.selected.join(',') + ':' + s.reset + ':' + camera.aspect : '';
     if (isolateKey !== lastIsolate || (s.isolate && moving)) {
       if (s.isolate) {
-        const box = new T.Box3();
+        const box = new T.Box3(), selIdx = [];
+        atlas.parts.forEach((p, i) => { if (s.selected.includes(p.id)) selIdx.push(i); });
+        isoFace = facingOf(selIdx);
         atlas.parts.forEach((p, i) => { if (s.selected.includes(p.id)) box.union(bounds[i].clone().translate(new T.Vector3(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]))); });
         if (!box.isEmpty()) {
           const center = box.getCenter(new T.Vector3()), size = box.getSize(new T.Vector3());
@@ -377,9 +396,13 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
           camera.setViewOffset(w, h, w / 2 - (left + right) / 2, h / 2 - (top + bottom) / 2, w, h);
           const distance = Math.max(0.07, Math.max(size.y * h / availableHeight, size.x * w / availableWidth / camera.aspect, size.z) / (2 * Math.tan(T.MathUtils.degToRad(camera.fov / 2))) * 1.35);
           controls.maxDistance = Math.max(40, distance * 2); controls.target.copy(center);
-          camera.position.copy(center).add(new T.Vector3(0.2, 0.1, 1).normalize().multiplyScalar(distance)); controls.update(); dirty = true;
+          camera.position.copy(center).add(new T.Vector3(0.2, 0.1, isoFace === 'back' ? -1 : 1).normalize().multiplyScalar(distance)); controls.update(); dirty = true;
         }
-      } else if (lastIsolate) { camera.clearViewOffset(); fit(s.view, amount); }
+      } else if (lastIsolate) {
+        camera.clearViewOffset();
+        const hl = atlas.parts.map((p, i) => i).filter(i => s.highlight.includes(atlas.parts[i].id));
+        fit(hl.length ? facingOf(hl) : s.view, amount);
+      }
       lastIsolate = isolateKey;
     }
     const dragIsPan = panMode || amount >= 0.8;
@@ -426,6 +449,10 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     setHighlight(partIds) { state.highlight = (partIds || []).slice(); dirty = true; },
     setHighlightByIds(ids) { const idxs = resolvePartIndexes(atlas, ids); state.highlight = idxs.map(i => atlas.parts[i].id); dirty = true; return idxs.map(i => atlas.parts[i]); },
     getHighlight() { return state.highlight.slice(); },
+    // v78：把鏡頭轉到能看見這組結構的一面（前／後），回傳 'front'|'back'
+    faceParts(ids) { const idxs = resolvePartIndexes(atlas, ids); if (!idxs.length) return null; faceView = facingOf(idxs); faceSeq++; dirty = true; return faceView; },
+    getCameraSide() { return camera.position.z - controls.target.z < 0 ? 'back' : 'front'; },
+    facingOf(ids) { const idxs = resolvePartIndexes(atlas, ids); return idxs.length ? facingOf(idxs) : null; },
     setIsolateContext(systemIds) { state.context = (systemIds || []).slice(); dirty = true; },
     setExplode(v) { state.explode = Math.max(0, Math.min(1, v)); },
     setView(v) { state.view = v; },
