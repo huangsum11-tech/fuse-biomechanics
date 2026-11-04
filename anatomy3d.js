@@ -237,6 +237,12 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   let panMode = false, xrayOn = false;
   // v81：關節動作（簡化骨架）。rigTexture 每塊結構：R＝所屬肢體（1 右腳 2 左腳 3 右手 4 左手）、G＝剛體段（1 近端 2 中段 3 遠端；0＝軟組織按頂點位置平滑彎曲）
   const rigData = new Uint8Array(width * 4), rigTexture = new T.DataTexture(rigData, width, 1); rigTexture.needsUpdate = true;
+  // v83：軀幹／頸部（軸向鏈）。axData：R＝軀幹權重、G＝頸部權重（整塊固定的結構，例如椎骨、肋骨、頭骨、手臂）；-1＝按頂點高度計算
+  const axData = new Float32Array(width * 4).fill(-1), axTexture = new T.DataTexture(axData, width, 1, T.RGBAFormat, T.FloatType); axTexture.needsUpdate = true;
+  const axU = { uAx: { value: 0 }, uTP: { value: new T.Vector3() }, uTK: { value: new T.Vector3(1, 0, 0) }, uTA: { value: 0 }, uTY: { value: new T.Vector2(1, 1.4) },
+    uNP: { value: new T.Vector3() }, uNK: { value: new T.Vector3(1, 0, 0) }, uNA: { value: 0 }, uNY: { value: new T.Vector2(1.45, 1.6) } };
+  const AX_GLSL = 'uniform sampler2D axState; uniform float uAx, uTA, uNA; uniform vec3 uTP, uTK, uNP, uNK; uniform vec2 uTY, uNY;\n' +
+    'vec3 rodr(vec3 v, vec3 k, float a) { float c = cos(a), s = sin(a); return v * c + cross(k, v) * s + k * dot(k, v) * (1.0 - c); }\n';
   const rigU = { uChain: { value: 0 }, uP0: { value: new T.Vector3() }, uP1: { value: new T.Vector3() }, uP2: { value: new T.Vector3() }, uP3: { value: new T.Vector3() },
     uD0: { value: new T.Vector3(0, -1, 0) }, uD1: { value: new T.Vector3(0, -1, 0) }, uD2: { value: new T.Vector3(0, -1, 0) }, uD3: { value: new T.Vector3(0, -1, 0) },
     uR0: { value: new T.Matrix3() }, uR1: { value: new T.Matrix3() }, uR2: { value: new T.Matrix3() }, uR3: { value: new T.Matrix3() }, uLat: { value: new T.Vector2(0.03, 0.075) }, uFar: { value: 1 }, uGirdle: { value: 0 } };
@@ -255,9 +261,10 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     m.onBeforeCompile = shader => {
       shader.uniforms.partState = { value: partTexture }; shader.uniforms.selectionState = { value: selectionTexture }; shader.uniforms.stateWidth = { value: width };
       shader.uniforms.rigState = { value: rigTexture }; Object.assign(shader.uniforms, rigU);
-      shader.vertexShader = 'attribute float partIndex; uniform sampler2D partState; uniform sampler2D selectionState; uniform float stateWidth; varying float partVisible; varying vec4 partTint;\n' + RIG_GLSL + shader.vertexShader;
-      shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nvec4 rgi = rigInfo(partIndex, stateWidth); float rw0 = 0.0, rw1 = 0.0, rw2 = 0.0, rw3 = 0.0; bool rigOn = uChain > 0.5 && abs(rgi.r - uChain) < 0.5;\nif (rigOn) { rigWeights(position, rgi.g, rw0, rw1, rw2, rw3); objectNormal = normalize(mix(objectNormal, uR3 * objectNormal, rw3)); objectNormal = normalize(mix(objectNormal, uR2 * objectNormal, rw2)); objectNormal = normalize(mix(objectNormal, uR1 * objectNormal, rw1)); objectNormal = normalize(mix(objectNormal, uR0 * objectNormal, rw0)); }');
-      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nif (rigOn) { transformed = mix(transformed, uR3 * (transformed - uP3) + uP3, rw3); transformed = mix(transformed, uR2 * (transformed - uP2) + uP2, rw2); transformed = mix(transformed, uR1 * (transformed - uP1) + uP1, rw1); transformed = mix(transformed, uR0 * (transformed - uP0) + uP0, rw0); }\nvec2 stateUv = vec2((partIndex + 0.5) / stateWidth, 0.5); vec4 state = texture2D(partState, stateUv); transformed += state.xyz; partVisible = state.w; partTint = texture2D(selectionState, stateUv);');
+      shader.uniforms.axState = { value: axTexture }; Object.assign(shader.uniforms, axU);
+      shader.vertexShader = 'attribute float partIndex; uniform sampler2D partState; uniform sampler2D selectionState; uniform float stateWidth; varying float partVisible; varying vec4 partTint;\n' + RIG_GLSL + AX_GLSL + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nvec4 rgi = rigInfo(partIndex, stateWidth); float rw0 = 0.0, rw1 = 0.0, rw2 = 0.0, rw3 = 0.0; bool rigOn = uChain > 0.5 && abs(rgi.r - uChain) < 0.5;\nif (rigOn) { rigWeights(position, rgi.g, rw0, rw1, rw2, rw3); objectNormal = normalize(mix(objectNormal, uR3 * objectNormal, rw3)); objectNormal = normalize(mix(objectNormal, uR2 * objectNormal, rw2)); objectNormal = normalize(mix(objectNormal, uR1 * objectNormal, rw1)); objectNormal = normalize(mix(objectNormal, uR0 * objectNormal, rw0)); }\nfloat axWt = 0.0, axWn = 0.0; if (uAx > 0.5) { vec4 axi = texture2D(axState, vec2((partIndex + 0.5) / stateWidth, 0.5)); axWt = axi.r >= 0.0 ? axi.r : clamp((position.y - uTY.x) / (uTY.y - uTY.x), 0.0, 1.0); axWn = axi.g >= 0.0 ? axi.g : clamp((position.y - uNY.x) / (uNY.y - uNY.x), 0.0, 1.0); objectNormal = rodr(rodr(objectNormal, uNK, uNA * axWn), uTK, uTA * axWt); }');
+      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nif (rigOn) { transformed = mix(transformed, uR3 * (transformed - uP3) + uP3, rw3); transformed = mix(transformed, uR2 * (transformed - uP2) + uP2, rw2); transformed = mix(transformed, uR1 * (transformed - uP1) + uP1, rw1); transformed = mix(transformed, uR0 * (transformed - uP0) + uP0, rw0); }\nif (uAx > 0.5) { transformed = rodr(transformed - uNP, uNK, uNA * axWn) + uNP; transformed = rodr(transformed - uTP, uTK, uTA * axWt) + uTP; }\nvec2 stateUv = vec2((partIndex + 0.5) / stateWidth, 0.5); vec4 state = texture2D(partState, stateUv); transformed += state.xyz; partVisible = state.w; partTint = texture2D(selectionState, stateUv);');
       shader.fragmentShader = 'varying float partVisible; varying vec4 partTint;\n' + shader.fragmentShader;
       shader.fragmentShader = shader.fragmentShader.replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (partVisible < 0.2) discard;\nif (partVisible < 0.6) { float gx = mod(floor(gl_FragCoord.x), 3.0), gy = mod(floor(gl_FragCoord.y), 3.0); if (abs(gx - gy) > 0.5) discard; }');
       shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\nif (partTint.a > 0.01) diffuseColor.rgb = mix(diffuseColor.rgb, partTint.rgb, partTint.a);\nif (partVisible < 0.6) diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.75), 0.55);');
@@ -439,6 +446,27 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     });
     rigTexture.needsUpdate = true; rig = chains; return rig;
   };
+  let axial = null;
+  const buildAxial = () => {
+    if (axial) return axial; if (!buildRig()) return null;
+    const c = n => { const i = atlas.parts.findIndex(p => p.name.toLowerCase() === n); return i >= 0 ? centers[i] : null; };
+    const L5 = c('fifth lumbar vertebra'), T1 = c('first thoracic vertebra'), C7 = c('seventh cervical vertebra'), C1 = c('atlas');
+    if (!L5 || !T1 || !C7 || !C1) return null;
+    const tY = [L5.y, T1.y], nY = [C7.y, C1.y + 0.02];
+    const ramp = (y, a) => Math.min(1, Math.max(0, (y - a[0]) / (a[1] - a[0])));
+    const shoulderY = rig[3].P[1].y;
+    atlas.parts.forEach((p, i) => {
+      const n = p.name.toLowerCase(), y = centers[i].y, ch = rigData[i * 4], lv = rigData[i * 4 + 1];
+      let t = -1, k = -1;
+      if (/hip bone|sacrum|coccyx/.test(n) || ((ch === 1 || ch === 2) && lv > 0)) { t = 0; k = 0; }
+      else if (p.system === 'skeletal' && /vertebra|\brib\b|sternum|manubrium|xiphoid|costal cartilage|intervertebral disk|^(right |left )?(atlas|axis)$/.test(n)) { t = ramp(y, tY); k = ramp(y, nY); }
+      else if (/skull|frontal bone|parietal|occipital|temporal bone|sphenoid|ethmoid|zygomatic|maxilla|mandible|nasal bone|vomer|palatine|tooth|gingiva|alar cartilage/.test(n) || p.system === 'sensory') { t = 1; k = 1; }
+      else if ((ch === 3 || ch === 4) && (lv > 0 || Math.abs(centers[i].x) > 0.15)) { t = ramp(shoulderY, tY); k = 0; }
+      axData[i * 4] = t; axData[i * 4 + 1] = k;
+    });
+    axTexture.needsUpdate = true;
+    axial = { tP: new T.Vector3(L5.x, L5.y - 0.02, L5.z), nP: C7.clone(), tY, nY }; return axial;
+  };
   const clock = new T.Clock(); let lastExtent = -1;
   const HL = [56, 219, 107, 199];
   const tintRGBA = (c, a) => { if (Array.isArray(c)) return c; const col = new T.Color(c); return [Math.round(col.r * 255), Math.round(col.g * 255), Math.round(col.b * 255), Math.round((a == null ? 0.75 : a) * 255)]; };
@@ -569,7 +597,17 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     getPartLayer(ids) { if (!peelLayers) return null; const idx = resolvePartIndexes(atlas, ids); return idx.length ? Math.min(...idx.map(i => peelLayers[i])) : null; },
     isReady() { return ready; },
     // v81／v82：setPose(chain, [[軸, 角度(度)]…] × 4 個關節；腳 0 髖 1 膝 2 踝；手 0 肩帶 1 肩 2 肘 3 腕)。chain：1 右腳 2 左腳 3 右手 4 左手；0 或 null 取消
+    // v83：軸向動作 setAxial({ trunk: [軸, 角度], neck: [軸, 角度] })；null 取消
+    setAxial(o) {
+      if (!o) { axU.uAx.value = 0; dirty = true; return true; }
+      const a = buildAxial(); if (!a) return false;
+      rigU.uChain.value = 0;
+      axU.uTP.value.copy(a.tP); axU.uNP.value.copy(a.nP); axU.uTY.value.set(a.tY[0], a.tY[1]); axU.uNY.value.set(a.nY[0], a.nY[1]);
+      const set = (K, A, v) => { if (v) { axU[K].value.fromArray(v[0]).normalize(); axU[A].value = T.MathUtils.degToRad(v[1]); } else axU[A].value = 0; };
+      set('uTK', 'uTA', o.trunk); set('uNK', 'uNA', o.neck); axU.uAx.value = 1; dirty = true; return true;
+    },
     setPose(chain, joints) {
+      if (chain) axU.uAx.value = 0;
       if (!chain) { rigU.uChain.value = 0; dirty = true; return true; }
       const r = buildRig(); if (!r || !r[chain]) return false;
       const c = r[chain];
