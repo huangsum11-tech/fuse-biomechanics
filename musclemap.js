@@ -40,6 +40,11 @@
       return '<figure>' + svg(v, lv) + '<figcaption>' + (v === 'front' ? '正面' : '背面') + '</figcaption></figure>';
     }).join('') + '</div>';
   };
+  // v79：區域 → 肌肉（給 3D 發力熱圖用）
+  window.kMusclesForRegions = function (regions) {
+    return Object.keys(M2S).filter(function (m) { return M2S[m].some(function (r) { return regions.indexOf(r) >= 0; }); });
+  };
+  window.kRegionsOfMuscle = function (m) { return (M2S[m] || []).slice(); };
   window.kMapForMuscles = function (ids) {
     var o = {};
     (ids || []).forEach(function (id) { (M2S[id] || []).forEach(function (s) { o[s] = 1; }); });

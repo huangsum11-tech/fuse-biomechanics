@@ -280,7 +280,8 @@
     var max = Math.max.apply(null, keys.map(function (k) { return cnt[k]; })), lv = {};
     keys.forEach(function (k) { lv[k] = cnt[k] / max; });
     keys.sort(function (a, b) { return cnt[b] - cnt[a]; });
-    return '<div class="trk-card" style="margin-top:10px"><div class="trk-hint" style="margin:0 0 8px">近7日訓練部位（顏色越亮＝組數越多）</div>' +
+    window._trkWeekCnt = cnt;
+    return '<div class="trk-card" style="margin-top:10px"><div class="trk-hint" style="margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px">近7日訓練部位（顏色越亮＝組數越多）' + (window.kShow3DWeek ? '<button type="button" class="trk-btn small" onclick="window.kShow3DWeek()">🧊 3D</button>' : '') + '</div>' +
       window.kBodyMap(lv) +
       '<div class="trk-hint" style="margin-top:8px;line-height:1.8">' + keys.map(function (k) { return esc((window.KMAP_LABEL || {})[k] || k) + ' ' + cnt[k] + ' 組'; }).join('　') + '</div>' +
       (unknown.length ? '<div class="trk-hint">未能辨認部位：' + esc(unknown.slice(0, 4).join('、')) + (unknown.length > 4 ? '…' : '') + '</div>' : '') +

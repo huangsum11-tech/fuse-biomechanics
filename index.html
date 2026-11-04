@@ -3115,6 +3115,18 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
         <button class="anat-view-btn" id="anat-pan-btn" onclick="window.toggleAnatPanMode()">🖐 平移模式</button>
         <button class="anat-view-btn" id="anat-xray-btn" onclick="window.toggleAnatXray()">☢️ X光透視</button>
       </div>
+      <!-- v79：起止點、淡化其他、切面 -->
+      <div style="display:flex;gap:4px;padding:6px 8px;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+        <button class="anat-view-btn active" id="anat-attach-btn" onclick="window.toggleAnatAttach()" title="選擇肌肉時，以顏色標示起點及止點所在的骨">📍 起止點</button>
+        <button class="anat-view-btn" id="anat-ghost-btn" onclick="window.toggleAnatGhost()" title="獨立顯示時，其餘肌肉骨骼變淡而不是消失">👻 淡化其他</button>
+        <button class="anat-view-btn" id="anat-clip-btn" onclick="window.toggleAnatClip()" title="以一個切面切開模型">🔪 切面</button>
+      </div>
+      <div id="anat-clip-row" style="display:none;gap:4px;padding:5px 8px;flex-shrink:0;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border)">
+        <button class="anat-layer-btn active" data-clip="y" onclick="window.setAnatClipAxis('y')">橫切</button>
+        <button class="anat-layer-btn" data-clip="x" onclick="window.setAnatClipAxis('x')">矢狀切</button>
+        <button class="anat-layer-btn" data-clip="z" onclick="window.setAnatClipAxis('z')">冠狀切</button>
+        <input type="range" id="anat-clip-pos" min="0" max="100" value="60" oninput="window.setAnatClipPos(this.value)" style="flex:1;min-width:90px">
+      </div>
 
       <!-- Region filter -->
       <div style="display:flex;gap:3px;padding:5px 8px;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid var(--border)">
@@ -3135,11 +3147,9 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
            no zoom), like Anatomy Learning app's dissection mode: strip the
            superficial muscles to reveal what's underneath. -->
       <div style="display:flex;gap:3px;padding:4px 8px;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid var(--border)">
-        <span style="font-family:var(--mono);font-size:9px;color:var(--sub);align-self:center;margin-right:2px">解剖深度（全身保留）</span>
-        <button class="anat-dissect-btn active" data-dissect="all" onclick="setAnatomyDissection('all')">完整</button>
-        <button class="anat-dissect-btn" data-dissect="noSuperficial" onclick="setAnatomyDissection('noSuperficial')">✂️ 移除淺層</button>
-        <button class="anat-dissect-btn" data-dissect="deepOnly" onclick="setAnatomyDissection('deepOnly')">✂️ 只留深層</button>
-        <div style="flex:1"></div>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--sub);align-self:center;margin-right:2px">剝層（全身保留）</span>
+        <input type="range" id="anat-peel" min="0" max="5" value="0" step="1" oninput="window.setAnatPeel(this.value)" style="flex:1;min-width:90px" aria-label="剝層">
+        <span id="anat-peel-label" style="font-family:var(--mono);font-size:9.5px;color:var(--sub);align-self:center;min-width:70px">完整</span>
         <button class="anat-dissect-btn" onclick="window.anat3dResetRemovedMuscles()" title="復原所有用✂️手動移除的肌肉">🔄 復原已移除</button>
       </div>
     </div>
@@ -3180,6 +3190,7 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
       <div id="anat-canvas-anchor" style="display:none"></div>
       <div id="anat-canvas-viewport" style="grid-column:2;grid-row:1;min-width:0;height:100%;position:relative;overflow:hidden;background:var(--bg,#080c14)">
         <div id="anat-3d-host" style="position:absolute;inset:0;z-index:3"></div>
+        <div id="anat-3d-legend" style="position:absolute;left:10px;bottom:10px;z-index:5;display:none;background:rgba(var(--bg-rgb,10,15,25),.85);border:1px solid var(--border);border-radius:6px;padding:6px 9px;font-family:var(--mono);font-size:10px;color:var(--text);line-height:1.7;pointer-events:none;max-width:60%"></div>
         <div id="anat-3d-loading" style="position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--sub);pointer-events:none">🧊 載入3D解剖模型中… <span id="anat-3d-loading-pct">0%</span></div>
         <img id="anat-ref-image" src="" alt="寫實解剖參考圖" />
         <canvas id="anatomy-canvas" style="display:none"></canvas>
@@ -11235,6 +11246,8 @@ window.buildSessionFlowHTML = function(phaseIdx, sessionData) {
 //  給 openAtlas3D() 用來選擇、放大顯示對應結構。
 // ════════════════════════════════════════════════════════════
 window.MUSCLE_TO_ATLAS = {"latDorsi":["ZA-latissimus-dorsi"],"rectAbd":["ZA-rectus-abdominis"],"oblInt":["ZA-internal-oblique"],"transAbd":["ZA-transversus-abdominis"],"ql":["ZA-quadratus-lumborum"],"multifidus":["ZA-multifidus"],"extDigBrevis":["ZA-extensor-digitorum-brevis"],"dorsalInterFoot":["ZA-dorsal-interossei-foot"],"itband":["FMA51048"],"abdPollLong":["FMA38515"],"abductDigMinFoot":["FMA37451"],"abductHall":["FMA37448"],"abductPolBrevis":["FMA37373"],"addBrevis":["FMA22442"],"addHallucis":["FMA46012"],"addLong":["FMA22441"],"addMag":["FMA22443"],"anconeus":["FMA37704"],"bicepsBrachii":["FMA37682", "FMA37683"],"bicepsFemLong":["FMA45887"],"bicepsFemShort":["FMA45890"],"brachialis":["FMA37667"],"brachioradialis":["FMA38485"],"coracoBrachialis":["FMA37664"],"deltA":["FMA34677"],"deltM":["FMA34678"],"deltPBack":["FMA34679"],"diaphragm":["FMA13295"],"ecrb":["FMA38494", "FMA38497"],"erectors":["FMA77177", "FMA77178", "FMA77179"],"extCarpiUln":["FMA38506"],"extDigComm":["FMA38500"],"extDigLong":["FMA22534"],"extHallBrevis":["FMA51141"],"extHallLong":["FMA22533"],"extIndicis":["FMA38524"],"extPollLong":["FMA38521"],"fcr":["FMA38459"],"fcu":["FMA38615", "FMA38616"],"fdpDeep":["FMA38478"],"fdsFront":["FMA38469"],"fibuTertius":["FMA22538"],"flexDigBrevis":["FMA37450"],"flexDigLong":["FMA51071"],"flexDigMiniBrevis":["FMA37455"],"flexHallBrevis":["FMA45963"],"flexHallLong":["FMA22593"],"gastrocnemius":["FMA45956", "FMA45959"],"gemelli":["FMA22318", "FMA22320"],"glutMax":["FMA22314"],"glutMed":["FMA22315"],"glutMin":["FMA22317"],"glutMinFront":["FMA22317"],"gracilis":["FMA43882"],"iliacus":["FMA22310", "FMA18060"],"iliocostalis":["FMA77177"],"infraspinatus":["FMA32546"],"interosseiHand":["FMA42404", "FMA42405", "FMA42402", "FMA42403"],"interspinales":["FMA22841"],"levScap":["FMA32519"],"longissimus":["FMA77178"],"longusColli":["FMA46279"],"lumbricals":["FMA42398", "FMA42399"],"lumbricalsFoot":["FMA37453"],"oblExt":["FMA13335"],"obturatorExt":["FMA22299"],"obturatorInt":["FMA22298"],"omohyoid":["FMA13342"],"opponensPollic":["FMA37379"],"palmLong":["FMA38462"],"pecMaj":["FMA13373", "FMA13374"],"pectMinor":["FMA13109"],"pectineus":["FMA22440"],"peroneals":["FMA22539", "FMA22540"],"piriformis":["FMA19082"],"plantaris":["FMA22543"],"platysma":["FMA45738"],"popliteus":["FMA22590"],"pronQuad":["FMA38453"],"pronTeres":["FMA38558", "FMA38559"],"quadFem":["FMA22321"],"quadPlant":["FMA37452"],"recFem":["FMA22430"],"rhomboids":["FMA13379", "FMA13380"],"rotatores":["FMA23081"],"sartorius":["FMA22353"],"scalenesAnt":["FMA13385"],"scalenesMid":["FMA13386"],"scalenesPost":["FMA13387"],"scm":["FMA13407"],"semimem":["FMA22438"],"semispinalis":["FMA22823"],"semiten":["FMA22357"],"serrPostInf":["FMA13402"],"serrPostSup":["FMA13401"],"serratus":["FMA13397"],"soleus":["FMA22542"],"spinalis":["FMA77179"],"splenius":["FMA22653"],"subclavius":["FMA13410"],"suboccipitals":["FMA32525", "FMA32526", "FMA32527", "FMA32528"],"subscap":["FMA13413"],"supinator":["FMA38512"],"suprasp":["FMA9629"],"suprasp_back":["FMA9629"],"teresMaj":["FMA32549"],"teresMinor":["FMA32550"],"tfl":["FMA22423"],"tibAnt":["FMA22532"],"tibPost":["FMA51099"],"transverseThoracis":["FMA9760"],"trapLower":["FMA32555"],"trapMid":["FMA32556"],"trapUpper":["FMA32557"],"tricepsBack":["FMA37692", "FMA37693", "FMA37694"],"vasInt":["FMA22433"],"vasLat":["FMA22431"],"vasMed":["FMA22432"]};
+// v79：每條肌肉起點(o)／止點(i)所在的 3D 骨骼部件（由 originEn／insertionEn 推導，tools/build_attach.py；只標整塊骨）
+window.MUSCLE_ATTACH = {"scm":{"o":["FJ3178","FJ3237","FJ3290","FJ3362"],"i":["FJ3281","FJ3309","FJ3386"]},"platysma":{"o":[],"i":["FJ3289"]},"deltA":{"o":["FJ3237","FJ3362"],"i":["FJ3262","FJ3368"]},"deltM":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"pecMaj":{"o":["FJ3178","FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3237","FJ3239","FJ3242","FJ3245","FJ3248","FJ3251","FJ3254","FJ3255","FJ3290","FJ3330","FJ3331","FJ3332","FJ3333","FJ3334","FJ3335","FJ3336","FJ3337","FJ3338","FJ3339","FJ3340","FJ3341","FJ3342","FJ3343","FJ3344","FJ3345","FJ3346","FJ3347","FJ3348","FJ3362"],"i":["FJ3262","FJ3368"]},"pectMinor":{"o":["FJ3230","FJ3231","FJ3232","FJ3239","FJ3242","FJ3245","FJ3248","FJ3251","FJ3254","FJ3255","FJ3333","FJ3335","FJ3337","FJ3338","FJ3339","FJ3340","FJ3341","FJ3342","FJ3343","FJ3345"],"i":["FJ3279","FJ3384"]},"subclavius":{"o":["FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3239","FJ3242","FJ3245","FJ3248","FJ3251","FJ3254","FJ3255","FJ3330","FJ3331","FJ3332","FJ3333","FJ3334","FJ3335","FJ3336","FJ3337","FJ3338","FJ3339","FJ3340","FJ3341","FJ3342","FJ3343","FJ3344","FJ3345","FJ3346","FJ3347","FJ3348"],"i":["FJ3237","FJ3362"]},"serratus":{"o":["FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3334","FJ3336","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347"],"i":["FJ3279","FJ3384"]},"rectAbd":{"o":["FJ3152","FJ3288"],"i":["FJ3153","FJ3232","FJ3233","FJ3234","FJ3239","FJ3242","FJ3245","FJ3248","FJ3251","FJ3254","FJ3255","FJ3333","FJ3335","FJ3337","FJ3339","FJ3341","FJ3342","FJ3343","FJ3344","FJ3345","FJ3346"]},"oblExt":{"o":["FJ3225","FJ3226","FJ3227","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3330","FJ3331","FJ3332","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348"],"i":["FJ3152","FJ3288"]},"oblInt":{"o":["FJ3152","FJ3288"],"i":["FJ3225","FJ3226","FJ3227","FJ3259","FJ3330","FJ3331","FJ3332","FJ3365"]},"transAbd":{"o":["FJ3152","FJ3239","FJ3242","FJ3245","FJ3248","FJ3251","FJ3254","FJ3255","FJ3288","FJ3333","FJ3335","FJ3337","FJ3339","FJ3341","FJ3343","FJ3345"],"i":["FJ3152","FJ3259","FJ3288","FJ3365"]},"iliacus":{"o":["FJ3152","FJ3156","FJ3157","FJ3159","FJ3162","FJ3165","FJ3168","FJ3288","FJ3393"],"i":["FJ3152","FJ3259","FJ3288","FJ3365"]},"tfl":{"o":["FJ3152","FJ3288"],"i":["FJ1423","FJ1423M","FJ3282","FJ3387"]},"sartorius":{"o":["FJ3152","FJ3288"],"i":["FJ3282","FJ3387"]},"recFem":{"o":["FJ3152","FJ3288"],"i":["FJ3275","FJ3282","FJ3381","FJ3387"]},"vasLat":{"o":["FJ3259","FJ3365"],"i":["FJ3275","FJ3282","FJ3381","FJ3387"]},"vasInt":{"o":["FJ3259","FJ3365"],"i":["FJ3275","FJ3282","FJ3381","FJ3387"]},"vasMed":{"o":["FJ3259","FJ3365"],"i":["FJ3275","FJ3282","FJ3381","FJ3387"]},"gracilis":{"o":["FJ3152","FJ3288"],"i":["FJ3282","FJ3387"]},"pectineus":{"o":["FJ3152","FJ3288"],"i":["FJ3259","FJ3365"]},"addLong":{"o":["FJ3152","FJ3288"],"i":["FJ3259","FJ3365"]},"addMag":{"o":["FJ3152","FJ3288"],"i":["FJ3259","FJ3262","FJ3365","FJ3368"]},"subscap":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"suprasp":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"bicepsBrachii":{"o":["FJ3279","FJ3384"],"i":["FJ3277","FJ3349"]},"brachialis":{"o":["FJ3262","FJ3368"],"i":["FJ3286","FJ3391"]},"coracoBrachialis":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"pronTeres":{"o":["FJ3262","FJ3286","FJ3368","FJ3391"],"i":["FJ3277","FJ3349"]},"tibAnt":{"o":["FJ3282","FJ3387"],"i":["FJ3241","FJ3264","FJ3267","FJ3271","FJ3351","FJ3370","FJ3373","FJ3377"]},"extDigLong":{"o":["FJ3260","FJ3282","FJ3366","FJ3387"],"i":["FJ3183","FJ3184","FJ3186","FJ3187","FJ3193","FJ3194","FJ3196","FJ3197","FJ3291","FJ3292","FJ3296","FJ3297","FJ3299","FJ3303","FJ3304","FJ3306","FJ3313","FJ3314","FJ3316","FJ3317","FJ3322","FJ3323","FJ3325","FJ3326"]},"peroneals":{"o":["FJ3260","FJ3366"],"i":["FJ3241","FJ3253","FJ3260","FJ3264","FJ3267","FJ3271","FJ3351","FJ3359","FJ3366","FJ3370","FJ3373","FJ3377"]},"trapUpper":{"o":["FJ3172","FJ3309"],"i":["FJ3237","FJ3362"]},"trapMid":{"o":["FJ3158","FJ3160","FJ3163","FJ3166","FJ3169","FJ3171"],"i":["FJ3279","FJ3384"]},"trapLower":{"o":["FJ3154","FJ3155","FJ3156","FJ3173","FJ3174","FJ3175"],"i":["FJ3279","FJ3384"]},"levScap":{"o":["FJ3161","FJ3164","FJ3176","FJ3177"],"i":["FJ3279","FJ3384"]},"splenius":{"o":["FJ3158","FJ3160","FJ3163","FJ3172"],"i":["FJ3281","FJ3309","FJ3386"]},"rhomboids":{"o":["FJ3158","FJ3160","FJ3163","FJ3166","FJ3169","FJ3172"],"i":["FJ3279","FJ3384"]},"serrPostInf":{"o":["FJ3155","FJ3156","FJ3157","FJ3159"],"i":["FJ3225","FJ3226","FJ3227","FJ3236","FJ3330","FJ3331","FJ3332","FJ3348"]},"suprasp_back":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"infraspinatus":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"teresMinor":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"teresMaj":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"latDorsi":{"o":["FJ3152","FJ3154","FJ3155","FJ3156","FJ3173","FJ3174","FJ3175","FJ3225","FJ3226","FJ3227","FJ3236","FJ3288","FJ3330","FJ3331","FJ3332","FJ3348"],"i":["FJ3262","FJ3368"]},"erectors":{"o":["FJ3152","FJ3155","FJ3156","FJ3157","FJ3158","FJ3159","FJ3160","FJ3163","FJ3164","FJ3166","FJ3167","FJ3169","FJ3170","FJ3172","FJ3225","FJ3226","FJ3227","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3288","FJ3309","FJ3330","FJ3331","FJ3332","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348","FJ3393"],"i":["FJ3154","FJ3155","FJ3156","FJ3157","FJ3158","FJ3159","FJ3160","FJ3161","FJ3162","FJ3163","FJ3164","FJ3165","FJ3166","FJ3167","FJ3169","FJ3170","FJ3171","FJ3172","FJ3173","FJ3174","FJ3175","FJ3177","FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3281","FJ3309","FJ3330","FJ3331","FJ3332","FJ3334","FJ3336","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348","FJ3386"]},"multifidus":{"o":["FJ3152","FJ3154","FJ3155","FJ3156","FJ3157","FJ3158","FJ3159","FJ3160","FJ3162","FJ3163","FJ3164","FJ3165","FJ3166","FJ3167","FJ3168","FJ3169","FJ3170","FJ3171","FJ3172","FJ3173","FJ3174","FJ3175","FJ3288","FJ3393"],"i":[]},"ql":{"o":["FJ3152","FJ3288"],"i":["FJ3157","FJ3159","FJ3162","FJ3165","FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3330","FJ3331","FJ3332","FJ3334","FJ3336","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348"]},"semispinalis":{"o":["FJ3154","FJ3158","FJ3160","FJ3163","FJ3164","FJ3166","FJ3167","FJ3169","FJ3170","FJ3171","FJ3172","FJ3173","FJ3174","FJ3175"],"i":["FJ3158","FJ3160","FJ3161","FJ3163","FJ3164","FJ3166","FJ3167","FJ3170","FJ3172","FJ3177","FJ3309"]},"glutMax":{"o":["FJ3152","FJ3288","FJ3393"],"i":["FJ1423","FJ1423M","FJ3259","FJ3282","FJ3365","FJ3387"]},"glutMed":{"o":["FJ3152","FJ3288"],"i":["FJ3152","FJ3259","FJ3288","FJ3365"]},"glutMin":{"o":["FJ3152","FJ3288"],"i":["FJ3259","FJ3365"]},"piriformis":{"o":["FJ3393"],"i":["FJ3259","FJ3365"]},"obturatorInt":{"o":["FJ3152","FJ3288"],"i":["FJ3259","FJ3365"]},"semimem":{"o":["FJ3152","FJ3288"],"i":["FJ3282","FJ3387"]},"semiten":{"o":["FJ3152","FJ3288"],"i":["FJ3282","FJ3387"]},"bicepsFemLong":{"o":["FJ3152","FJ3288"],"i":["FJ3260","FJ3366"]},"gastrocnemius":{"o":["FJ3259","FJ3365"],"i":["FJ3256","FJ3360"]},"soleus":{"o":["FJ3260","FJ3282","FJ3366","FJ3387"],"i":["FJ3256","FJ3360"]},"tibPost":{"o":["FJ3260","FJ3282","FJ3366","FJ3387"],"i":["FJ3241","FJ3244","FJ3247","FJ3250","FJ3253","FJ3258","FJ3264","FJ3267","FJ3271","FJ3307","FJ3308","FJ3351","FJ3353","FJ3355","FJ3357","FJ3359","FJ3364","FJ3370","FJ3373","FJ3377"]},"popliteus":{"o":["FJ3259","FJ3365"],"i":["FJ3282","FJ3387"]},"flexDigLong":{"o":["FJ3282","FJ3387"],"i":["FJ3179","FJ3180","FJ3181","FJ3185","FJ3189","FJ3190","FJ3191","FJ3195","FJ3293","FJ3294","FJ3295","FJ3298","FJ3300","FJ3301","FJ3302","FJ3305","FJ3311","FJ3312","FJ3315","FJ3319","FJ3320","FJ3321","FJ3324","FJ3328"]},"scalenesAnt":{"o":["FJ3161","FJ3164","FJ3167","FJ3170"],"i":["FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3330","FJ3331","FJ3332","FJ3334","FJ3336","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348"]},"scalenesMid":{"o":["FJ3161","FJ3164","FJ3167","FJ3170","FJ3172","FJ3177"],"i":["FJ3228","FJ3334"]},"longusColli":{"o":["FJ3158","FJ3160","FJ3161","FJ3163","FJ3164","FJ3167","FJ3170","FJ3172"],"i":["FJ3161","FJ3164","FJ3167","FJ3170","FJ3176","FJ3177"]},"suboccipitals":{"o":["FJ3176","FJ3177"],"i":["FJ3176","FJ3309"]},"deltPBack":{"o":["FJ3279","FJ3384"],"i":["FJ3262","FJ3368"]},"tricepsBack":{"o":["FJ3262","FJ3279","FJ3368","FJ3384"],"i":["FJ3286","FJ3391"]},"anconeus":{"o":["FJ3262","FJ3368"],"i":["FJ3286","FJ3391"]},"brachioradialis":{"o":["FJ3262","FJ3368"],"i":["FJ3277","FJ3349"]},"ecrb":{"o":["FJ3262","FJ3368"],"i":["FJ3243","FJ3246","FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3352","FJ3354","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"]},"fcr":{"o":["FJ3262","FJ3368"],"i":["FJ3243","FJ3246","FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3352","FJ3354","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"]},"fcu":{"o":["FJ3262","FJ3286","FJ3368","FJ3391"],"i":["FJ3252","FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3358","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"]},"fdsFront":{"o":["FJ3262","FJ3277","FJ3286","FJ3349","FJ3368","FJ3391"],"i":["FJ3183","FJ3184","FJ3186","FJ3187","FJ3193","FJ3194","FJ3196","FJ3197","FJ3291","FJ3292","FJ3296","FJ3297","FJ3299","FJ3303","FJ3304","FJ3306","FJ3313","FJ3314","FJ3316","FJ3317","FJ3322","FJ3323","FJ3325","FJ3326"]},"diaphragm":{"o":["FJ3153","FJ3157","FJ3159","FJ3162","FJ3165","FJ3168","FJ3239","FJ3242","FJ3245","FJ3248","FJ3251","FJ3254","FJ3255","FJ3333","FJ3335","FJ3337","FJ3339","FJ3341","FJ3343","FJ3345"],"i":[]},"addBrevis":{"o":["FJ3152","FJ3288"],"i":["FJ3259","FJ3365"]},"glutMinFront":{"o":["FJ3152","FJ3288"],"i":["FJ3259","FJ3365"]},"plantaris":{"o":["FJ3259","FJ3262","FJ3365","FJ3368"],"i":["FJ3256","FJ3360"]},"extHallLong":{"o":["FJ3260","FJ3366"],"i":["FJ3182","FJ3192","FJ3310","FJ3329"]},"flexHallLong":{"o":["FJ3260","FJ3366"],"i":["FJ3182","FJ3192","FJ3310","FJ3329"]},"quadFem":{"o":["FJ3152","FJ3279","FJ3288","FJ3384"],"i":["FJ3259","FJ3365"]},"gemelli":{"o":["FJ3152","FJ3288"],"i":["FJ3152","FJ3259","FJ3288","FJ3365"]},"obturatorExt":{"o":["FJ3152","FJ3288"],"i":["FJ3259","FJ3365"]},"serrPostSup":{"o":["FJ3158","FJ3160","FJ3163","FJ3172","FJ3309"],"i":["FJ3229","FJ3230","FJ3231","FJ3336","FJ3338","FJ3340"]},"transverseThoracis":{"o":["FJ3153","FJ3178","FJ3290"],"i":["FJ3239","FJ3242","FJ3245","FJ3248","FJ3251","FJ3254","FJ3255","FJ3333","FJ3335","FJ3337","FJ3339","FJ3341","FJ3343","FJ3345"]},"interspinales":{"o":["FJ3157","FJ3159","FJ3162","FJ3165","FJ3168"],"i":[]},"scalenesPost":{"o":["FJ3164","FJ3167","FJ3170"],"i":["FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3330","FJ3331","FJ3332","FJ3334","FJ3336","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348"]},"omohyoid":{"o":["FJ3279","FJ3384"],"i":["FJ2772","FJ3201"]},"palmLong":{"o":["FJ3262","FJ3368"],"i":["FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"]},"supinator":{"o":["FJ3262","FJ3286","FJ3368","FJ3391"],"i":["FJ3277","FJ3349"]},"abdPollLong":{"o":["FJ3277","FJ3286","FJ3349","FJ3391"],"i":["FJ3240","FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3350","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"]},"extPollLong":{"o":["FJ3286","FJ3391"],"i":["FJ3188","FJ3198","FJ3318","FJ3327"]},"fdpDeep":{"o":["FJ3286","FJ3391"],"i":["FJ3183","FJ3184","FJ3186","FJ3187","FJ3193","FJ3194","FJ3196","FJ3197","FJ3291","FJ3292","FJ3296","FJ3297","FJ3299","FJ3303","FJ3304","FJ3306","FJ3313","FJ3314","FJ3316","FJ3317","FJ3322","FJ3323","FJ3325","FJ3326"]},"abductHall":{"o":["FJ3256","FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3360","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"],"i":["FJ3182","FJ3192","FJ3310","FJ3329"]},"flexDigBrevis":{"o":["FJ3256","FJ3360"],"i":["FJ3179","FJ3180","FJ3181","FJ3185","FJ3189","FJ3190","FJ3191","FJ3195","FJ3293","FJ3294","FJ3295","FJ3298","FJ3300","FJ3301","FJ3302","FJ3305","FJ3311","FJ3312","FJ3315","FJ3319","FJ3320","FJ3321","FJ3324","FJ3328"]},"quadPlant":{"o":["FJ3256","FJ3360"],"i":[]},"abductDigMinFoot":{"o":["FJ3256","FJ3360"],"i":["FJ3179","FJ3180","FJ3181","FJ3185","FJ3189","FJ3190","FJ3191","FJ3195","FJ3293","FJ3294","FJ3295","FJ3298","FJ3300","FJ3301","FJ3302","FJ3305","FJ3311","FJ3312","FJ3315","FJ3319","FJ3320","FJ3321","FJ3324","FJ3328"]},"fibuTertius":{"o":["FJ3260","FJ3366"],"i":["FJ3253","FJ3359"]},"flexHallBrevis":{"o":["FJ3258","FJ3264","FJ3267","FJ3271","FJ3282","FJ3364","FJ3370","FJ3373","FJ3377","FJ3387"],"i":["FJ3182","FJ3192","FJ3310","FJ3329"]},"iliocostalis":{"o":["FJ3152","FJ3225","FJ3226","FJ3227","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3288","FJ3330","FJ3331","FJ3332","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348","FJ3393"],"i":["FJ3157","FJ3159","FJ3162","FJ3164","FJ3165","FJ3167","FJ3170","FJ3172","FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3330","FJ3331","FJ3332","FJ3334","FJ3336","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348"]},"longissimus":{"o":["FJ3152","FJ3157","FJ3158","FJ3159","FJ3160","FJ3162","FJ3163","FJ3164","FJ3165","FJ3166","FJ3167","FJ3168","FJ3169","FJ3170","FJ3172","FJ3288","FJ3393"],"i":["FJ3154","FJ3155","FJ3156","FJ3158","FJ3160","FJ3161","FJ3163","FJ3164","FJ3166","FJ3167","FJ3169","FJ3170","FJ3171","FJ3173","FJ3174","FJ3175","FJ3177","FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3281","FJ3330","FJ3331","FJ3332","FJ3334","FJ3336","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348","FJ3386"]},"spinalis":{"o":["FJ3155","FJ3156","FJ3157","FJ3158","FJ3159","FJ3172","FJ3309"],"i":["FJ3160","FJ3161","FJ3163","FJ3164","FJ3166","FJ3169","FJ3171","FJ3173","FJ3174","FJ3177","FJ3309"]},"bicepsFemShort":{"o":["FJ3259","FJ3262","FJ3365","FJ3368"],"i":["FJ3260","FJ3366"]},"extDigBrevis":{"o":["FJ3256","FJ3360"],"i":["FJ3179","FJ3180","FJ3181","FJ3185","FJ3189","FJ3190","FJ3191","FJ3195","FJ3293","FJ3294","FJ3295","FJ3298","FJ3300","FJ3301","FJ3302","FJ3305","FJ3311","FJ3312","FJ3315","FJ3319","FJ3320","FJ3321","FJ3324","FJ3328"]},"extHallBrevis":{"o":["FJ3256","FJ3360"],"i":["FJ3182","FJ3192","FJ3310","FJ3329"]},"addHallucis":{"o":["FJ3241","FJ3244","FJ3247","FJ3250","FJ3253","FJ3351","FJ3353","FJ3355","FJ3357","FJ3359"],"i":["FJ3182","FJ3192","FJ3310","FJ3329"]},"dorsalInterFoot":{"o":["FJ3241","FJ3244","FJ3247","FJ3250","FJ3253","FJ3351","FJ3353","FJ3355","FJ3357","FJ3359"],"i":["FJ3179","FJ3180","FJ3181","FJ3185","FJ3189","FJ3190","FJ3191","FJ3195","FJ3293","FJ3294","FJ3295","FJ3298","FJ3300","FJ3301","FJ3302","FJ3305","FJ3311","FJ3312","FJ3315","FJ3319","FJ3320","FJ3321","FJ3324","FJ3328"]},"lumbricalsFoot":{"o":[],"i":["FJ3179","FJ3180","FJ3181","FJ3185","FJ3189","FJ3190","FJ3191","FJ3195","FJ3293","FJ3294","FJ3295","FJ3298","FJ3300","FJ3301","FJ3302","FJ3305","FJ3311","FJ3312","FJ3315","FJ3319","FJ3320","FJ3321","FJ3324","FJ3328"]},"flexDigMiniBrevis":{"o":["FJ3253","FJ3359"],"i":["FJ3179","FJ3180","FJ3181","FJ3185","FJ3189","FJ3190","FJ3191","FJ3195","FJ3293","FJ3294","FJ3295","FJ3298","FJ3300","FJ3301","FJ3302","FJ3305","FJ3311","FJ3312","FJ3315","FJ3319","FJ3320","FJ3321","FJ3324","FJ3328"]},"extDigComm":{"o":["FJ3262","FJ3368"],"i":["FJ3183","FJ3184","FJ3186","FJ3187","FJ3193","FJ3194","FJ3196","FJ3197","FJ3291","FJ3292","FJ3296","FJ3297","FJ3299","FJ3303","FJ3304","FJ3306","FJ3313","FJ3314","FJ3316","FJ3317","FJ3322","FJ3323","FJ3325","FJ3326"]},"extCarpiUln":{"o":["FJ3262","FJ3286","FJ3368","FJ3391"],"i":["FJ3252","FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3358","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"]},"extIndicis":{"o":["FJ3286","FJ3391"],"i":["FJ3183","FJ3184","FJ3186","FJ3187","FJ3193","FJ3194","FJ3196","FJ3197","FJ3291","FJ3292","FJ3296","FJ3297","FJ3299","FJ3303","FJ3304","FJ3306","FJ3313","FJ3314","FJ3316","FJ3317","FJ3322","FJ3323","FJ3325","FJ3326"]},"pronQuad":{"o":["FJ3286","FJ3391"],"i":["FJ3277","FJ3349"]},"abductPolBrevis":{"o":["FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"],"i":["FJ3188","FJ3198","FJ3318","FJ3327"]},"opponensPollic":{"o":["FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"],"i":["FJ3240","FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3350","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390"]},"interosseiHand":{"o":["FJ3240","FJ3243","FJ3246","FJ3249","FJ3252","FJ3257","FJ3261","FJ3268","FJ3276","FJ3278","FJ3283","FJ3284","FJ3285","FJ3286","FJ3350","FJ3352","FJ3354","FJ3356","FJ3358","FJ3361","FJ3367","FJ3374","FJ3382","FJ3383","FJ3388","FJ3389","FJ3390","FJ3391"],"i":["FJ3183","FJ3184","FJ3186","FJ3187","FJ3193","FJ3194","FJ3196","FJ3197","FJ3291","FJ3292","FJ3296","FJ3297","FJ3299","FJ3303","FJ3304","FJ3306","FJ3313","FJ3314","FJ3316","FJ3317","FJ3322","FJ3323","FJ3325","FJ3326"]},"lumbricals":{"o":[],"i":["FJ3183","FJ3184","FJ3186","FJ3187","FJ3193","FJ3194","FJ3196","FJ3197","FJ3291","FJ3292","FJ3296","FJ3297","FJ3299","FJ3303","FJ3304","FJ3306","FJ3313","FJ3314","FJ3316","FJ3317","FJ3322","FJ3323","FJ3325","FJ3326"]}};
 window.BONE_TO_ATLAS = {"sternum":["FMA7485"],"clavicle":["FMA13321"],"skull":["FMA46565"],"mandible":["FMA52748"],"humerus":["FMA13303"],"scapula":["FMA13394"],"ribs":["FMA7480"],"pelvis":["FMA16580"],"thoracicSpine":["FMA9139"],"lumbarSpine":["FMA9921"],"cervicalSpine":["FMA9915","FMA12519","FMA12520"],"sacrum":["FMA16202"],"femur":["FMA9611"],"tibiaFibula":["FMA24476","FMA24479"],"patella":["FMA24485"],"radiusUlna":["FMA23463","FMA23466"],"footBones":["FMA24496","FMA9708","FMA24527","FMA24518","FMA24520","FMA24519","FMA24502","FMA24503","FMA24504","FMA24505","FMA24506"],"handBones":["FMA23899","FMA23900","FMA23901","FMA23902","FMA23903","FMA23727","FMA23730","FMA23712","FMA23718","FMA23709","FMA23721","FMA23724","FMA23945","FMA23946","FMA23947","FMA23948","FMA23949","FMA23918","FMA23919","FMA23920","FMA23921","FMA23922","FMA23933","FMA23934","FMA23935","FMA23936"]};
 
 window._atlas3d = null;       // { viewer, atlas } once mounted
@@ -11309,7 +11322,7 @@ window.openAtlas3D = function(conceptIds, label) {
   window._atlas3dLoading = true;
   loading.style.display = 'flex';
   Promise.all([
-    import('./anatomy3d.js?v=78'),
+    import('./anatomy3d.js?v=79'),
   ]).then(function(mods) {
     var mod = mods[0];
     window._atlas3dSYSTEMS = mod.SYSTEMS;
@@ -20393,6 +20406,137 @@ function drawBone(id, b, isHovered, isSelected, dimAll) {
 // the live viewer instance instead of repainting a <canvas>.
 var anat3d = { viewer:null, atlas:null, conceptToMuscle:null, conceptToBone:null, partIdToConceptIds:null, conceptElements:null, loading:false };
 window._anat3dInfo = function() { return anat3d; };
+anat3d.attachOn = true; anat3d.ghost = false; anat3d.overlay = null; anat3d._tintKey = '';
+// v79：顏色疊加——overlay（體態緊／弱、動作發力）優先；否則選中肌肉時標示起止點所在的骨
+var ANAT_TINT = { origin: '#ff8a3d', insertion: '#3d8bff', both: '#b36bff' };
+function anat3dTintSpec() {
+  if (anat3d.overlay) return anat3d.overlay;
+  var a = anat3d.attachOn && selectedMuscle && window.MUSCLE_ATTACH && MUSCLE_ATTACH[selectedMuscle];
+  if (!a) return null;
+  var map = {}, o = {}; a.o.forEach(function(id) { o[id] = 1; map[id] = ANAT_TINT.origin; });
+  a.i.forEach(function(id) { map[id] = o[id] ? ANAT_TINT.both : ANAT_TINT.insertion; });
+  var both = a.i.some(function(id) { return o[id]; });
+  return { key: 'att:' + selectedMuscle, map: map, alpha: 0.8,
+    legend: '<span style="color:' + ANAT_TINT.origin + '">●</span> 起點　<span style="color:' + ANAT_TINT.insertion + '">●</span> 止點' + (both ? '　<span style="color:' + ANAT_TINT.both + '">●</span> 兩者' : '') + '<br><span style="color:var(--sub)">標示整塊骨，非精確附着面</span>' };
+}
+function anat3dApplyTints(viewer) {
+  var spec = anat3dTintSpec(), key = spec ? spec.key : '';
+  if (key !== anat3d._tintKey) { anat3d._tintKey = key; if (spec) viewer.setTints(spec.map, spec.alpha, { dim: !!anat3d.overlay }); else viewer.clearTints(); }
+  var lg = document.getElementById('anat-3d-legend');
+  if (lg) {
+    lg.style.display = spec && spec.legend ? 'block' : 'none';
+    if (spec && spec.legend) lg.innerHTML = spec.legend + (anat3d.overlay ? '<div style="margin-top:4px"><button onclick="window.anat3dSetOverlay(null)" style="font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer">✕ 清除標示</button></div>' : '');
+    lg.style.pointerEvents = anat3d.overlay ? 'auto' : 'none';
+  }
+}
+window.anat3dSetOverlay = function(spec) { anat3d.overlay = spec || null; if (anat3d.viewer) draw(); };
+// v79：由其他頁面打開 3D 並套用顏色（體態／痛症的緊、弱、痛；動作的發力部位）
+window.kShow3DOverlay = function(spec) {
+  Array.prototype.forEach.call(document.querySelectorAll('.pain-detail-overlay.open'), function(o) { o.classList.remove('open'); });
+  if (typeof window.switchRail === 'function') window.switchRail('anatomy');
+  window.anat3dSetOverlay(spec);
+  var tries = 0;
+  (function wait() {
+    if (anat3d.viewer && anat3d.viewer.isReady && anat3d.viewer.isReady()) { draw(); if (spec && spec.faceIds && spec.faceIds.length) anat3d.viewer.faceParts(spec.faceIds); return; }
+    if (tries++ < 120) setTimeout(wait, 250);
+  })();
+};
+// 身體圖區域 → 肌肉（MUSCLE_TO_ATLAS 的 key；沒有對應 key 的直接用 FMA 概念 id，例如腰大肌、頭長肌）
+var KREG_MUSCLES = { scm: ['scm'], neckf: ['longusColli', 'FMA46309', 'FMA46310'], chest: ['pecMaj'], pecminor: ['pectMinor'], serratus: ['serratus'], biceps: ['bicepsBrachii'],
+  forearm: ['fcr', 'fcu', 'fdsFront', 'palmLong', 'pronTeres'], forearmb: ['ecrb', 'extCarpiUln', 'extDigComm', 'brachioradialis'], elbowlat: ['ecrb', 'extDigComm'], elbowmed: ['fcr', 'pronTeres', 'fdsFront'],
+  thumb: ['abdPollLong', 'extPollLong', 'abductPolBrevis'], radstyloid: ['abdPollLong', 'extPollLong'], abs: ['rectAbd', 'transAbd'], oblique: ['oblExt', 'oblInt'],
+  hipflex: ['iliacus', 'FMA22342', 'FMA22343'], groin: ['addLong', 'pectineus'], tfl: ['tfl'], quad: ['recFem', 'vasLat', 'vasMed', 'vasInt'], lfc: ['vasLat'],
+  adductor: ['addLong', 'addMag', 'addBrevis', 'gracilis', 'pectineus'], itb: ['itband', 'tfl'], shin: ['tibAnt'], shinmed: ['tibPost', 'soleus', 'flexDigLong'],
+  calf: ['gastrocnemius', 'soleus'], achilles: ['gastrocnemius', 'soleus'], foot: ['flexDigBrevis', 'abductHall', 'quadPlant'], subocc: ['suboccipitals'], neckb: ['splenius', 'semispinalis'],
+  uptrap: ['trapUpper'], levator: ['levScap'], supra: ['suprasp'], infra: ['infraspinatus', 'teresMinor'], scap: ['rhomboids', 'trapMid'], rhomboid: ['rhomboids', 'trapMid', 'trapLower'],
+  deltpost: ['deltPBack'], triceps: ['tricepsBack'], lat: ['latDorsi'], erector: ['erectors', 'iliocostalis', 'longissimus', 'spinalis'], lowback: ['erectors', 'multifidus', 'ql'], ql: ['ql'],
+  glute: ['glutMax'], glutemed: ['glutMed', 'glutMin'], piriformis: ['piriformis'], hamstring: ['bicepsFemLong', 'bicepsFemShort', 'semiten', 'semimem'] };
+function kSpecMuscles(spec) {
+  var p = String(spec).split(':'), key = p[1], hint = p[3] || '', out = [];
+  if (hint) Object.keys(MUSCLES).forEach(function(k) { var n = MUSCLES[k].name; if (n && n.length > 1 && hint.indexOf(n) >= 0) out.push(k); });
+  return out.length ? out : (KREG_MUSCLES[key] || []);
+}
+function kIdsOf(muscleKeys) {
+  var ids = []; muscleKeys.forEach(function(k) { var c = window.MUSCLE_TO_ATLAS && MUSCLE_TO_ATLAS[k]; ids = ids.concat(c || (/^FMA|^ZA-/.test(k) ? [k] : [])); });
+  return ids;
+}
+var K3D_COL = { tight: '#ff2d2d', weak: '#2f7bff', pain: '#ffb000' }, K3D_LAB = { tight: '繃緊', weak: '無力', pain: '疼痛位置' };
+window.kShow3DFromCfg = function(cfg, title) {
+  if (!cfg) return;
+  var map = {}, all = [], kinds = [];
+  ['weak', 'tight', 'pain'].forEach(function(kind) {
+    var ids = kIdsOf([].concat.apply([], (cfg[kind] || []).map(kSpecMuscles)));
+    if (!ids.length) return; kinds.push(kind);
+    ids.forEach(function(id) { map[id] = K3D_COL[kind]; }); all = all.concat(ids);
+  });
+  if (!all.length) return;
+  window.kShow3DOverlay({ key: 'ov:' + title, map: map, alpha: 0.85, faceIds: all,
+    legend: '<b>' + (title || '') + '</b><br>' + kinds.map(function(k) { return '<span style="color:' + K3D_COL[k] + '">●</span> ' + K3D_LAB[k]; }).join('　') + '<br><span style="color:var(--sub)">按頁面的緊／弱肌群標示（區域→肌肉）</span>' });
+};
+window.kShow3DFromBody = function(btn) {
+  var b = btn; while (b && !b.__kdata) b = b.parentNode;
+  if (b) window.kShow3DFromCfg(b.__kdata.cfg, b.__kdata.title);
+};
+// 動作 → 發力部位（musclemap.js 的動作規則及動作庫目標標籤）
+window.kShow3DExercise = function(name) {
+  var regs = window.kMapForExercise ? window.kMapForExercise(name) : [];
+  var ids = kIdsOf(window.kMusclesForRegions ? window.kMusclesForRegions(regs) : []);
+  if (!ids.length) { alert('未能辨認這個動作的發力部位'); return; }
+  var map = {}; ids.forEach(function(id) { map[id] = '#f97316'; });
+  window.kShow3DOverlay({ key: 'ex:' + name, map: map, alpha: 0.85, faceIds: ids,
+    legend: '<b>' + name + '</b><br><span style="color:#f97316">●</span> 主要發力部位<br><span style="color:var(--sub)">' + regs.map(function(r) { return (window.KMAP_LABEL || {})[r] || r; }).join('、') + '（按動作分類推斷）</span>' });
+};
+// 訓練日誌：近 7 日各區域組數 → 3D 熱圖（三級顏色）
+window.kShow3DWeek = function() {
+  var cnt = window._trkWeekCnt || {}, keys = Object.keys(cnt); if (!keys.length) return;
+  var max = Math.max.apply(null, keys.map(function(k) { return cnt[k]; })), map = {}, best = {};
+  keys.forEach(function(r) { kIdsOf(window.kMusclesForRegions([r])).forEach(function(id) { if (!best[id] || cnt[r] > best[id]) best[id] = cnt[r]; }); });
+  Object.keys(best).forEach(function(id) { var t = best[id] / max; map[id] = t > 0.66 ? '#dc2626' : t > 0.33 ? '#f97316' : '#fcd34d'; });
+  window.kShow3DOverlay({ key: 'wk:' + JSON.stringify(cnt), map: map, alpha: 0.85, faceIds: Object.keys(best),
+    legend: '<b>近 7 日訓練部位</b><br><span style="color:#fcd34d">●</span> 少　<span style="color:#f97316">●</span> 中　<span style="color:#dc2626">●</span> 多（按完成組數）' });
+};
+window.toggleAnatAttach = function() {
+  anat3d.attachOn = !anat3d.attachOn;
+  var b = document.getElementById('anat-attach-btn'); if (b) b.classList.toggle('active', anat3d.attachOn);
+  if (anat3d.viewer) draw();
+};
+window.toggleAnatGhost = function() {
+  anat3d.ghost = !anat3d.ghost;
+  var b = document.getElementById('anat-ghost-btn'); if (b) b.classList.toggle('active', anat3d.ghost);
+  if (anat3d.viewer) anat3d.viewer.setGhost(anat3d.ghost);
+};
+// 剝層：第一次使用時由 3D 引擎計算每塊肌肉在第幾層
+window.setAnatPeel = function(v) {
+  var lab = document.getElementById('anat-peel-label'), viewer = anat3d.viewer;
+  if (!viewer || !viewer.isReady || !viewer.isReady()) { if (lab) lab.textContent = '模型載入中…'; return; }
+  var n = +v;
+  if (n > 0 && !viewer.getPeelInfo()) { if (lab) lab.textContent = '計算層次中…'; setTimeout(function() { viewer.setPeel(n); window.setAnatPeel(v); }, 30); return; }
+  var info = viewer.setPeel(n), el = document.getElementById('anat-peel');
+  if (info && el && +el.max !== info.max) el.max = info.max;
+  var removed = info ? info.counts.slice(0, n).reduce(function(a, b) { return a + b; }, 0) : 0;
+  if (lab) lab.textContent = n ? '移除外 ' + n + ' 層（' + removed + ' 塊）' : '完整';
+};
+// 切面
+anat3d.clip = null;
+function anat3dApplyClip() {
+  var viewer = anat3d.viewer; if (!viewer) return;
+  if (!anat3d.clip) { viewer.setClip(null); return; }
+  var r = viewer.getBodyRange()[anat3d.clip.axis], t = anat3d.clip.t;
+  viewer.setClip({ axis: anat3d.clip.axis, pos: r[0] + (r[1] - r[0]) * t });
+}
+window.toggleAnatClip = function() {
+  anat3d.clip = anat3d.clip ? null : { axis: 'y', t: (+(document.getElementById('anat-clip-pos') || {}).value || 60) / 100 };
+  var b = document.getElementById('anat-clip-btn'); if (b) b.classList.toggle('active', !!anat3d.clip);
+  var row = document.getElementById('anat-clip-row'); if (row) row.style.display = anat3d.clip ? 'flex' : 'none';
+  if (anat3d.clip) qsa('[data-clip]').forEach(function(x) { x.classList.toggle('active', x.getAttribute('data-clip') === anat3d.clip.axis); });
+  anat3dApplyClip();
+};
+window.setAnatClipAxis = function(ax) {
+  if (!anat3d.clip) return; anat3d.clip.axis = ax;
+  qsa('[data-clip]').forEach(function(x) { x.classList.toggle('active', x.getAttribute('data-clip') === ax); });
+  anat3dApplyClip();
+};
+window.setAnatClipPos = function(v) { if (!anat3d.clip) return; anat3d.clip.t = v / 100; anat3dApplyClip(); };
 
 function anat3dBuildReverseMaps() {
   var atlas = anat3d.atlas;
@@ -20585,7 +20729,7 @@ function initAnat3D() {
   if (!host) return;
   anat3d.loading = true;
   var loadingEl = document.getElementById('anat-3d-loading');
-  import('./anatomy3d.js?v=78').then(function(mod) {
+  import('./anatomy3d.js?v=79').then(function(mod) {
     return mod.loadAtlas('models/').then(function(atlas) {
       anat3d.atlas = atlas;
       anat3dBuildReverseMaps();
@@ -20614,6 +20758,7 @@ function draw() {
   if (!anat3d.viewer) { initAnat3D(); return; }
   var viewer = anat3d.viewer;
   viewer.setView(currentView === 'back' ? 'back' : 'front');
+  anat3dApplyTints(viewer);
   viewer.setHidden(anat3dDissectionHiddenIds());
 
   // 如果目前isolate緊的正正就是剛剛讓人✂️移除了那塊肌肉，就不可以再isolate
@@ -28779,6 +28924,7 @@ function renderExerciseItem(it) {
     + (it.pattern ? '<div style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);border-radius:5px;padding:6px 9px;font-size:11px;color:var(--c-fca5a5,#fca5a5)"><b style="font-family:var(--mono);font-size:9px;letter-spacing:.5px;display:block;margin-bottom:2px;color:var(--c-f87171,#f87171)">🎯 對應體態問題</b>' + it.pattern + '</div>' : '')
     + (it.approach ? '<div style="background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:5px;padding:6px 9px;font-size:11px;color:var(--text2,#c5cde0)"><b style="font-family:var(--mono);font-size:9px;letter-spacing:.5px;display:block;margin-bottom:2px;color:var(--c-a5b4fc,#a5b4fc)">💡 解決思路</b>' + it.approach + '</div>' : '')
     + renderExerciseTags(it.tags)
+    + (window.kMapForExercise && window.kMapForExercise(it.en || it.n).length ? '<button type="button" onclick="window.kShow3DExercise(' + JSON.stringify(it.en || it.n).replace(/"/g, '&quot;') + ')" style="align-self:flex-start;font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer">🧊 3D 看發力部位</button>' : '')
     + (it.raw ? '<div style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.18);border-radius:5px;padding:7px 10px;font-size:11px;color:var(--c-d8cfa8,#d8cfa8)"><b style="font-family:var(--mono);font-size:9px;letter-spacing:.5px;display:block;margin-bottom:4px;color:var(--c-fbbf24,#fbbf24)">📄 教材原文操作方式</b><div style="white-space:pre-wrap;line-height:1.65;font-size:11.5px">' + it.raw + '</div></div>' : '')
     + (it.img ? '<img src="data:image/jpeg;base64,' + it.img + '" style="width:100%;border-radius:6px;margin-top:4px;border:1px solid var(--border);display:block" loading="lazy" alt="' + it.n + '">' : '')
     + (function () { var v = window.kVideoIdFor && window.kVideoIdFor(it.en || it.n), sim = false; if (!v && window.drillENInfo) { var di = window.drillENInfo(it.n); if (di.vid && window.KVIDEO && KVIDEO[di.vid]) { v = di.vid; sim = di.sim; } } return v ? (sim ? '<small class="k-sim">相近影片示範</small>' : '') + window.kVideoCard(v) : ''; })()
@@ -32794,7 +32940,7 @@ input[type="range"]:focus-visible { outline-offset: 4px; }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 </script>
-<script src="musclemap.js?v=72"></script>
+<script src="musclemap.js?v=79"></script>
 <script src="tracker.js"></script>
 <nav id="mnav" aria-label="頁面切換">
   <button type="button" data-mv="input" class="active"><span>📝</span>輸入</button>
@@ -34530,7 +34676,8 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
         '<div class="k-q-more"><span>' + (isNut ? '完整作用機轉、證據說明、劑量與注意事項' : cfg && cfg.cluster ? '完整總覽、為何會一起出現、每一步的詳細做法' : '完整機制解釋、常見迷思、訓練時程、矯正動作及相關連動鏈') + '</span><button type="button" data-k="detail">查看詳細 ›</button></div>';
       var tabs = document.createElement('div'); tabs.className = 'k-qtabs'; tabs.setAttribute('role', 'tablist');
       tabs.innerHTML = '<button type="button" role="tab" data-k="quick" class="on">' + ic('bolt') + '重點</button><button type="button" role="tab" data-k="detail">' + ic('list') + '詳細</button>' +
-        '<button type="button" data-k="present" class="k-present-btn" title="全螢幕簡報，用於向客戶講解">' + (window.kIconSvg ? '' : '') + '<span aria-hidden="true" style="display:inline-flex;width:16px;height:16px">' + PRES_ICON + '</span>簡報</button>';
+        '<button type="button" data-k="present" class="k-present-btn" title="全螢幕簡報，用於向客戶講解">' + (window.kIconSvg ? '' : '') + '<span aria-hidden="true" style="display:inline-flex;width:16px;height:16px">' + PRES_ICON + '</span>簡報</button>' +
+        (cfg && (cfg.tight || cfg.weak || cfg.pain) && window.kShow3DFromBody ? '<button type="button" class="k-present-btn" style="margin-left:6px" onclick="window.kShow3DFromBody(this)" title="在 3D 模型上標示繃緊／無力／疼痛的肌肉">🧊 3D</button>' : '');
       body.__kdata = { Q: Q, cfg: cfg, title: tEl ? tEl.textContent.trim() : '' };
       highlightNums(q); body.insertBefore(q, detail); body.insertBefore(tabs, q);
       var show = function (k, el) {
