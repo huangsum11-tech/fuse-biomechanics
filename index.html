@@ -144,6 +144,8 @@ html[data-theme="mono"] .kh-card, html[data-theme="mono"] .pd-section, html[data
   background: var(--k-card-bg); border: 1px solid #242424; border-radius: 14px; box-shadow: var(--k-card-hi);
 }
 html[data-theme="mono"] .kh-card { padding: 18px 20px; }
+/* v86：詳情頁區塊是卡片，內文要和標題一樣留邊（之前內文貼着卡邊） */
+html[data-theme="mono"] .pd-section:not([style*="padding"]) { padding: 16px 20px 18px; }
 html[data-theme="mono"] .kh-h { font-size: 13.5px; color: #A3A3A3; }
 html[data-theme="mono"] .kh-h .k-ico, html[data-theme="mono"] .kh-tool .k-ico { color: #8C8C8C; }
 html[data-theme="mono"] .kh-title { font-weight: 500; letter-spacing: -.01em; }
@@ -3405,15 +3407,15 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
   </div><!-- end rail-glossary -->
 
   <!-- PANEL: 動力鏈 Kinetic Chain -->
-  <div class="rail-panel" id="rail-kineticchain" style="gap:6px">
-    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--sub);padding:2px 0 8px;border-bottom:1px solid var(--border);margin-bottom:2px">
-      🔗 動力鏈 · KINETIC CHAIN
+  <div class="rail-panel" id="rail-kineticchain" style="flex-direction:column;padding:0;overflow:hidden;gap:0;min-height:0">
+    <div style="padding:14px 14px 8px;flex-shrink:0">
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--sub)">🔗 動力鏈 · KINETIC CHAIN</div>
+      <div style="font-size:11px;color:var(--sub,#9aa3b5);line-height:1.6;margin-top:6px">足部／手掌不同的施力焦點如何驅動不同的神經力學狀態。在帶深蹲、分腿蹲、RDL、伏地挺身、拉系動作時，可以即時用來微調學生的神經輸入。</div>
     </div>
-    <div style="font-size:11px;color:var(--sub,#9aa3b5);line-height:1.6;padding:2px 2px 8px">足部/手掌不同施力焦點如何驅動不同的神經力學狀態和動力鏈——延伸自PRI「踩踏焦點」教練概念，在帶深蹲/分腿蹲/RDL/伏地挺身/拉系動作時可以即時用來微調學生的神經輸入。</div>
-    <div class="pain-list-item" onclick="toggleKineticChainInline('foot')"><span class="pli-emoji">🦶</span><div class="pli-text"><div class="pli-name">足部動力鏈 Foot Kinetic Chain</div><div class="pli-sub">腳跟/大拇趾球/小趾球/中足/腳趾伸展 · 5個焦點</div></div><span class="pli-arrow" id="kc-caret-foot">›</span></div>
-    <div id="kc-inline-foot" style="display:none;padding:2px 2px 8px"></div>
-    <div class="pain-list-item" onclick="toggleKineticChainInline('hand')"><span class="pli-emoji">✋</span><div class="pli-text"><div class="pli-name">手掌動力鏈 Hand Kinetic Chain</div><div class="pli-sub">掌根橈/尺側/指尖/全掌整合 · 4個焦點</div></div><span class="pli-arrow" id="kc-caret-hand">›</span></div>
-    <div id="kc-inline-hand" style="display:none;padding:2px 2px 8px"></div>
+    <div class="kc2">
+      <div class="kc2-list" id="kc2-list"></div>
+      <div class="kc2-detail" id="kc2-detail"></div>
+    </div>
   </div><!-- end rail-kineticchain -->
 
   <!-- PANEL: 呼吸力學 Breathing Mechanics (獨立top-level panel) -->
@@ -11528,7 +11530,7 @@ function openPainDetail(key) {
   document.getElementById('pd-body').innerHTML =
     '<div class="pd-section pd-full"><div class="pd-section-title">▸ 描述與機制</div><div class="pd-text">'+d.desc+'</div></div>'+
     redFlagHTML+
-    '<div class="pd-section"><div class="pd-section-title">▸ 常伴隨體態問題</div><div class="pd-tag-row">'+tags+'</div></div>'+
+    '<div class="pd-section"><div class="pd-section-title">▸ 常伴隨體態問題<span class="k-hint">按一下看說明</span></div>'+window.renderRelList(null, d.posture)+'</div>'+
     '<div class="pd-section"><div class="pd-section-title">▸ 評估重點</div><div class="pd-assess-list">'+items+'</div></div>'+
     '<div class="pd-section pd-full"><div class="pd-section-title">▸ 解決方向</div><div class="pd-text">'+d.fix+'</div></div>'+
     painPlusHTML(key)+
@@ -17879,7 +17881,7 @@ function openTrainingDetail(key) {
     '<div class="pd-section pd-full"><div class="pd-section-title">▸ 問題描述與成因</div><div class="pd-text">'+(d.desc||'')+'</div></div>'+
     redFlagHTML +
     benefitsHTML +
-    '<div class="pd-section"><div class="pd-section-title">▸ 根本原因 / 相關代償</div><div class="pd-tag-row">'+tags+'</div></div>'+
+    '<div class="pd-section"><div class="pd-section-title">▸ 根本原因 / 相關代償<span class="k-hint">按一下看說明</span></div>'+window.renderRelList(null, d.posture || [])+'</div>'+
     '<div class="pd-section"><div class="pd-section-title">▸ 教練觀察指標</div><div class="pd-assess-list">'+items+'</div></div>'+
     protocolHTML +
     '<div class="pd-section pd-full"><div class="pd-section-title">▸ 矯正提示與 PRI 應用</div>'+
@@ -26917,6 +26919,57 @@ window.openKineticChainPointDetail = function(key) {
 };
 
 
+// v86：動力鏈頁——左邊焦點清單，右邊文件式詳情（不用彈出頁）
+(function () {
+  var list = document.getElementById('kc2-list'), det = document.getElementById('kc2-detail');
+  if (!list || !det) return;
+  var ORD = window.KINETIC_CHAIN_POINT_ORDER || {}, P = window.KINETIC_CHAIN_POINTS || {};
+  var steps = function (t) { var a = String(t || '').split(/\s*→\s*/).filter(Boolean); return a.length > 1 ? '<ol class="kc-steps">' + a.map(function (x) { var m = /^(.*?)(（.*）)?$/.exec(x); return '<li><b>' + m[1] + '</b>' + (m[2] ? '<span>' + m[2].replace(/^（|）$/g, '') + '</span>' : '') + '</li>'; }).join('') + '</ol>' : '<p>' + t + '</p>'; };
+  var cues = function (t) { var a = String(t || '').match(/「[^」]+」/g); return a ? a.map(function (x) { return '<div class="kc-quote">' + x.replace(/^「|」$/g, '') + '</div>'; }).join('') : '<p>' + t + '</p>'; };
+  var cur = null;
+  function renderList() {
+    list.innerHTML = ['foot', 'hand'].map(function (ck) {
+      var d = KINETIC_CHAIN_DB[ck]; if (!d) return '';
+      return '<div class="kc2-grp"><div class="kc2-gh">' + d.emoji + ' ' + d.name.split(' ')[0] + '<small>' + d.name.split(' ').slice(1).join(' ') + '</small></div>'
+        + '<button type="button" class="kc2-it" data-c="' + ck + '"><span class="kc2-n">概述與教練建議</span></button>'
+        + (ORD[ck] || []).map(function (pk, i) { var p = P[pk]; return p ? '<button type="button" class="kc2-it" data-p="' + pk + '"><span class="kc2-i">' + (i + 1) + '</span><span class="kc2-n">' + p.name + '</span><span class="kc2-s">' + p.tagline + '</span></button>' : ''; }).join('') + '</div>';
+    }).join('');
+    list.onclick = function (e) { var b = e.target.closest('.kc2-it'); if (!b) return; if (b.dataset.p) show(b.dataset.p); else showChain(b.dataset.c); };
+  }
+  function mark(key) { cur = key; Array.prototype.forEach.call(list.querySelectorAll('.kc2-it'), function (b) { b.classList.toggle('on', (b.dataset.p || 'c:' + b.dataset.c) === key); }); det.scrollTop = 0; }
+  function showChain(ck) {
+    var d = KINETIC_CHAIN_DB[ck]; if (!d) return;
+    det.innerHTML = '<article class="kc-doc"><div class="kc-kicker">動力鏈</div><h2>' + d.emoji + ' ' + d.name + '</h2><div class="kc-tag">' + d.sub + '</div>'
+      + '<p class="kc-lead">' + d.intro + '</p>'
+      + '<h3>焦點</h3><div class="kc-cards">' + (ORD[ck] || []).map(function (pk, i) { var p = P[pk]; return p ? '<button type="button" class="kc-card" data-p="' + pk + '"><span class="kc2-i">' + (i + 1) + '</span><b>' + p.name + '</b><small>' + p.tagline + '</small><em>解決：' + p.addresses + '</em></button>' : ''; }).join('') + '</div>'
+      + (d.coachNote ? '<div class="kc-callout info"><b>教練應用建議</b><p>' + d.coachNote + '</p></div>' : '')
+      + '</article>';
+    det.querySelector('.kc-cards').onclick = function (e) { var b = e.target.closest('[data-p]'); if (b) show(b.dataset.p); };
+    mark('c:' + ck);
+  }
+  function show(pk) {
+    var p = P[pk]; if (!p) return;
+    var ord = ORD[p.region] || [], i = ord.indexOf(pk), chain = KINETIC_CHAIN_DB[p.region];
+    det.innerHTML = '<article class="kc-doc"><div class="kc-kicker">' + (chain ? chain.name.split(' ')[0] : '') + ' · 焦點 ' + (i + 1) + ' / ' + ord.length + '</div>'
+      + '<h2>' + p.name + '</h2><div class="kc-tag">' + p.tagline + '</div>'
+      + '<p class="kc-lead">' + p.overview + '</p>'
+      + '<div class="kc-props"><div><span>解決的代償</span><p>' + p.addresses + '</p></div></div>'
+      + '<h3>教練提示語</h3>' + cues(p.cues)
+      + '<h3>動力鏈與生物力學邏輯</h3><ol class="kc-ol">' + (p.mechanism || []).map(function (m) { var k = m.split(/：/); return '<li>' + (k.length > 1 ? '<b>' + k[0] + '</b>' + k.slice(1).join('：') : m) + '</li>'; }).join('') + '</ol>'
+      + '<h3>推薦動作與進階順序</h3>' + steps(p.exercises)
+      + (p.progression ? '<h3>循序漸進</h3>' + steps(p.progression) : '')
+      + (p.mistakes ? '<div class="kc-callout warn"><b>常見誤區</b><p>' + p.mistakes + '</p></div>' : '')
+      + (p.safety ? '<div class="kc-callout danger"><b>安全注意</b><p>' + p.safety + '</p></div>' : '')
+      + '<nav class="kc-nav">' + (i > 0 ? '<button type="button" data-p="' + ord[i - 1] + '">‹ ' + P[ord[i - 1]].name + '</button>' : '<span></span>') + (i < ord.length - 1 ? '<button type="button" data-p="' + ord[i + 1] + '">' + P[ord[i + 1]].name + ' ›</button>' : '') + '</nav>'
+      + '</article>';
+    det.querySelector('.kc-nav').onclick = function (e) { var b = e.target.closest('[data-p]'); if (b) show(b.dataset.p); };
+    mark(pk);
+  }
+  renderList(); showChain('foot');
+  // 其他頁面仍可直接打開某個焦點（例如搜尋）
+  window.kcShowPoint = show;
+})();
+
 // ════════════════════════════════════════════════════════════
 //  TRAINING CALCULATORS — 6個獨立小工具，全部即時計算、不儲存資料
 // ════════════════════════════════════════════════════════════
@@ -34628,7 +34681,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 .pain-detail-body .pd-assess-item { line-height: 1.6; }
 .k-num { color: var(--green); font-weight: 700; white-space: nowrap; }
 .pain-detail-body.k-has-quick { display: block !important; }
-.k-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-content: start; }
+.k-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-content: start; align-items: start; }
 .k-detail[hidden], .k-q[hidden] { display: none !important; }
 .k-qtabs { position: sticky; top: -20px; z-index: 4; display: flex; gap: 2px; margin: -6px 0 16px; padding: 6px 0 0; background: rgba(var(--bg-rgb,5,7,10),.97); border-bottom: 1px solid var(--border); }
 .k-qtabs button { font-family: inherit; font-size: 14px; padding: 9px 16px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--sub); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
@@ -35284,6 +35337,54 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 .k-wlegend i { width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--c); background: #141416; }
 .k-wlegend i.ln { width: 14px; height: 3px; border: 0; border-radius: 2px; background: var(--c); }
 .k-wlegend b { color: var(--text); font-weight: 600; margin-right: 2px; }
+
+/* v86：動力鏈頁（清單＋文件式詳情） */
+#rail-kineticchain.rail-panel { max-width: none; }
+.kc2 { flex: 1; min-height: 0; display: flex; border-top: 1px solid var(--border); }
+.kc2-list { width: 290px; flex-shrink: 0; overflow-y: auto; padding: 12px 10px 24px; border-right: 1px solid var(--border); }
+.kc2-detail { flex: 1; min-width: 0; overflow-y: auto; padding: 28px 40px 60px; }
+.kc2-grp + .kc2-grp { margin-top: 18px; }
+.kc2-gh { font-size: 14px; font-weight: 700; color: var(--text); padding: 0 8px 8px; }
+.kc2-gh small { display: block; font-size: 11.5px; font-weight: 400; color: var(--sub); margin-top: 1px; }
+.kc2-it { display: grid; grid-template-columns: 22px 1fr; gap: 1px 8px; width: 100%; text-align: left; font: inherit; color: var(--text); background: none; border: 0; border-radius: 8px; padding: 8px; cursor: pointer; }
+.kc2-it:hover { background: rgba(var(--ov,255,255,255),.05); }
+.kc2-it.on { background: rgba(var(--ov,255,255,255),.09); }
+.kc2-it > .kc2-n:first-child { grid-column: 1 / -1; color: var(--sub); font-size: 13px; }
+.kc2-i { grid-row: span 2; width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--border); font-size: 11px; display: inline-flex; align-items: center; justify-content: center; color: var(--sub); margin-top: 1px; }
+.kc2-it.on .kc2-i { background: var(--text); color: var(--bg, #0E0E0F); border-color: transparent; }
+.kc2-n { font-size: 13.5px; font-weight: 600; line-height: 1.4; }
+.kc2-s { font-size: 12px; color: var(--sub); line-height: 1.45; }
+.kc-doc { max-width: 760px; margin: 0 auto; color: var(--text); }
+.kc-kicker { font-size: 12px; color: var(--sub); letter-spacing: .04em; margin-bottom: 6px; }
+.kc-doc h2 { font-size: 26px; font-weight: 700; line-height: 1.3; margin: 0; letter-spacing: -.01em; }
+.kc-tag { font-size: 14px; color: var(--sub); margin-top: 6px; }
+.kc-lead { font-size: 16px; line-height: 1.8; margin: 20px 0 0; }
+.kc-doc h3 { font-size: 13px; font-weight: 700; color: var(--sub); letter-spacing: .06em; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.kc-doc p { font-size: 15px; line-height: 1.8; margin: 0; }
+.kc-props { margin-top: 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.kc-props > div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 10px 0; }
+.kc-props span { font-size: 13px; color: var(--sub); padding-top: 2px; }
+.kc-quote { font-size: 15.5px; line-height: 1.7; padding: 4px 0 4px 14px; border-left: 3px solid var(--text); margin: 8px 0; }
+.kc-ol { margin: 0; padding-left: 22px; }
+.kc-ol li { font-size: 15px; line-height: 1.8; margin-bottom: 10px; padding-left: 4px; }
+.kc-ol li b { display: block; font-weight: 700; }
+.kc-steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.kc-steps li { counter-increment: s; position: relative; padding: 0 0 14px 34px; }
+.kc-steps li::before { content: counter(s); position: absolute; left: 0; top: 1px; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); font-size: 12px; display: flex; align-items: center; justify-content: center; color: var(--sub); }
+.kc-steps li:not(:last-child)::after { content: ''; position: absolute; left: 11px; top: 25px; bottom: 2px; width: 1px; background: var(--border); }
+.kc-steps b { display: block; font-size: 15px; font-weight: 600; line-height: 1.55; }
+.kc-steps span { display: block; font-size: 13.5px; color: var(--sub); line-height: 1.6; margin-top: 2px; }
+.kc-callout { margin-top: 28px; padding: 14px 18px; border-radius: 10px; background: rgba(var(--ov,255,255,255),.04); border: 1px solid var(--border); }
+.kc-callout b { display: block; font-size: 13.5px; margin-bottom: 6px; }
+.kc-callout.warn { border-left: 3px solid #facc15; } .kc-callout.danger { border-left: 3px solid #f87171; } .kc-callout.info { border-left: 3px solid #60a5fa; }
+.kc-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.kc-card { text-align: left; font: inherit; color: var(--text); background: rgba(var(--ov,255,255,255),.03); border: 1px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+.kc-card:hover { border-color: var(--text); }
+.kc-card b { font-size: 14.5px; } .kc-card small { font-size: 12.5px; color: var(--sub); } .kc-card em { font-style: normal; font-size: 12.5px; color: var(--sub); line-height: 1.5; margin-top: 4px; }
+.kc-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--border); }
+.kc-nav button { font: inherit; font-size: 13.5px; color: var(--text); background: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+.kc-nav button:hover { border-color: var(--text); }
+@media (max-width: 900px) { .kc2 { flex-direction: column; overflow-y: auto; } .kc2-list { width: auto; border-right: 0; border-bottom: 1px solid var(--border); overflow: visible; } .kc2-detail { padding: 20px 16px 40px; overflow: visible; } .kc-doc h2 { font-size: 22px; } }
 </style>
 <script id="kwire-js">
 // ── v24 線框圖重新設計（不改動原本的姿勢計算，只改繪圖外觀）──
@@ -35473,7 +35574,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     // v31：無論詳情頁有冇打開，都預先收窄到詳情頁左邊界——打開時左邊清單唔會再縮一下
     var ref = open[0] || OVS()[0];
     // 3D 人體面板自己用晒成個闊度放模型，未開詳情頁時唔可以預先收窄（v31 曾經令模型消失）
-    if (!open.length && panel && panel.id === 'rail-anatomy') ref = null;
+    if (!open.length && panel && /^rail-(anatomy|breathingmech|gaitmech|kineticchain)$/.test(panel.id)) ref = null;
     if (!panel || !ref || window.innerWidth < 900) { if (panel) { panel.style.removeProperty('max-width'); panel.removeAttribute('data-kfit'); } return; }
     // 詳情頁的左邊界（用 CSS 計算值；translateX 唔影響闊度，所以關閉狀態都量得到）
     var ovLeft = window.innerWidth - ref.getBoundingClientRect().width;
