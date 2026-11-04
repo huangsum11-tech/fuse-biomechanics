@@ -237,23 +237,27 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   let panMode = false, xrayOn = false;
   // v81：關節動作（簡化骨架）。rigTexture 每塊結構：R＝所屬肢體（1 右腳 2 左腳 3 右手 4 左手）、G＝剛體段（1 近端 2 中段 3 遠端；0＝軟組織按頂點位置平滑彎曲）
   const rigData = new Uint8Array(width * 4), rigTexture = new T.DataTexture(rigData, width, 1); rigTexture.needsUpdate = true;
-  const rigU = { uChain: { value: 0 }, uP0: { value: new T.Vector3() }, uP1: { value: new T.Vector3() }, uP2: { value: new T.Vector3() },
-    uD0: { value: new T.Vector3(0, -1, 0) }, uD1: { value: new T.Vector3(0, -1, 0) }, uD2: { value: new T.Vector3(0, -1, 0) },
-    uR0: { value: new T.Matrix3() }, uR1: { value: new T.Matrix3() }, uR2: { value: new T.Matrix3() }, uLat: { value: new T.Vector2(0.03, 0.075) }, uFar: { value: 1 } };
-  const RIG_GLSL = 'uniform sampler2D rigState; uniform float uChain; uniform vec3 uP0, uP1, uP2, uD0, uD1, uD2; uniform mat3 uR0, uR1, uR2; uniform vec2 uLat; uniform float uFar;\n' +
+  const rigU = { uChain: { value: 0 }, uP0: { value: new T.Vector3() }, uP1: { value: new T.Vector3() }, uP2: { value: new T.Vector3() }, uP3: { value: new T.Vector3() },
+    uD0: { value: new T.Vector3(0, -1, 0) }, uD1: { value: new T.Vector3(0, -1, 0) }, uD2: { value: new T.Vector3(0, -1, 0) }, uD3: { value: new T.Vector3(0, -1, 0) },
+    uR0: { value: new T.Matrix3() }, uR1: { value: new T.Matrix3() }, uR2: { value: new T.Matrix3() }, uR3: { value: new T.Matrix3() }, uLat: { value: new T.Vector2(0.03, 0.075) }, uFar: { value: 1 }, uGirdle: { value: 0 } };
+  // 腳：0 髖 1 膝 2 踝（3 不用）；手：0 肩帶（胸鎖關節，肩胛＋鎖骨）1 肩 2 肘 3 腕
+  const RIG_GLSL = 'uniform sampler2D rigState; uniform float uChain, uFar, uGirdle; uniform vec3 uP0, uP1, uP2, uP3, uD0, uD1, uD2, uD3; uniform mat3 uR0, uR1, uR2, uR3; uniform vec2 uLat;\n' +
     'float rigW(vec3 v, vec3 P, vec3 D) { return smoothstep(-0.015, 0.09, dot(v - P, D)); }\n' +
     'vec4 rigInfo(float idx, float sw) { return texture2D(rigState, vec2((idx + 0.5) / sw, 0.5)) * 255.0; }\n' +
-    'void rigWeights(vec3 v, float lvl, out float w0, out float w1, out float w2) {\n' +
-    '  if (lvl > 0.5) { w0 = lvl > 0.5 ? 1.0 : 0.0; w1 = lvl > 1.5 ? 1.0 : 0.0; w2 = lvl > 2.5 ? 1.0 : 0.0; return; }\n' +
-    '  float a0 = dot(v - uP0, uD0); w0 = smoothstep(-0.015, 0.09, a0) * max(smoothstep(uLat.x, uLat.y, abs(v.x)), uFar * smoothstep(0.08, 0.18, a0)); w1 = rigW(v, uP1, uD1); w2 = rigW(v, uP2, uD2); }\n';
+    'void rigWeights(vec3 v, float lvl, out float w0, out float w1, out float w2, out float w3) {\n' +
+    '  if (lvl > 0.5) { w0 = 1.0; w1 = lvl > 1.5 ? 1.0 : 0.0; w2 = lvl > 2.5 ? 1.0 : 0.0; w3 = lvl > 3.5 ? 1.0 : 0.0; return; }\n' +
+    '  if (uGirdle > 0.5) { w1 = rigW(v, uP1, uD1) * smoothstep(uLat.x, uLat.y, abs(v.x)); w2 = rigW(v, uP2, uD2); w3 = rigW(v, uP3, uD3);\n' +
+    '    w0 = max(w1, smoothstep(0.05, 0.11, abs(v.x)) * smoothstep(-0.26, -0.14, v.y - uP0.y)); return; }\n' +
+    '  float a0 = dot(v - uP0, uD0); w0 = smoothstep(-0.015, 0.09, a0) * max(smoothstep(uLat.x, uLat.y, abs(v.x)), uFar * smoothstep(0.08, 0.18, a0));\n' +
+    '  w1 = rigW(v, uP1, uD1); w2 = rigW(v, uP2, uD2); w3 = 0.0; }\n';
   const materialFor = system => {
     const m = new T.MeshStandardMaterial({ color: SYSTEMS.find(s => s.id === system)?.color ?? '#aebbb8', metalness: 0.08, roughness: 0.53, side: T.DoubleSide, transparent: system === 'integumentary', opacity: system === 'integumentary' ? 0.1 : 1, depthWrite: system !== 'integumentary', clippingPlanes: [clipPlane] });
     m.onBeforeCompile = shader => {
       shader.uniforms.partState = { value: partTexture }; shader.uniforms.selectionState = { value: selectionTexture }; shader.uniforms.stateWidth = { value: width };
       shader.uniforms.rigState = { value: rigTexture }; Object.assign(shader.uniforms, rigU);
       shader.vertexShader = 'attribute float partIndex; uniform sampler2D partState; uniform sampler2D selectionState; uniform float stateWidth; varying float partVisible; varying vec4 partTint;\n' + RIG_GLSL + shader.vertexShader;
-      shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nvec4 rgi = rigInfo(partIndex, stateWidth); float rw0 = 0.0, rw1 = 0.0, rw2 = 0.0; bool rigOn = uChain > 0.5 && abs(rgi.r - uChain) < 0.5;\nif (rigOn) { rigWeights(position, rgi.g, rw0, rw1, rw2); objectNormal = normalize(mix(objectNormal, uR2 * objectNormal, rw2)); objectNormal = normalize(mix(objectNormal, uR1 * objectNormal, rw1)); objectNormal = normalize(mix(objectNormal, uR0 * objectNormal, rw0)); }');
-      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nif (rigOn) { transformed = mix(transformed, uR2 * (transformed - uP2) + uP2, rw2); transformed = mix(transformed, uR1 * (transformed - uP1) + uP1, rw1); transformed = mix(transformed, uR0 * (transformed - uP0) + uP0, rw0); }\nvec2 stateUv = vec2((partIndex + 0.5) / stateWidth, 0.5); vec4 state = texture2D(partState, stateUv); transformed += state.xyz; partVisible = state.w; partTint = texture2D(selectionState, stateUv);');
+      shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nvec4 rgi = rigInfo(partIndex, stateWidth); float rw0 = 0.0, rw1 = 0.0, rw2 = 0.0, rw3 = 0.0; bool rigOn = uChain > 0.5 && abs(rgi.r - uChain) < 0.5;\nif (rigOn) { rigWeights(position, rgi.g, rw0, rw1, rw2, rw3); objectNormal = normalize(mix(objectNormal, uR3 * objectNormal, rw3)); objectNormal = normalize(mix(objectNormal, uR2 * objectNormal, rw2)); objectNormal = normalize(mix(objectNormal, uR1 * objectNormal, rw1)); objectNormal = normalize(mix(objectNormal, uR0 * objectNormal, rw0)); }');
+      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nif (rigOn) { transformed = mix(transformed, uR3 * (transformed - uP3) + uP3, rw3); transformed = mix(transformed, uR2 * (transformed - uP2) + uP2, rw2); transformed = mix(transformed, uR1 * (transformed - uP1) + uP1, rw1); transformed = mix(transformed, uR0 * (transformed - uP0) + uP0, rw0); }\nvec2 stateUv = vec2((partIndex + 0.5) / stateWidth, 0.5); vec4 state = texture2D(partState, stateUv); transformed += state.xyz; partVisible = state.w; partTint = texture2D(selectionState, stateUv);');
       shader.fragmentShader = 'varying float partVisible; varying vec4 partTint;\n' + shader.fragmentShader;
       shader.fragmentShader = shader.fragmentShader.replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (partVisible < 0.2) discard;\nif (partVisible < 0.6) { float gx = mod(floor(gl_FragCoord.x), 3.0), gy = mod(floor(gl_FragCoord.y), 3.0); if (abs(gx - gy) > 0.5) discard; }');
       shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\nif (partTint.a > 0.01) diffuseColor.rgb = mix(diffuseColor.rgb, partTint.rgb, partTint.a);\nif (partVisible < 0.6) diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.75), 0.55);');
@@ -412,20 +416,23 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
       if ([fe, ti, ta, hu, ul, ra].some(i => i < 0 || !pickers[i])) return;
       const hip = head(fe, 0.045), knee = bottom(fe, 0.025).add(top(ti, 0.02)).multiplyScalar(0.5), ankle = mean(ta, () => true);
       const sh = head(hu, 0.04), elbow = bottom(hu, 0.02).add(top(ul, 0.02)).multiplyScalar(0.5), wrist = bottom(ra, 0.015);
-      chains[k + 1] = { P: [hip, knee, ankle], D: [knee.clone().sub(hip).normalize(), ankle.clone().sub(knee).normalize(), new T.Vector3(0, -1, 0)], lat: [0.03, 0.075] };
-      chains[k + 3] = { P: [sh, elbow, wrist], D: [elbow.clone().sub(sh).normalize(), wrist.clone().sub(elbow).normalize(), wrist.clone().sub(elbow).normalize()], lat: [Math.abs(sh.x) - 0.05, Math.abs(sh.x) - 0.005] };
+      const cl = find(sd + ' clavicle'); let sc = sh.clone();
+      if (cl >= 0 && pickers[cl]) { let mn = Infinity; const a = pickers[cl].geometry.attributes.position.array; for (let q = 0; q < a.length; q += 3) mn = Math.min(mn, Math.abs(a[q])); sc = mean(cl, x => Math.abs(x) < mn + 0.015) || sc; }
+      const down = new T.Vector3(0, -1, 0);
+      chains[k + 1] = { P: [hip, knee, ankle, ankle], D: [knee.clone().sub(hip).normalize(), ankle.clone().sub(knee).normalize(), down, down], lat: [0.03, 0.075], girdle: 0 };
+      chains[k + 3] = { P: [sc, sh, elbow, wrist], D: [down, elbow.clone().sub(sh).normalize(), wrist.clone().sub(elbow).normalize(), wrist.clone().sub(elbow).normalize()], lat: [Math.abs(sh.x) - 0.03, Math.abs(sh.x) + 0.01], girdle: 1 };
     });
     if (!chains[1] || !chains[3]) return null;
     const LEG = [/^(right|left) (femur|patella)$/, /^(right|left) (tibia|fibula)$/, /calcaneus|talus|navicular|cuboid|cuneiform|metatarsal|toe|sesamoid bone of/];
-    const ARM = [/^(right|left) humerus$/, /^(right|left) (radius|ulna)$/, /scaphoid|lunate|triquetral|pisiform|trapezium|trapezoid|capitate|hamate|metacarpal|finger|thumb/];
-    const ARM_SOFT = /deltoid|biceps brachii|triceps|coracobrachialis|brachialis|supraspinatus|infraspinatus|teres|subscapularis|pectoralis major|latissimus/;
+    const ARM = [/^(right|left) (scapula|clavicle)$/, /^(right|left) humerus$/, /^(right|left) (radius|ulna)$/, /scaphoid|lunate|triquetral|pisiform|trapezium|trapezoid|capitate|hamate|metacarpal|finger|thumb/];
+    const ARM_SOFT = /deltoid|biceps brachii|triceps|coracobrachialis|brachialis|supraspinatus|infraspinatus|teres|subscapularis|pectoralis|latissimus|trapezius|rhomboid|levator scapulae|serratus anterior|subclavius|omohyoid/;
     const hipY = chains[1].P[0].y;
     atlas.parts.forEach((p, i) => {
       const n = p.name.toLowerCase(), c = centers[i], side = Math.abs(c.x) > 0.03 ? (c.x < 0 ? 0 : 1) : /\bright\b/.test(n) ? 0 : /\bleft\b/.test(n) ? 1 : c.x < 0 ? 0 : 1; // 以位置為準：BodyParts3D 有少數部件左右標錯
       let chain = 0, lvl = 0;
       if (p.system === 'integumentary') { /* 體表不動 */ }
       else if (p.system === 'skeletal' && !/iliotibial/.test(n)) {
-        for (let L = 0; L < 3; L++) { if (LEG[L].test(n)) { chain = 1 + side; lvl = L + 1; } if (ARM[L].test(n)) { chain = 3 + side; lvl = L + 1; } }
+        for (let L = 0; L < 4; L++) { if (L < 3 && LEG[L].test(n)) { chain = 1 + side; lvl = L + 1; } if (ARM[L].test(n)) { chain = 3 + side; lvl = L + 1; } }
       } else if (Math.abs(c.x) > 0.17 || ARM_SOFT.test(n)) chain = 3 + side;
       else if (Math.abs(c.x) > 0.02 && c.y < hipY + 0.12) chain = 1 + side;
       rigData[i * 4] = chain; rigData[i * 4 + 1] = lvl;
@@ -561,14 +568,14 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     getPeelInfo() { if (!peelLayers) return null; const counts = new Array(peelMax + 1).fill(0); peelLayers.forEach((l, i) => { if (atlas.parts[i].system === 'muscular') counts[l]++; }); return { max: peelMax, counts }; },
     getPartLayer(ids) { if (!peelLayers) return null; const idx = resolvePartIndexes(atlas, ids); return idx.length ? Math.min(...idx.map(i => peelLayers[i])) : null; },
     isReady() { return ready; },
-    // v81：setPose(chain, [[軸, 角度(度)]…] × 3 個關節)。chain：1 右腳 2 左腳 3 右手 4 左手；0 或 null 取消
+    // v81／v82：setPose(chain, [[軸, 角度(度)]…] × 4 個關節；腳 0 髖 1 膝 2 踝；手 0 肩帶 1 肩 2 肘 3 腕)。chain：1 右腳 2 左腳 3 右手 4 左手；0 或 null 取消
     setPose(chain, joints) {
       if (!chain) { rigU.uChain.value = 0; dirty = true; return true; }
       const r = buildRig(); if (!r || !r[chain]) return false;
       const c = r[chain];
-      ['uP0', 'uP1', 'uP2'].forEach((k, j) => rigU[k].value.copy(c.P[j])); ['uD0', 'uD1', 'uD2'].forEach((k, j) => rigU[k].value.copy(c.D[j]));
-      rigU.uLat.value.set(c.lat[0], c.lat[1]); rigU.uFar.value = chain <= 2 ? 1 : 0;
-      ['uR0', 'uR1', 'uR2'].forEach((k, j) => {
+      ['uP0', 'uP1', 'uP2', 'uP3'].forEach((k, j) => rigU[k].value.copy(c.P[j])); ['uD0', 'uD1', 'uD2', 'uD3'].forEach((k, j) => rigU[k].value.copy(c.D[j]));
+      rigU.uLat.value.set(c.lat[0], c.lat[1]); rigU.uFar.value = chain <= 2 ? 1 : 0; rigU.uGirdle.value = c.girdle;
+      ['uR0', 'uR1', 'uR2', 'uR3'].forEach((k, j) => {
         const q = new T.Quaternion();
         ((joints || [])[j] || []).forEach(([axis, deg]) => q.multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3().fromArray(axis).normalize(), T.MathUtils.degToRad(deg))));
         rigU[k].value.setFromMatrix4(new T.Matrix4().makeRotationFromQuaternion(q));

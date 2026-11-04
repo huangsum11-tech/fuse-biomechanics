@@ -181,6 +181,7 @@ html[data-theme="mono"] { --c-009e78:#8C8C8C; --c-00a878:#939393; --c-00c87a:#AF
 html[data-theme="mono"] .k-lead { --k-tint: #BDBDBD !important; }
 /* 舊頁面在 inline style 寫死的彩色底色／邊框／文字（rgba(…) 或 #hex）：整塊轉灰。
    不套用在含 3D 畫布、圖片或影片卡的容器，免得連模型、截圖一起變灰。 */
+html[data-theme="mono"] #anat-3d-legend, html[data-theme="mono"] #anat-3d-legend * { filter: none !important; }
 html[data-theme="mono"] :is([style*="rgba("], [style*="color:#"], [style*="color: #"], [style*="background:#"], [style*="background: #"]):not(:has(canvas, img, video, .kv, iframe)):not(canvas, img),
 html[data-theme="mono"] :is(.k-mk, .k-lv, .k-star, .k-step, .pain-detail-close, .pain-list-item.k-row, .musclelist-filter-btn, .pd-assess-item, .pd-tag, .k-rel-item, .k-rel-n, .k-acc-item, .k-acc-b, .k-tl-step, .k-type-re, .k-types .p, .k-types .m, .k-type-f, .s.end, .pf-goal) { filter: grayscale(1); }
 /* 安全相關保留紅色：注意事項、紅旗、計時器停止鍵 */
@@ -11332,7 +11333,7 @@ window.openAtlas3D = function(conceptIds, label) {
   window._atlas3dLoading = true;
   loading.style.display = 'flex';
   Promise.all([
-    import('./anatomy3d.js?v=81'),
+    import('./anatomy3d.js?v=82'),
   ]).then(function(mods) {
     var mod = mods[0];
     window._atlas3dSYSTEMS = mod.SYSTEMS;
@@ -20439,7 +20440,40 @@ function anat3dApplyTints(viewer) {
     lg.style.pointerEvents = anat3d.overlay ? 'auto' : 'none';
   }
 }
-window.anat3dSetOverlay = function(spec) { anat3d.overlay = spec || null; if (anat3d.viewer) draw(); };
+window.anat3dSetOverlay = function(spec) { if ((spec && spec.key) !== (anat3d.overlay && anat3d.overlay.key)) anat3dPush(); anat3d.overlay = spec || null; if (anat3d.viewer) draw(); };
+// v82：ESC 返回上一個狀態（選中的肌肉／骨、放大、肌群、顏色標示）
+anat3d.hist = [];
+function anat3dSnap() { return { m: selectedMuscle || null, b: selectedBone || null, z: !!anat3d.zoomed, g: anat3d.group || null, o: anat3d.overlay || null }; }
+function anat3dSnapKey(x) { return [x.m, x.b, x.z, x.g, x.o && x.o.key].join('|'); }
+function anat3dPush() {
+  if (anat3d._restoring) return;
+  var cur = anat3dSnap(), h = anat3d.hist, last = h[h.length - 1];
+  if (last && anat3dSnapKey(last) === anat3dSnapKey(cur)) return;
+  h.push(cur); if (h.length > 40) h.shift();
+}
+window.anat3dPush = anat3dPush;
+window.anat3dBack = function() {
+  var x = anat3d.hist.pop(); if (!x) return false;
+  anat3d._restoring = true;
+  try {
+    anat3d.overlay = x.o; anat3d._tintKey = '';
+    if (x.g) window.anat3dShowGroup(x.g);
+    else if (anat3d.group) { anat3d.group = null; if (typeof renderMuscleGroupsList === 'function') renderMuscleGroupsList(); }
+    if (x.m) { selectedMuscle = x.m; selectedBone = null; showMuscleDetail(x.m); }
+    else if (x.b) { selectedBone = x.b; selectedMuscle = null; showBoneDetail(x.b); }
+    else closeAnatomyDetail();
+    anat3d.zoomed = x.z; anat3dUpdateZoomBtn(); draw();
+  } finally { anat3d._restoring = false; }
+  return true;
+};
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape' || e.defaultPrevented) return;
+  var host = document.getElementById('anat-3d-host');
+  if (!host || !host.offsetParent || document.querySelector('.pain-detail-overlay.open')) return;
+  if (typeof anatFullscreenOn !== 'undefined' && anatFullscreenOn) return;
+  var t = e.target; if (t && /INPUT|TEXTAREA|SELECT/.test(t.tagName) && t.type !== 'range') return;
+  if (window.anat3dBack()) e.preventDefault();
+});
 // v79：由其他頁面打開 3D 並套用顏色（體態／痛症的緊、弱、痛；動作的發力部位）
 window.kShow3DOverlay = function(spec) {
   Array.prototype.forEach.call(document.querySelectorAll('.pain-detail-overlay.open'), function(o) { o.classList.remove('open'); });
@@ -20588,24 +20622,51 @@ window.setAnatClipAxis = function(ax) {
 window.setAnatClipPos = function(v) { if (!anat3d.clip) return; anat3d.clip.t = v / 100; anat3dApplyClip(); };
 // v81：關節動作示範（簡化：骨骼按肢段整塊轉動，跨關節的肌肉按位置平滑拉伸；肩胛骨不隨肩動作轉動）
 var MVX = [1, 0, 0], MVY = [0, 1, 0], MVZ = [0, 0, 1];
+// 肩帶上旋（肩肱節律，簡化）：上舉 30° 後，每 1° 約 0.4° 來自肩胛（約 2:1）；Week 3 把 0–60°、60–120°、120–180° 分成三段
+function mvRhythm(a) { return a > 30 ? (a - 30) * 0.4 : 0; }
+// 在與冠狀面成 phi 度的平面上舉（0＝外展，30＝肩胛面，90＝屈曲）
+function mvElev(phi, a, R) { var p = phi * Math.PI / 180; return [R ? [-Math.sin(p), 0, -Math.cos(p)] : [-Math.sin(p), 0, Math.cos(p)], a]; }
+function mvArmElev(phi) { return function(a, R) { var g = mvRhythm(a); return [[[MVZ, R ? -g : g]], [mvElev(phi, a - g, R)]]; }; }
+// 手的關節次序：0 肩帶 1 肩 2 肘 3 腕；腳：0 髖 1 膝 2 踝
 var ANAT_MOVES = [
-  { k: 'hipFlex', name: '髖屈曲', limb: 'leg', max: 120, g: 'hipFlexors', pose: function(a) { return [[[MVX, -a]]]; } },
-  { k: 'hipExt', name: '髖伸展', limb: 'leg', max: 20, g: 'hipExtensors', pose: function(a) { return [[[MVX, a]]]; } },
-  { k: 'hipAbd', name: '髖外展', limb: 'leg', max: 45, g: 'hipAbductors', pose: function(a, R) { return [[[MVZ, R ? -a : a]]]; } },
-  { k: 'hipIR', name: '髖內旋（坐姿）', limb: 'leg', max: 40, g: 'hipIR', pose: function(a, R) { return [[[MVX, -90], [MVY, R ? a : -a]], [[MVX, 90]]]; } },
-  { k: 'hipER', name: '髖外旋（坐姿）', limb: 'leg', max: 45, g: 'hipER', pose: function(a, R) { return [[[MVX, -90], [MVY, R ? -a : a]], [[MVX, 90]]]; } },
-  { k: 'kneeFlex', name: '膝屈曲', limb: 'leg', max: 130, g: 'kneeFlexors', pose: function(a) { return [[], [[MVX, a]]]; } },
-  { k: 'ankleDF', name: '踝背屈', limb: 'leg', max: 20, g: 'ankleDorsiflexors', pose: function(a) { return [[], [], [[MVX, -a]]]; } },
-  { k: 'anklePF', name: '踝蹠屈', limb: 'leg', max: 50, g: 'anklePlantarflexors', pose: function(a) { return [[], [], [[MVX, a]]]; } },
-  { k: 'shFlex', name: '肩屈曲', limb: 'arm', max: 160, g: 'shoulderFlexors', pose: function(a) { return [[[MVX, -a]]]; } },
-  { k: 'shExt', name: '肩伸展', limb: 'arm', max: 50, g: 'shoulderExtensors', pose: function(a) { return [[[MVX, a]]]; } },
-  { k: 'shAbd', name: '肩外展', limb: 'arm', max: 160, g: 'shoulderAbductors', pose: function(a, R) { return [[[MVZ, R ? -a : a]]]; } },
-  { k: 'elbowFlex', name: '肘屈曲', limb: 'arm', max: 145, g: 'elbowFlexors', pose: function(a) { return [[], [[MVX, -a]]]; } }
+  { grp: '髖', k: 'hipFlex', name: '髖屈曲', limb: 'leg', max: 120, g: 'hipFlexors', pose: function(a) { return [[[MVX, -a]]]; } },
+  { grp: '髖', k: 'hipExt', name: '髖伸展', limb: 'leg', max: 20, g: 'hipExtensors', pose: function(a) { return [[[MVX, a]]]; } },
+  { grp: '髖', k: 'hipAbd', name: '髖外展', limb: 'leg', max: 45, g: 'hipAbductors', pose: function(a, R) { return [[[MVZ, R ? -a : a]]]; } },
+  { grp: '髖', k: 'hipAdd', name: '髖內收', limb: 'leg', max: 25, g: 'hipAdductors', pose: function(a, R) { return [[[MVZ, R ? a : -a]]]; } },
+  { grp: '髖', k: 'hipIR', name: '髖內旋（坐姿）', limb: 'leg', max: 40, g: 'hipIR', pose: function(a, R) { return [[[MVX, -90], [MVY, R ? a : -a]], [[MVX, 90]]]; } },
+  { grp: '髖', k: 'hipER', name: '髖外旋（坐姿）', limb: 'leg', max: 45, g: 'hipER', pose: function(a, R) { return [[[MVX, -90], [MVY, R ? -a : a]], [[MVX, 90]]]; } },
+  { grp: '膝', k: 'kneeFlex', name: '膝屈曲', limb: 'leg', max: 130, g: 'kneeFlexors', pose: function(a) { return [[], [[MVX, a]]]; } },
+  { grp: '膝', k: 'kneeExt', name: '膝伸展（由屈膝 90° 伸直）', limb: 'leg', max: 90, g: 'kneeExtensors', pose: function(a) { return [[[MVX, -90]], [[MVX, 90 - a]]]; } },
+  { grp: '膝', k: 'tibIR', name: '脛骨內旋（坐姿屈膝 90°）', limb: 'leg', max: 30, mus: ['popliteus', 'semiten', 'semimem', 'gracilis', 'sartorius'], gname: '膕肌、半腱肌、半膜肌、股薄肌、縫匠肌', pose: function(a, R) { return [[[MVX, -90]], [[MVX, 90], [MVY, R ? a : -a]]]; } },
+  { grp: '膝', k: 'tibER', name: '脛骨外旋（坐姿屈膝 90°）', limb: 'leg', max: 40, mus: ['bicepsFemLong', 'bicepsFemShort'], gname: '股二頭肌', pose: function(a, R) { return [[[MVX, -90]], [[MVX, 90], [MVY, R ? -a : a]]]; } },
+  { grp: '踝足', k: 'ankleDF', name: '踝背屈', limb: 'leg', max: 20, g: 'ankleDorsiflexors', pose: function(a) { return [[], [], [[MVX, -a]]]; } },
+  { grp: '踝足', k: 'anklePF', name: '踝蹠屈', limb: 'leg', max: 50, g: 'anklePlantarflexors', pose: function(a) { return [[], [], [[MVX, a]]]; } },
+  { grp: '踝足', k: 'footInv', name: '足內翻', limb: 'leg', max: 30, g: 'footInvertors', pose: function(a, R) { return [[], [], [[MVZ, R ? a : -a]]]; } },
+  { grp: '踝足', k: 'footEv', name: '足外翻', limb: 'leg', max: 20, g: 'footEvertors', pose: function(a, R) { return [[], [], [[MVZ, R ? -a : a]]]; } },
+  { grp: '肩', k: 'shFlex', name: '肩屈曲（含肩胛上旋）', limb: 'arm', max: 170, g: 'shoulderFlexors', pose: mvArmElev(90) },
+  { grp: '肩', k: 'shScap', name: '肩胛面上舉 Scaption', limb: 'arm', max: 170, g: 'shoulderAbductors', pose: mvArmElev(30) },
+  { grp: '肩', k: 'shAbd', name: '肩外展（含肩胛上旋）', limb: 'arm', max: 170, g: 'shoulderAbductors', pose: mvArmElev(0) },
+  { grp: '肩', k: 'shExt', name: '肩伸展', limb: 'arm', max: 50, g: 'shoulderExtensors', pose: function(a) { return [[], [[MVX, a]]]; } },
+  { grp: '肩', k: 'shHAbd', name: '水平外展（由屈曲 90°）', limb: 'arm', max: 40, mus: ['deltPBack', 'infraspinatus', 'teresMinor', 'trapMid', 'rhomboids'], gname: '後三角肌、棘下肌、小圓肌、中斜方肌、菱形肌', pose: function(a, R) { var g = mvRhythm(90); return [[[MVZ, R ? -g : g]], [[MVY, R ? -a : a], mvElev(90, 90 - g, R)]]; } },
+  { grp: '肩', k: 'shHAdd', name: '水平內收（由屈曲 90°）', limb: 'arm', max: 40, mus: ['pecMaj', 'deltA', 'coracoBrachialis'], gname: '胸大肌、前三角肌、喙肱肌', pose: function(a, R) { var g = mvRhythm(90); return [[[MVZ, R ? -g : g]], [[MVY, R ? a : -a], mvElev(90, 90 - g, R)]]; } },
+  { grp: '肩', k: 'shER90', name: '肩外旋（90/90，Week 5 測試姿勢）', limb: 'arm', max: 90, g: 'shoulderER', pose: function(a, R) { var g = mvRhythm(90); return [[[MVZ, R ? -g : g]], [mvElev(0, 90 - g, R), [MVY, R ? -a : a]], [[MVX, -90]]]; } },
+  { grp: '肩', k: 'shIR90', name: '肩內旋（90/90，Week 5 測試姿勢）', limb: 'arm', max: 70, g: 'shoulderIR', pose: function(a, R) { var g = mvRhythm(90); return [[[MVZ, R ? -g : g]], [mvElev(0, 90 - g, R), [MVY, R ? a : -a]], [[MVX, -90]]]; } },
+  { grp: '肩', k: 'shERside', name: '肩外旋（手臂在身旁）', limb: 'arm', max: 60, g: 'shoulderER', pose: function(a, R) { return [[], [[MVY, R ? -a : a]], [[MVX, -90]]]; } },
+  { grp: '肘前臂', k: 'elbowFlex', name: '肘屈曲', limb: 'arm', max: 145, g: 'elbowFlexors', pose: function(a) { return [[], [], [[MVX, -a]]]; } },
+  { grp: '肘前臂', k: 'elbowExt', name: '肘伸展（由屈肘 90° 伸直）', limb: 'arm', max: 90, g: 'elbowExtensors', pose: function(a) { return [[], [], [[MVX, -(90 - a)]]]; } },
+  { grp: '肘前臂', k: 'pron', name: '前臂旋前（屈肘 90°；拖回即旋後）', limb: 'arm', max: 150, g: 'forearmPronators', pose: function(a, R) { return [[], [], [[MVX, -90], [MVY, R ? a : -a]]]; } },
+  { grp: '腕', k: 'wristFlex', name: '腕屈曲', limb: 'arm', max: 70, g: 'wristFlexors', pose: function(a) { return [[], [], [], [[MVX, -a]]]; } },
+  { grp: '腕', k: 'wristExt', name: '腕伸展', limb: 'arm', max: 60, g: 'wristExtensors', pose: function(a) { return [[], [], [], [[MVX, a]]]; } },
+  { grp: '腕', k: 'radDev', name: '橈偏', limb: 'arm', max: 20, mus: ['fcr', 'ecrb', 'abdPollLong'], gname: '橈側腕屈肌、橈側腕伸肌、外展拇長肌', pose: function(a, R) { return [[], [], [], [[MVZ, R ? -a : a]]]; } },
+  { grp: '腕', k: 'ulnDev', name: '尺偏', limb: 'arm', max: 30, mus: ['fcu', 'extCarpiUln'], gname: '尺側腕屈肌、尺側腕伸肌', pose: function(a, R) { return [[], [], [], [[MVZ, R ? a : -a]]]; } }
 ];
 anat3d.move = null;
 window.toggleAnatMove = function() {
   var on = !anat3d.move, row = document.getElementById('anat-move-row'), sel = document.getElementById('anat-move-sel');
-  if (sel && !sel.options.length) sel.innerHTML = ANAT_MOVES.map(function(m) { return '<option value="' + m.k + '">' + m.name + '</option>'; }).join('');
+  if (sel && !sel.options.length) {
+    var grps = []; ANAT_MOVES.forEach(function(m) { if (grps.indexOf(m.grp) < 0) grps.push(m.grp); });
+    sel.innerHTML = grps.map(function(gp) { return '<optgroup label="' + gp + '">' + ANAT_MOVES.filter(function(m) { return m.grp === gp; }).map(function(m) { return '<option value="' + m.k + '">' + m.name + '</option>'; }).join('') + '</optgroup>'; }).join('');
+  }
   anat3d.move = on ? { side: 'R' } : null;
   if (row) row.style.display = on ? 'flex' : 'none';
   var b = document.getElementById('anat-move-btn'); if (b) b.classList.toggle('active', on);
@@ -20621,11 +20682,10 @@ window.anatMoveUpdate = function(changed) {
   if (!v.setPose(chain, m.pose(a, R))) { document.getElementById('anat-move-lab').textContent = '模型載入中…'; return; }
   document.getElementById('anat-move-lab').textContent = a + '°';
   if (changed) {
-    var g = MUSCLE_GROUPS[m.g], ids = [];
-    (g && g.muscles || []).forEach(function(mm) { ids = ids.concat(kIdsOf([mm.id])); });
+    var g = m.g && MUSCLE_GROUPS[m.g], ids = kIdsOf(m.mus || (g && g.muscles || []).map(function(mm) { return mm.id; }));
     var parts = v.partIdsBySide(ids, mv.side), map = {}; parts.forEach(function(id) { map[id] = '#f97316'; });
     window.anat3dSetOverlay({ key: 'mv:' + m.k + mv.side, map: map, alpha: 0.85,
-      legend: '<b>' + (R ? '右' : '左') + m.name + '</b><br><span style="color:#f97316">●</span> 主要發力：' + (g ? g.name : '') + '<br><span style="color:var(--sub)">簡化示意：骨骼按肢段轉動、肌肉按位置拉伸' + (m.limb === 'arm' ? '；肩胛骨不隨動' : '') + '</span>' });
+      legend: '<b>' + (R ? '右' : '左') + m.name + '</b><br><span style="color:#f97316">●</span> 主要發力：' + (m.gname || (g ? g.name : '')) + '<br><span style="color:var(--sub)">簡化示意：骨骼按肢段轉動、肌肉按位置拉伸' + (m.k === 'pron' ? '；尺骨實際不轉動' : '') + (/^sh(Flex|Scap|Abd)/.test(m.k) ? '；肩胛上旋按約 2:1 節律' : '') + '</span>' });
     if (parts.length) v.faceParts(parts);
   }
 };
@@ -20752,6 +20812,7 @@ window.toggleAnatXray = function() {
 // jumpToMuscle()/the search box use, so all three entry points stay consistent.
 // v65：第一下只將那塊染成淺綠色（全身保持不變），再按同一塊才放大獨立顯示。
 function anat3dOnSelect(part) {
+  anat3dPush();
   var conceptIds = anat3d.partIdToConceptIds.get(part.id) || [];
   for (var i = 0; i < conceptIds.length; i++) {
     var mKey = anat3d.conceptToMuscle.get(conceptIds[i]);
@@ -20777,7 +20838,7 @@ function anat3dUpdateZoomBtn() {
     b = document.createElement('button');
     b.id = 'anat-zoom-btn';
     b.style.cssText = 'font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.4);color:var(--c-4ade80,#4ade80);cursor:pointer;margin-right:6px;white-space:nowrap';
-    b.onclick = function() { anat3d.zoomed = !anat3d.zoomed; anat3dUpdateZoomBtn(); draw(); };
+    b.onclick = function() { anat3dPush(); anat3d.zoomed = !anat3d.zoomed; anat3dUpdateZoomBtn(); draw(); };
     rm.parentNode.insertBefore(b, rm);
   }
   var has = !!(selectedMuscle || selectedBone);
@@ -20791,6 +20852,7 @@ window.anat3dUpdateZoomBtn = anat3dUpdateZoomBtn;
 window.anat3dShowGroup = function(key) {
   var g = MUSCLE_GROUPS[key];
   if (!g) return;
+  anat3dPush();
   anat3d.group = key; anat3d.zoomed = false;
   selectedMuscle = null; selectedBone = null;
   var detail = document.getElementById('anat-detail');
@@ -20818,6 +20880,7 @@ window.anat3dShowGroup = function(key) {
   draw();
 };
 window.anat3dExitGroup = function() {
+  anat3dPush();
   anat3d.group = null; anat3d.zoomed = false;
   if (selectedMuscle || selectedBone) closeAnatomyDetail();
   renderMuscleGroupsList();
@@ -20832,7 +20895,7 @@ function initAnat3D() {
   if (!host) return;
   anat3d.loading = true;
   var loadingEl = document.getElementById('anat-3d-loading');
-  import('./anatomy3d.js?v=81').then(function(mod) {
+  import('./anatomy3d.js?v=82').then(function(mod) {
     return mod.loadAtlas('models/').then(function(atlas) {
       anat3d.atlas = atlas;
       anat3dBuildReverseMaps();
@@ -21771,7 +21834,7 @@ window.showBoneDetail = showBoneDetail;
 // draw()/selectedMuscle/selectedBone need an exposed setter too, otherwise
 // jumpToMuscle's own `typeof draw === 'function'` guard just silently
 // evaluates false and the 3D model never actually jumps to the result.
-window.anat3dSelectMuscle = function(id) { selectedMuscle = id; selectedBone = null; anat3d.zoomed = false; anat3d.autoFace = true; showMuscleDetail(id); draw(); };
+window.anat3dSelectMuscle = function(id) { anat3dPush(); selectedMuscle = id; selectedBone = null; anat3d.zoomed = false; anat3d.autoFace = true; showMuscleDetail(id); draw(); };
 window.anat3dSelectBone = function(id) { selectedBone = id; selectedMuscle = null; anat3d.zoomed = false; showBoneDetail(id); draw(); };
 
 // ── Full-body muscle index (結構 → 肌肉): render + live search + jump ──
