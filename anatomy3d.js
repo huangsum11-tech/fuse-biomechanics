@@ -513,6 +513,8 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     getPeelInfo() { if (!peelLayers) return null; const counts = new Array(peelMax + 1).fill(0); peelLayers.forEach((l, i) => { if (atlas.parts[i].system === 'muscular') counts[l]++; }); return { max: peelMax, counts }; },
     getPartLayer(ids) { if (!peelLayers) return null; const idx = resolvePartIndexes(atlas, ids); return idx.length ? Math.min(...idx.map(i => peelLayers[i])) : null; },
     isReady() { return ready; },
+    // v80：把概念 id 展開成部件 id，可只取左側或右側（side 'L'|'R'|'B'）
+    partIdsBySide(ids, side) { return resolvePartIndexes(atlas, ids).filter(i => side === 'L' ? /^left /i.test(atlas.parts[i].name) : side === 'R' ? /^right /i.test(atlas.parts[i].name) : true).map(i => atlas.parts[i].id); },
     // v79：切面。axis 'y'（橫切，保留下方）/'x'（矢狀切，保留右側）/'z'（冠狀切，保留後方）；pos 為世界座標（米）；null 關閉
     setClip(c) {
       const on = !!c; if (on) { const n = c.axis === 'x' ? [-1, 0, 0] : c.axis === 'z' ? [0, 0, -1] : [0, -1, 0]; clipPlane.normal.set(n[0], n[1], n[2]); clipPlane.constant = c.pos; }
