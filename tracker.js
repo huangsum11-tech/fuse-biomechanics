@@ -140,7 +140,7 @@
     var e = EDITIONS[ED];
     var h1 = $('.logo h1'), p = $('.logo p');
     if (h1) h1.textContent = e.name;
-    if (p) p.innerHTML = esc(e.zh) + ' · ' + esc(e.sub) + '<div class="trk-edition"><a href="?edition=' + e.other + '">⇄ ' + esc(e.otherLabel) + '</a></div>';
+    if (p) p.innerHTML = esc(e.zh) + ' · ' + esc(e.sub); // v84：教練版與愛好者版是分開發佈的版本，不再顯示互相切換的連結
     document.title = 'Kinesis ' + (ED === 'fit' ? 'Fit 愛好者版' : 'Pro 教練版') + ' — ' + (ED === 'fit' ? '體態評估 × 訓練追蹤' : 'PRI 全身評估系統');
 
     var nav = $('#rail-nav');

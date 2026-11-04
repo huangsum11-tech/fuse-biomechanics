@@ -163,7 +163,7 @@ function resolvePartIndexes(atlas, ids) {
 export function createAnatomyViewer(container, atlas, { onSelect, onProgress, onError } = {}) {
   const el = container;
   let disposed = false, frame = 0, dirty = true, ready = false, lastView = '', lastReset = -1, lastIsolate = '', layoutKey = '', amount = 0;
-  let lastGhost = null, lastVisKey = null, lastSelKey = null, lastIsolateVal = null, lastHidKey = null, lastHlKey = null, forceRecompute = true;
+  let lastGB = false, lastGhost = null, lastVisKey = null, lastSelKey = null, lastIsolateVal = null, lastHidKey = null, lastHlKey = null, forceRecompute = true;
   const abort = new AbortController();
   // highlight：淺綠色標示（不隔離、不放大）；context：隔離時仍顯示的系統（例如肌群模式保留骨骼作參照）
   const state = { explode: 0, visible: DEFAULT_VISIBLE.slice(), selected: [], isolate: false, view: 'front', rotate: false, reset: 0, hidden: [], highlight: [], context: [], ghost: false, peel: 0 };
@@ -240,8 +240,10 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   // v83：軀幹／頸部（軸向鏈）。axData：R＝軀幹權重、G＝頸部權重（整塊固定的結構，例如椎骨、肋骨、頭骨、手臂）；-1＝按頂點高度計算
   const axData = new Float32Array(width * 4).fill(-1), axTexture = new T.DataTexture(axData, width, 1, T.RGBAFormat, T.FloatType); axTexture.needsUpdate = true;
   const axU = { uAx: { value: 0 }, uTP: { value: new T.Vector3() }, uTK: { value: new T.Vector3(1, 0, 0) }, uTA: { value: 0 }, uTY: { value: new T.Vector2(1, 1.4) },
-    uNP: { value: new T.Vector3() }, uNK: { value: new T.Vector3(1, 0, 0) }, uNA: { value: 0 }, uNY: { value: new T.Vector2(1.45, 1.6) } };
-  const AX_GLSL = 'uniform sampler2D axState; uniform float uAx, uTA, uNA; uniform vec3 uTP, uTK, uNP, uNK; uniform vec2 uTY, uNY;\n' +
+    uNP: { value: new T.Vector3() }, uNK: { value: new T.Vector3(1, 0, 0) }, uNA: { value: 0 }, uNY: { value: new T.Vector2(1.45, 1.6) }, uTF: { value: new T.Vector4(0.5, 0.5, 0.5, 0.5) } };
+  const AX_GLSL = 'uniform sampler2D axState; uniform float uAx, uTA, uNA; uniform vec3 uTP, uTK, uNP, uNK; uniform vec2 uTY, uNY; uniform vec4 uTF;\n' +
+    // v84：分段比例——t 在轉折點（腰／胸交界、C2）之前累積 f 的角度，之後累積其餘
+    'float axCurve(float t, vec2 kf) { return t < kf.x ? kf.y * t / kf.x : kf.y + (1.0 - kf.y) * (t - kf.x) / max(1.0 - kf.x, 0.001); }\n' +
     'vec3 rodr(vec3 v, vec3 k, float a) { float c = cos(a), s = sin(a); return v * c + cross(k, v) * s + k * dot(k, v) * (1.0 - c); }\n';
   const rigU = { uChain: { value: 0 }, uP0: { value: new T.Vector3() }, uP1: { value: new T.Vector3() }, uP2: { value: new T.Vector3() }, uP3: { value: new T.Vector3() },
     uD0: { value: new T.Vector3(0, -1, 0) }, uD1: { value: new T.Vector3(0, -1, 0) }, uD2: { value: new T.Vector3(0, -1, 0) }, uD3: { value: new T.Vector3(0, -1, 0) },
@@ -263,7 +265,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
       shader.uniforms.rigState = { value: rigTexture }; Object.assign(shader.uniforms, rigU);
       shader.uniforms.axState = { value: axTexture }; Object.assign(shader.uniforms, axU);
       shader.vertexShader = 'attribute float partIndex; uniform sampler2D partState; uniform sampler2D selectionState; uniform float stateWidth; varying float partVisible; varying vec4 partTint;\n' + RIG_GLSL + AX_GLSL + shader.vertexShader;
-      shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nvec4 rgi = rigInfo(partIndex, stateWidth); float rw0 = 0.0, rw1 = 0.0, rw2 = 0.0, rw3 = 0.0; bool rigOn = uChain > 0.5 && abs(rgi.r - uChain) < 0.5;\nif (rigOn) { rigWeights(position, rgi.g, rw0, rw1, rw2, rw3); objectNormal = normalize(mix(objectNormal, uR3 * objectNormal, rw3)); objectNormal = normalize(mix(objectNormal, uR2 * objectNormal, rw2)); objectNormal = normalize(mix(objectNormal, uR1 * objectNormal, rw1)); objectNormal = normalize(mix(objectNormal, uR0 * objectNormal, rw0)); }\nfloat axWt = 0.0, axWn = 0.0; if (uAx > 0.5) { vec4 axi = texture2D(axState, vec2((partIndex + 0.5) / stateWidth, 0.5)); axWt = axi.r >= 0.0 ? axi.r : clamp((position.y - uTY.x) / (uTY.y - uTY.x), 0.0, 1.0); axWn = axi.g >= 0.0 ? axi.g : clamp((position.y - uNY.x) / (uNY.y - uNY.x), 0.0, 1.0); objectNormal = rodr(rodr(objectNormal, uNK, uNA * axWn), uTK, uTA * axWt); }');
+      shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nvec4 rgi = rigInfo(partIndex, stateWidth); float rw0 = 0.0, rw1 = 0.0, rw2 = 0.0, rw3 = 0.0; bool rigOn = uChain > 0.5 && abs(rgi.r - uChain) < 0.5;\nif (rigOn) { rigWeights(position, rgi.g, rw0, rw1, rw2, rw3); objectNormal = normalize(mix(objectNormal, uR3 * objectNormal, rw3)); objectNormal = normalize(mix(objectNormal, uR2 * objectNormal, rw2)); objectNormal = normalize(mix(objectNormal, uR1 * objectNormal, rw1)); objectNormal = normalize(mix(objectNormal, uR0 * objectNormal, rw0)); }\nfloat axWt = 0.0, axWn = 0.0; if (uAx > 0.5) { vec4 axi = texture2D(axState, vec2((partIndex + 0.5) / stateWidth, 0.5)); axWt = axCurve(axi.r >= 0.0 ? axi.r : clamp((position.y - uTY.x) / (uTY.y - uTY.x), 0.0, 1.0), uTF.xy); axWn = axCurve(axi.g >= 0.0 ? axi.g : clamp((position.y - uNY.x) / (uNY.y - uNY.x), 0.0, 1.0), uTF.zw); objectNormal = rodr(rodr(objectNormal, uNK, uNA * axWn), uTK, uTA * axWt); }');
       shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nif (rigOn) { transformed = mix(transformed, uR3 * (transformed - uP3) + uP3, rw3); transformed = mix(transformed, uR2 * (transformed - uP2) + uP2, rw2); transformed = mix(transformed, uR1 * (transformed - uP1) + uP1, rw1); transformed = mix(transformed, uR0 * (transformed - uP0) + uP0, rw0); }\nif (uAx > 0.5) { transformed = rodr(transformed - uNP, uNK, uNA * axWn) + uNP; transformed = rodr(transformed - uTP, uTK, uTA * axWt) + uTP; }\nvec2 stateUv = vec2((partIndex + 0.5) / stateWidth, 0.5); vec4 state = texture2D(partState, stateUv); transformed += state.xyz; partVisible = state.w; partTint = texture2D(selectionState, stateUv);');
       shader.fragmentShader = 'varying float partVisible; varying vec4 partTint;\n' + shader.fragmentShader;
       shader.fragmentShader = shader.fragmentShader.replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (partVisible < 0.2) discard;\nif (partVisible < 0.6) { float gx = mod(floor(gl_FragCoord.x), 3.0), gy = mod(floor(gl_FragCoord.y), 3.0); if (abs(gx - gy) > 0.5) discard; }');
@@ -326,7 +328,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     const distance = T.MathUtils.lerp(normalDistance, Math.max(0.2, atlasDistance), extent);
     if (extent > 0.8) view = 'front';
     fitView = view;
-    const direction = view === 'front' ? new T.Vector3(0, 0.02, 1) : view === 'back' ? new T.Vector3(0, 0.02, -1) : view === 'side' ? new T.Vector3(1, 0.02, 0) : new T.Vector3(0.35, 0.06, 1).normalize();
+    const direction = view === 'front' ? new T.Vector3(0, 0.02, 1) : view === 'back' ? new T.Vector3(0, 0.02, -1) : view === 'side' ? new T.Vector3(1, 0.02, 0) : view && view.isVector3 ? view.clone().normalize() : new T.Vector3(0.35, 0.06, 1).normalize();
     controls.target.set(extent > 0.1 && !mobile ? -packingWidth * 0.12 : 0, extent > 0.1 || mobile ? 0.85 : 0.68, 0);
     camera.position.copy(controls.target).addScaledVector(direction, distance); controls.update(); dirty = true;
   };
@@ -368,8 +370,9 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   renderer.domElement.addEventListener('pointerdown', down); renderer.domElement.addEventListener('pointermove', move);
   renderer.domElement.addEventListener('pointerup', up); renderer.domElement.addEventListener('pointercancel', cancel);
 
+  // v84：peelDir＝每塊肌肉在它那一層最清楚的方向（深層肌肉自動剝開時用來轉鏡頭）；左右成對時跟隨較外那側再鏡像
   // v79：自動剝層——由 10 個方向以 GPU 渲染「部件 id」，外面看得見的肌肉＝第 0 層；隱藏後再渲染，得出第 1、2… 層。只在第一次使用時計算。
-  let peelLayers = null, peelMax = 0, lastPeel = -1;
+  let peelLayers = null, peelMax = 0, lastPeel = -1, peelDir = null;
   const computePeel = () => {
     if (peelLayers || !ready) return peelLayers;
     const W = 256, H = 512, rt = new T.WebGLRenderTarget(W, H), buf = new Uint8Array(W * H * 4);
@@ -390,19 +393,27 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     const ppm = H / (2 * hh), area = new Float32Array(atlas.parts.length);
     muscles.forEach(i => { const b = atlas.parts[i].bounds, ex = b[1][0] - b[0][0], ey = b[1][1] - b[0][1], ez = b[1][2] - b[0][2];
       dirs.forEach(d => { area[i] += (Math.abs(d.z) * ex + Math.abs(d.x) * ez) * (ey * Math.sqrt(1 - d.y * d.y) + Math.abs(d.y) * ez) * ppm * ppm * 0.6; }); });
-    let L = 0;
+    let L = 0; const bestDir = new Int8Array(atlas.parts.length).fill(-1);
     for (; L < 8; L++) {
-      const counts = new Uint32Array(atlas.parts.length + 1);
-      dirs.forEach(d => {
+      const counts = new Uint32Array(atlas.parts.length + 1), dc = dirs.map(() => new Uint32Array(atlas.parts.length + 1));
+      dirs.forEach((d, di) => {
         cam.position.copy(c).addScaledVector(d, 4); cam.lookAt(c); cam.updateMatrixWorld(); cam.updateProjectionMatrix();
         renderer.setRenderTarget(rt); renderer.clear(); renderer.render(scene, cam); renderer.readRenderTargetPixels(rt, 0, 0, W, H, buf);
-        for (let px = 0; px < buf.length; px += 4) { const id = buf[px] + buf[px + 1] * 256; if (id) counts[id - 1]++; }
+        for (let px = 0; px < buf.length; px += 4) { const id = buf[px] + buf[px + 1] * 256; if (id) { counts[id - 1]++; dc[di][id - 1]++; } }
       });
       const fresh = muscles.filter(i => layer[i] < 0 && (counts[i] >= Math.max(4, area[i] * (window.__peelRatio || 0.12)) || counts[i] >= (window.__peelAbs || 450)));
       if (!fresh.length) break;
-      fresh.forEach(i => { layer[i] = L; pd[i * 4 + 3] = 0; }); ptex.needsUpdate = true;
+      fresh.forEach(i => { layer[i] = L; pd[i * 4 + 3] = 0; let b = 0; dirs.forEach((d, di) => { if (dc[di][i] > dc[b][i]) b = di; }); bestDir[i] = b; }); ptex.needsUpdate = true;
     }
     muscles.forEach(i => { if (layer[i] < 0) layer[i] = L; });
+    peelDir = atlas.parts.map((p, i) => bestDir[i] >= 0 ? dirs[bestDir[i]].clone() : null);
+    // v84：左右對稱——兩側同名肌肉取較外的一層，避免因網格細微差異令一側剝走、另一側仍在
+    const base = n => n.toLowerCase().replace(/\b(right|left)\b/g, '').replace(/\s+/g, ' ').trim();
+    muscles.forEach(i => { const ci = centers[i]; if (Math.abs(ci.x) < 0.02) return; const bi = base(atlas.parts[i].name);
+      let best = -1, bd = 0.04;
+      muscles.forEach(j => { if (j === i || Math.sign(centers[j].x) === Math.sign(ci.x)) return; const cj = centers[j], d = Math.abs(ci.x + cj.x) + Math.abs(ci.y - cj.y) + Math.abs(ci.z - cj.z);
+        if (d < bd && base(atlas.parts[j].name) === bi) { bd = d; best = j; } });
+      if (best >= 0 && layer[i] !== layer[best]) { const [hi, lo] = layer[i] > layer[best] ? [i, best] : [best, i]; layer[hi] = layer[lo]; peelDir[hi] = peelDir[lo] && peelDir[lo].clone().setX(-peelDir[lo].x); } });
     scene.overrideMaterial = null; renderer.setRenderTarget(prevTarget); renderer.setClearColor(prevClear, prevAlpha); renderer.localClippingEnabled = prevClip; renderer.toneMapping = prevTone;
     hiddenObjs.forEach(o => { o.visible = true; }); rt.dispose(); idMat.dispose(); ptex.dispose();
     peelLayers = layer; peelMax = L; forceRecompute = true; dirty = true;
@@ -450,7 +461,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
   const buildAxial = () => {
     if (axial) return axial; if (!buildRig()) return null;
     const c = n => { const i = atlas.parts.findIndex(p => p.name.toLowerCase() === n); return i >= 0 ? centers[i] : null; };
-    const L5 = c('fifth lumbar vertebra'), T1 = c('first thoracic vertebra'), C7 = c('seventh cervical vertebra'), C1 = c('atlas');
+    const L5 = c('fifth lumbar vertebra'), T1 = c('first thoracic vertebra'), C7 = c('seventh cervical vertebra'), C1 = c('atlas'), L1 = c('first lumbar vertebra'), T12 = c('twelfth thoracic vertebra'), C2 = c('axis');
     if (!L5 || !T1 || !C7 || !C1) return null;
     const tY = [L5.y, T1.y], nY = [C7.y, C1.y + 0.02];
     const ramp = (y, a) => Math.min(1, Math.max(0, (y - a[0]) / (a[1] - a[0])));
@@ -465,7 +476,8 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
       axData[i * 4] = t; axData[i * 4 + 1] = k;
     });
     axTexture.needsUpdate = true;
-    axial = { tP: new T.Vector3(L5.x, L5.y - 0.02, L5.z), nP: C7.clone(), tY, nY }; return axial;
+    const tK = L1 && T12 ? ramp((L1.y + T12.y) / 2, tY) : 0.4, nK = C2 ? ramp(C2.y, nY) : 0.75;
+    axial = { tP: new T.Vector3(L5.x, L5.y - 0.02, L5.z), nP: C7.clone(), tY, nY, tK, nK }; return axial;
   };
   const clock = new T.Clock(); let lastExtent = -1;
   const HL = [56, 219, 107, 199];
@@ -474,7 +486,7 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     if (disposed) return; frame = requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), 0.05), s = state;
     const visKey = s.visible.join(','), selKey = s.selected.join(','), hidKey = s.hidden.join(','), hlKey = s.highlight.join(',') + '|' + s.context.join(',');
-    const changed = forceRecompute || s.peel !== lastPeel || tintVer !== lastTintVer || s.ghost !== lastGhost || visKey !== lastVisKey || selKey !== lastSelKey || s.isolate !== lastIsolateVal || hidKey !== lastHidKey || hlKey !== lastHlKey;
+    const changed = forceRecompute || s.peel !== lastPeel || tintVer !== lastTintVer || s.ghost !== lastGhost || !!s.ghostBones !== lastGB || visKey !== lastVisKey || selKey !== lastSelKey || s.isolate !== lastIsolateVal || hidKey !== lastHidKey || hlKey !== lastHlKey;
     const moving = Math.abs(amount - s.explode) > 0.0001;
     if (moving) { amount = T.MathUtils.damp(amount, s.explode, 8, dt); dirty = true; }
     if (changed || moving || lastExtent < 0) {
@@ -501,14 +513,15 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
         const baseVisible = s.isolate ? selected || context.has(p.system) : visible.has(p.system) || selected;
         const ghost = s.isolate && s.ghost && !baseVisible && (p.system === 'muscular' || p.system === 'skeletal') && visible.has(p.system);
         const peeled = s.peel > 0 && peelLayers && p.system === 'muscular' && peelLayers[i] < s.peel && !selected;
-        data.set([dx, dy, dz, hiddenSet.has(p.id) || peeled ? 0 : baseVisible ? 1 : ghost ? 0.4 : 0], i * 4);
+        const thinBone = s.ghostBones && p.system === 'skeletal' && !highlight.has(p.id); // v84：深層肌肉被骨骼擋住時把骨骼淡化
+        data.set([dx, dy, dz, hiddenSet.has(p.id) || peeled ? 0 : baseVisible ? (thinBone ? 0.4 : 1) : ghost ? 0.4 : 0], i * 4);
         const tint = highlight.has(p.id) ? HL : tints.get(i);
         if (tint) selectedData.set(tint, i * 4); else selectedData.fill(0, i * 4, i * 4 + 4);
         markerPositions.set(data[i * 4 + 3] > 0.5 ? [c.x + dx, c.y + dy, c.z + dz] : [10000, 10000, 10000], i * 3);
         const mesh = pickers[i]; if (mesh) { mesh.position.set(dx, dy, dz); mesh.updateMatrix(); mesh.updateMatrixWorld(true); }
       });
       partTexture.needsUpdate = true; selectionTexture.needsUpdate = true; markerGeometry.attributes.position.needsUpdate = true;
-      lastPeel = s.peel; lastTintVer = tintVer; lastGhost = s.ghost; lastVisKey = visKey; lastSelKey = selKey; lastIsolateVal = s.isolate; lastHidKey = hidKey; lastHlKey = hlKey; forceRecompute = false; lastExtent = amount; dirty = true;
+      lastPeel = s.peel; lastTintVer = tintVer; lastGhost = s.ghost; lastGB = !!s.ghostBones; lastVisKey = visKey; lastSelKey = selKey; lastIsolateVal = s.isolate; lastHidKey = hidKey; lastHlKey = hlKey; forceRecompute = false; lastExtent = amount; dirty = true;
     }
     if (s.view !== lastView || s.reset !== lastReset) { fit(s.view, amount); lastView = s.view; lastReset = s.reset; }
     if (faceSeq !== lastFaceSeq) { lastFaceSeq = faceSeq; if (!s.isolate) fit(faceView, amount); }
@@ -590,9 +603,11 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     },
     clearTints() { if (tints.size) { tints = new Map(); tintVer++; dirty = true; } },
     setGhost(v) { state.ghost = !!v; dirty = true; },
+    setGhostBones(v) { state.ghostBones = !!v; dirty = true; },
     getGhost() { return state.ghost; },
     // v79：剝層 0＝完整；n＝移除最外 n 層肌肉。回傳 { max, counts[] }（未載入完成時回傳 null）
     setPeel(n) { if (n > 0 && !computePeel()) return null; state.peel = Math.max(0, n | 0); dirty = true; return this.getPeelInfo(); },
+    ensurePeel() { return !!computePeel(); },
     getPeelInfo() { if (!peelLayers) return null; const counts = new Array(peelMax + 1).fill(0); peelLayers.forEach((l, i) => { if (atlas.parts[i].system === 'muscular') counts[l]++; }); return { max: peelMax, counts }; },
     getPartLayer(ids) { if (!peelLayers) return null; const idx = resolvePartIndexes(atlas, ids); return idx.length ? Math.min(...idx.map(i => peelLayers[i])) : null; },
     isReady() { return ready; },
@@ -604,7 +619,9 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
       rigU.uChain.value = 0;
       axU.uTP.value.copy(a.tP); axU.uNP.value.copy(a.nP); axU.uTY.value.set(a.tY[0], a.tY[1]); axU.uNY.value.set(a.nY[0], a.nY[1]);
       const set = (K, A, v) => { if (v) { axU[K].value.fromArray(v[0]).normalize(); axU[A].value = T.MathUtils.degToRad(v[1]); } else axU[A].value = 0; };
-      set('uTK', 'uTA', o.trunk); set('uNK', 'uNA', o.neck); axU.uAx.value = 1; dirty = true; return true;
+      set('uTK', 'uTA', o.trunk); set('uNK', 'uNA', o.neck);
+      // o.lumbar：腰椎（L5–L1）佔軀幹角度的比例；o.lowerNeck：C7–C2 佔頸部角度的比例（其餘在上頸椎 C2–C0）。不給＝按高度平均
+      axU.uTF.value.set(a.tK, o.lumbar != null ? o.lumbar : a.tK, a.nK, o.lowerNeck != null ? o.lowerNeck : a.nK); axU.uAx.value = 1; dirty = true; return true;
     },
     setPose(chain, joints) {
       if (chain) axU.uAx.value = 0;
@@ -630,6 +647,10 @@ export function createAnatomyViewer(container, atlas, { onSelect, onProgress, on
     },
     getBodyRange() { const b = new T.Box3(); bodyIdx.forEach(i => b.union(bounds[i])); return { x: [b.min.x, b.max.x], y: [b.min.y, b.max.y], z: [b.min.z, b.max.z] }; },
     // v78：把鏡頭轉到能看見這組結構的一面（前／後），回傳 'front'|'back'
+    // v84：轉到剝層計算時這組肌肉最清楚的方向（右側肌肉優先，左側則左右鏡像）
+    facePeel(ids) { if (!peelDir) return null; const idxs = resolvePartIndexes(atlas, ids).filter(i => peelDir[i]); if (!idxs.length) return null;
+      const i = idxs.find(j => centers[j].x < 0) ?? idxs[0], d = peelDir[i].clone();
+      faceView = d.setY(Math.max(d.y, 0.04)); faceSeq++; dirty = true; return faceView; },
     faceParts(ids) { const idxs = resolvePartIndexes(atlas, ids); if (!idxs.length) return null; faceView = facingOf(idxs); faceSeq++; dirty = true; return faceView; },
     getCameraSide() { return camera.position.z - controls.target.z < 0 ? 'back' : 'front'; },
     facingOf(ids) { const idxs = resolvePartIndexes(atlas, ids); return idxs.length ? facingOf(idxs) : null; },

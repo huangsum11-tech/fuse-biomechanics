@@ -181,7 +181,7 @@ html[data-theme="mono"] { --c-009e78:#8C8C8C; --c-00a878:#939393; --c-00c87a:#AF
 html[data-theme="mono"] .k-lead { --k-tint: #BDBDBD !important; }
 /* 舊頁面在 inline style 寫死的彩色底色／邊框／文字（rgba(…) 或 #hex）：整塊轉灰。
    不套用在含 3D 畫布、圖片或影片卡的容器，免得連模型、截圖一起變灰。 */
-html[data-theme="mono"] #anat-3d-legend, html[data-theme="mono"] #anat-3d-legend * { filter: none !important; }
+html[data-theme="mono"] #anat-3d-legend, html[data-theme="mono"] #anat-3d-legend *, html[data-theme="mono"] .k-att-dot { filter: none !important; }
 html[data-theme="mono"] :is([style*="rgba("], [style*="color:#"], [style*="color: #"], [style*="background:#"], [style*="background: #"]):not(:has(canvas, img, video, .kv, iframe)):not(canvas, img),
 html[data-theme="mono"] :is(.k-mk, .k-lv, .k-star, .k-step, .pain-detail-close, .pain-list-item.k-row, .musclelist-filter-btn, .pd-assess-item, .pd-tag, .k-rel-item, .k-rel-n, .k-acc-item, .k-acc-b, .k-tl-step, .k-type-re, .k-types .p, .k-types .m, .k-type-f, .s.end, .pf-goal) { filter: grayscale(1); }
 /* 安全相關保留紅色：注意事項、紅旗、計時器停止鍵 */
@@ -11333,7 +11333,7 @@ window.openAtlas3D = function(conceptIds, label) {
   window._atlas3dLoading = true;
   loading.style.display = 'flex';
   Promise.all([
-    import('./anatomy3d.js?v=83'),
+    import('./anatomy3d.js?v=84d'),
   ]).then(function(mods) {
     var mod = mods[0];
     window._atlas3dSYSTEMS = mod.SYSTEMS;
@@ -14477,6 +14477,13 @@ function showToast(msg) {
 }
 
 // ── HTML escape ──────────────────────────────────────────
+// v84：中英逐行對照——每行中文後面直接接英文（行數不一致時，英文放在下面）
+function kZhEnLines(zh, en) {
+  var z = String(zh || '').split('\n').filter(function(x) { return x.trim(); }), e = String(en || '').split('\n').filter(function(x) { return x.trim(); });
+  var enSpan = function(t) { return ' <span style="font-size:.82em;color:var(--sub,#9aa3b5)">' + escHtml(t.replace(/^\s*●\s*/, '')) + '</span>'; };
+  if (e.length && e.length === z.length) return '<div style="margin-top:4px;line-height:1.7">' + z.map(function(x, i) { return '<div>' + x + enSpan(e[i]) + '</div>'; }).join('') + '</div>';
+  return '<div style="margin-top:4px;line-height:1.7">' + z.map(function(x) { return '<div>' + x + '</div>'; }).join('') + '</div>' + (e.length ? '<div style="font-size:10px;color:var(--sub,#9aa3b5);margin:4px 0 0;white-space:pre-line">' + escHtml(en) + '</div>' : '');
+}
 function escHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -15455,6 +15462,78 @@ window.openRelPopup = function (pkey, name) {
     if (e.target.getAttribute('data-x')) { host.hidden = true; return; }
     var g = e.target.closest('[data-go]');
     if (g) { host.hidden = true; openPostureDetail(g.getAttribute('data-go')); }
+  };
+};
+// v84：「常見伴隨問題」等文字標籤 → 找對應的體態／痛症／訓練問題／肌肉，按下彈出摘要；關閉後留在原本頁面
+function kTagNorm(t) { return String(t).toLowerCase().replace(/[（(][^）)]*[）)]/g, ' ').replace(/[\s·\-_:：]+/g, ' ').trim(); }
+window.kTagFind = function (tag) {
+  var full = kTagNorm(tag), toks = full.split(/[\/、,，]| or |及|與/).map(function (x) { return x.trim(); }).filter(function (x) { return x.length >= 2; });
+  var en = (String(tag).match(/[（(]([^）)]+)[）)]/) || [])[1]; if (en) toks.push(kTagNorm(en));
+  var raw = String(tag), out = [];
+  KTAG_ALIAS.forEach(function (a) { if (a[0].test(raw)) toks.push(a[1]); });
+  KTAG_TEST.forEach(function (a) { if (!a[0].test(raw)) return; var t = (window.SEQ_GUIDE_TESTS || []).filter(function (x) { return x.test === a[1]; })[0]; if (t) out.push({ type: 'test', key: a[1], name: t.name, sub: '檢測', desc: t.goal || '', score: 8 }); });
+  if (typeof CONCEPTS !== 'undefined') CONCEPTS.forEach(function (c, i) { if (new RegExp(c.title.replace(/ 模式$/, '').replace(/ /g, '\\s*'), 'i').test(raw)) out.push({ type: 'concept', key: i, name: c.title, sub: c.snippet, desc: '', score: 9 }); });
+  var add = function (type, key, d, nm, desc) {
+    var n = kTagNorm(nm), score = 0;
+    var bi = function (x) { var o = {}, c = x.replace(/[^\u3400-\u9fff]/g, ''); for (var q = 0; q < c.length - 1; q++) o[c.substr(q, 2)] = 1; return o; }, nb = bi(n.split(' ')[0]);
+    toks.forEach(function (t) {
+      if (n === t) score += 10; else if (n.indexOf(t) !== -1) score += 6;
+      else if (t.length >= 3 && t.indexOf(n.split(' ')[0]) !== -1 && n.split(' ')[0].length >= 3) score += 5;
+      else { var tb = bi(t), sh = Object.keys(tb).filter(function (k) { return nb[k]; }).length, tot = Object.keys(tb).length; if (tot && sh >= 2 && sh / tot >= 0.5) score += 4; else if (String(d.sub || '').toLowerCase().indexOf(t) !== -1) score += 2; else if (/^[\u3400-\u9fff]{3}/.test(t) && String(d.sub || '').indexOf(t.slice(0, 3)) !== -1) score += 4; }
+    });
+    if (score) out.push({ type: type, key: key, name: nm, sub: d.sub || '', desc: desc, score: score });
+  };
+  [['posture', window.POSTURE_DB], ['pain', window.PAIN_DB], ['training', window.TRAINING_DB]].forEach(function (src) {
+    var db = src[1] || {}; Object.keys(db).forEach(function (k) { var d = db[k]; if (d && d.name) add(src[0], k, d, d.name, d.desc || ''); });
+  });
+  if (window.MUSCLES) Object.keys(MUSCLES).forEach(function (k) { var m = MUSCLES[k]; if (m && m.name) add('muscle', k, { sub: m.latin }, m.name + ' ' + (m.latin || ''), m.note || ''); });
+  var cur = kTagNorm((document.querySelector('.pain-detail-overlay.open #pd-title, .pain-detail-overlay.open .pd-title') || {}).textContent || '');
+  out = out.filter(function (o) { return kTagNorm(o.name) !== cur; });
+  out.sort(function (a, b) { return b.score - a.score; });
+  return out.length && out[0].score >= 4 ? out.slice(0, 4) : [];
+};
+var KTAG_KIND = { posture: '體態', pain: '痛症', training: '訓練問題', muscle: '肌肉', test: '檢測', concept: 'PRI 模式' };
+// 同義詞：標籤文字 → 用來搜尋的名稱
+var KTAG_ALIAS = [[/膝外翻|X\s*型腿|valgus/i, '膝內扣'], [/旋前|足弓下降|足弓塌陷/, '扁平足'], [/O\s*型腿|varus/i, 'o 型腿'], [/拇趾外翻/, '拇指外翻'],
+  [/頭頸前移|低頭/, '頭前移'], [/頸部輔助呼吸|胸式呼吸|ISA|ZOA/i, 'zoa'], [/swayback|搖擺背/i, '懶人站姿'], [/胸椎變平|胸椎較直/, '胸椎平背'], [/長短腳/, '功能性腿長差異'],
+  [/hip hinge/i, 'hip hinge'], [/\bAPT\b/, '骨盆前傾'], [/彈響髖/, '股骨前滑彈響'], [/butt wink/i, 'butt wink'], [/肩胛前傾|圓肩/, '圓肩']];
+// 標籤是測試結果時 → 對應檢測頁的測試
+var KTAG_TEST = [[/ober/i, 't-obers'], [/SLR|直腿抬高/i, 't-slr'], [/hip\s*(ir|er)|髖\s*(ir|er)|髖(內|外)旋|股骨內旋/i, 't-hip-irer'], [/hip\s*abd|髖外展受限/i, 't-hip-abd'],
+  [/髖屈曲受限|屈髖時/, 't-hip-flex'], [/肩\s*(ir|er)|肩(內|外)旋|GIRD/i, 't-sh-ir'], [/肩外展/, 't-sh-abd'], [/頸椎旋轉/, 't-cerv-rot'], [/頸椎側屈/, 't-cerv-lat'], [/胸椎旋轉|軀幹旋轉/, 't-trunk-rot'], [/體前屈|深蹲/, 't-squat']];
+window.kTagChips = function (tags) {
+  return '<div class="k-chips2">' + tags.map(function (t) {
+    var hit = window.kTagFind(t).length;
+    return hit ? '<button type="button" class="k-tag-go" onclick="openTagPopup(this.textContent)">' + escHtml(t) + '</button>' : '<span>' + escHtml(t) + '</span>';
+  }).join('') + '</div>';
+};
+window.kTagOpen = function (type, key) {
+  if (type === 'posture') openPostureDetail(key);
+  else if (type === 'pain') openPainDetail(key);
+  else if (type === 'training') openTrainingDetail(key);
+  else if (type === 'test') window.goTestFromDetail(key);
+  else if (type === 'concept') { Array.prototype.forEach.call(document.querySelectorAll('.pain-detail-overlay.open'), function (o) { o.classList.remove('open'); }); switchRail(CONCEPTS[key].railTarget || 'analysis'); }
+  else if (type === 'muscle') { Array.prototype.forEach.call(document.querySelectorAll('.pain-detail-overlay.open'), function (o) { o.classList.remove('open'); }); switchRail('anatomy'); setTimeout(function () { window.anat3dSelectMuscle && window.anat3dSelectMuscle(key); }, 300); }
+};
+window.openTagPopup = function (tag) {
+  var hits = window.kTagFind(tag); if (!hits.length) return;
+  var h = hits[0], more = hits.slice(1);
+  var txt = String(h.desc).replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  if (txt.length > 260) txt = txt.slice(0, 260) + '…';
+  var host = document.getElementById('k-rel-pop');
+  if (!host) { host = document.createElement('div'); host.id = 'k-rel-pop'; document.body.appendChild(host); }
+  host.innerHTML = '<div class="krp-back" data-x="1"></div><div class="krp-box" role="dialog" aria-label="' + escHtml(tag) + '">'
+    + '<button type="button" class="krp-x" data-x="1" aria-label="關閉">×</button>'
+    + '<div class="krp-kicker">常見伴隨問題 · ' + KTAG_KIND[h.type] + '</div><div class="krp-title">' + escHtml(h.name) + '</div>'
+    + (h.sub ? '<div class="krp-sec"><p style="color:var(--sub)">' + escHtml(h.sub) + '</p></div>' : '')
+    + (txt ? '<div class="krp-sec"><b>簡介</b><p>' + escHtml(txt) + '</p></div>' : '')
+    + '<button type="button" class="krp-go" data-t="' + h.type + '" data-k="' + h.key + '">' + (h.type === 'test' ? '去檢測 ›' : h.type === 'concept' ? '打開分析頁 ›' : '打開完整頁面 ›') + '</button>'
+    + (more.length ? '<div class="krp-sec"><b>其他相關</b><div class="k-chips2">' + more.map(function (m) { return '<button type="button" class="k-tag-go" data-t="' + m.type + '" data-k="' + m.key + '">' + escHtml(m.name.split(' ')[0]) + '<small> ' + KTAG_KIND[m.type] + '</small></button>'; }).join('') + '</div></div>' : '')
+    + '</div>';
+  host.hidden = false;
+  host.onclick = function (e) {
+    if (e.target.getAttribute('data-x')) { host.hidden = true; return; }
+    var g = e.target.closest('[data-t]');
+    if (g) { host.hidden = true; window.kTagOpen(g.getAttribute('data-t'), g.getAttribute('data-k')); }
   };
 };
 // 相關問題清單（直向、較大）；沒有加強資料的體態沿用原有顏色標籤
@@ -20443,8 +20522,9 @@ function anat3dApplyTints(viewer) {
 window.anat3dSetOverlay = function(spec) { if ((spec && spec.key) !== (anat3d.overlay && anat3d.overlay.key)) anat3dPush(); anat3d.overlay = spec || null; if (anat3d.viewer) draw(); };
 // v82：ESC 返回上一個狀態（選中的肌肉／骨、放大、肌群、顏色標示）
 anat3d.hist = [];
-function anat3dSnap() { return { m: selectedMuscle || null, b: selectedBone || null, z: !!anat3d.zoomed, g: anat3d.group || null, o: anat3d.overlay || null }; }
-function anat3dSnapKey(x) { return [x.m, x.b, x.z, x.g, x.o && x.o.key].join('|'); }
+function anat3dPeelVal() { var el = document.getElementById('anat-peel'); return el ? +el.value : 0; }
+function anat3dSnap() { return { m: selectedMuscle || null, b: selectedBone || null, z: !!anat3d.zoomed, g: anat3d.group || null, o: anat3d.overlay || null, p: anat3dPeelVal() }; }
+function anat3dSnapKey(x) { return [x.m, x.b, x.z, x.g, x.o && x.o.key, x.p].join('|'); }
 function anat3dPush() {
   if (anat3d._restoring) return;
   var cur = anat3dSnap(), h = anat3d.hist, last = h[h.length - 1];
@@ -20463,6 +20543,7 @@ window.anat3dBack = function() {
     else if (x.b) { selectedBone = x.b; selectedMuscle = null; showBoneDetail(x.b); }
     else closeAnatomyDetail();
     anat3d.zoomed = x.z; anat3dUpdateZoomBtn(); draw();
+    if ((x.p || 0) !== anat3dPeelVal()) anat3dSetPeelUI(x.p || 0);
   } finally { anat3d._restoring = false; }
   return true;
 };
@@ -20630,14 +20711,14 @@ function mvArmElev(phi) { return function(a, R) { var g = mvRhythm(a); return [[
 // 手的關節次序：0 肩帶 1 肩 2 肘 3 腕；腳：0 髖 1 膝 2 踝
 var ANAT_MOVES = [
   // v83：軀幹及頸部（limb: 'axial'）。左右＝動作方向；mus2：[肌肉, 'same' 同側 | 'opp' 對側 | 'both']
-  { grp: '軀幹', k: 'trFlex', name: '軀幹屈曲', limb: 'axial', max: 80, g: 'abdominals', ax: function(a) { return { trunk: [MVX, a] }; } },
-  { grp: '軀幹', k: 'trExt', name: '軀幹伸展', limb: 'axial', max: 30, g: 'spinalExtensors', ax: function(a) { return { trunk: [MVX, -a] }; } },
-  { grp: '軀幹', k: 'trLat', name: '軀幹側屈', limb: 'axial', max: 35, mus2: [['oblExt', 'same'], ['oblInt', 'same'], ['ql', 'same'], ['erectors', 'same']], gname: '同側腹內外斜肌、腰方肌、豎脊肌', ax: function(a, R) { return { trunk: [MVZ, R ? a : -a] }; } },
-  { grp: '軀幹', k: 'trRot', name: '軀幹旋轉', limb: 'axial', max: 50, mus2: [['oblExt', 'opp'], ['oblInt', 'same'], ['multifidus', 'opp'], ['rotatores', 'opp']], gname: '對側腹外斜肌＋同側腹內斜肌、對側多裂肌／迴旋肌', ax: function(a, R) { return { trunk: [MVY, R ? -a : a] }; } },
-  { grp: '頸', k: 'nkFlex', name: '頸屈曲', limb: 'axial', max: 50, g: 'neckFlexors', ax: function(a) { return { neck: [MVX, a] }; } },
-  { grp: '頸', k: 'nkExt', name: '頸伸展', limb: 'axial', max: 60, g: 'neckExtensors', ax: function(a) { return { neck: [MVX, -a] }; } },
-  { grp: '頸', k: 'nkLat', name: '頸椎側屈（Week 5 測試）', limb: 'axial', max: 45, mus2: [['scm', 'same'], ['scalenesAnt', 'same'], ['scalenesMid', 'same'], ['scalenesPost', 'same'], ['trapUpper', 'same'], ['levScap', 'same'], ['splenius', 'same']], gname: '同側胸鎖乳突肌、斜角肌、上斜方肌、提肩胛肌、頭夾肌', ax: function(a, R) { return { neck: [MVZ, R ? a : -a] }; } },
-  { grp: '頸', k: 'nkRot', name: '頸椎旋轉（Week 5 測試）', limb: 'axial', max: 80, mus2: [['scm', 'opp'], ['splenius', 'same'], ['levScap', 'same'], ['suboccipitals', 'same']], gname: '對側胸鎖乳突肌、同側頭夾肌、提肩胛肌、枕下肌', ax: function(a, R) { return { neck: [MVY, R ? -a : a] }; } },
+  { grp: '軀幹', k: 'trFlex', name: '軀幹屈曲', limb: 'axial', max: 80, g: 'abdominals', ax: function(a) { return { trunk: [MVX, a] , lumbar: 0.65 }; } },
+  { grp: '軀幹', k: 'trExt', name: '軀幹伸展', limb: 'axial', max: 30, g: 'spinalExtensors', ax: function(a) { return { trunk: [MVX, -a] , lumbar: 0.7 }; } },
+  { grp: '軀幹', k: 'trLat', name: '軀幹側屈', limb: 'axial', max: 35, mus2: [['oblExt', 'same'], ['oblInt', 'same'], ['ql', 'same'], ['erectors', 'same']], gname: '同側腹內外斜肌、腰方肌、豎脊肌', ax: function(a, R) { return { trunk: [MVZ, R ? a : -a] , lumbar: 0.45 }; } },
+  { grp: '軀幹', k: 'trRot', name: '軀幹旋轉', limb: 'axial', max: 50, mus2: [['oblExt', 'opp'], ['oblInt', 'same'], ['multifidus', 'opp'], ['rotatores', 'opp']], gname: '對側腹外斜肌＋同側腹內斜肌、對側多裂肌／迴旋肌', ax: function(a, R) { return { trunk: [MVY, R ? -a : a] , lumbar: 0.15 }; } },
+  { grp: '頸', k: 'nkFlex', name: '頸屈曲', limb: 'axial', max: 50, g: 'neckFlexors', ax: function(a) { return { neck: [MVX, a] , lowerNeck: 0.7 }; } },
+  { grp: '頸', k: 'nkExt', name: '頸伸展', limb: 'axial', max: 60, g: 'neckExtensors', ax: function(a) { return { neck: [MVX, -a] , lowerNeck: 0.7 }; } },
+  { grp: '頸', k: 'nkLat', name: '頸椎側屈（Week 5 測試）', limb: 'axial', max: 45, mus2: [['scm', 'same'], ['scalenesAnt', 'same'], ['scalenesMid', 'same'], ['scalenesPost', 'same'], ['trapUpper', 'same'], ['levScap', 'same'], ['splenius', 'same']], gname: '同側胸鎖乳突肌、斜角肌、上斜方肌、提肩胛肌、頭夾肌', ax: function(a, R) { return { neck: [MVZ, R ? a : -a] , lowerNeck: 0.9 }; } },
+  { grp: '頸', k: 'nkRot', name: '頸椎旋轉（Week 5 測試）', limb: 'axial', max: 80, mus2: [['scm', 'opp'], ['splenius', 'same'], ['levScap', 'same'], ['suboccipitals', 'same']], gname: '對側胸鎖乳突肌、同側頭夾肌、提肩胛肌、枕下肌', ax: function(a, R) { return { neck: [MVY, R ? -a : a] , lowerNeck: 0.5 }; } },
   { grp: '髖', k: 'hipFlex', name: '髖屈曲', limb: 'leg', max: 120, g: 'hipFlexors', pose: function(a) { return [[[MVX, -a]]]; } },
   { grp: '髖', k: 'hipExt', name: '髖伸展', limb: 'leg', max: 20, g: 'hipExtensors', pose: function(a) { return [[[MVX, a]]]; } },
   { grp: '髖', k: 'hipAbd', name: '髖外展', limb: 'leg', max: 45, g: 'hipAbductors', pose: function(a, R) { return [[[MVZ, R ? -a : a]]]; } },
@@ -20697,7 +20778,7 @@ window.anatMoveUpdate = function(changed) {
       : m.limb === 'axial' ? v.partIdsBySide(ids, 'B') : v.partIdsBySide(ids, mv.side);
     var map = {}; parts.forEach(function(id) { map[id] = '#f97316'; });
     window.anat3dSetOverlay({ key: 'mv:' + m.k + mv.side, map: map, alpha: 0.85,
-      legend: '<b>' + (m.limb === 'axial' ? '' : R ? '右' : '左') + m.name + (m.limb === 'axial' && m.mus2 ? '（向' + (R ? '右' : '左') + '）' : '') + '</b><br><span style="color:#f97316">●</span> 主要發力：' + (m.gname || (g ? g.name : '')) + '<br><span style="color:var(--sub)">' + (m.limb === 'axial' ? '簡化示意：角度沿脊椎逐節分配（軀幹：腰椎至 T1；頸：C7 至 C1），胸廓及手臂跟隨，骨盆不動' : '簡化示意：骨骼按肢段轉動、肌肉按位置拉伸') + (m.k === 'pron' ? '；尺骨實際不轉動' : '') + (/^sh(Flex|Scap|Abd)/.test(m.k) ? '；肩胛上旋按約 2:1 節律' : '') + '</span>' });
+      legend: '<b>' + (m.limb === 'axial' ? '' : R ? '右' : '左') + m.name + (m.limb === 'axial' && m.mus2 ? '（向' + (R ? '右' : '左') + '）' : '') + '</b><br><span style="color:#f97316">●</span> 主要發力：' + (m.gname || (g ? g.name : '')) + '<br><span style="color:var(--sub)">' + (m.limb === 'axial' ? '簡化示意：角度按動作分配到各段（一般解剖資料：' + (m.ax(1).trunk ? '腰椎約佔 ' + Math.round(m.ax(1).lumbar * 100) + '%、胸椎約佔 ' + Math.round(100 - m.ax(1).lumbar * 100) + '%' : '下頸椎 C7–C2 約佔 ' + Math.round(m.ax(1).lowerNeck * 100) + '%、上頸椎 C2–枕骨約佔 ' + Math.round(100 - m.ax(1).lowerNeck * 100) + '%') + '），胸廓及手臂跟隨，骨盆不動' : '簡化示意：骨骼按肢段轉動、肌肉按位置拉伸') + (m.k === 'pron' ? '；尺骨實際不轉動' : '') + (/^sh(Flex|Scap|Abd)/.test(m.k) ? '；肩胛上旋按約 2:1 節律' : '') + '</span>' });
     if (parts.length) v.faceParts(parts);
   }
 };
@@ -20907,7 +20988,7 @@ function initAnat3D() {
   if (!host) return;
   anat3d.loading = true;
   var loadingEl = document.getElementById('anat-3d-loading');
-  import('./anatomy3d.js?v=83').then(function(mod) {
+  import('./anatomy3d.js?v=84d').then(function(mod) {
     return mod.loadAtlas('models/').then(function(atlas) {
       anat3d.atlas = atlas;
       anat3dBuildReverseMaps();
@@ -20957,6 +21038,7 @@ function draw() {
   }
   // 第一下：淺綠色標示，畫面不變
   viewer.setHighlightByIds(focusIds || []);
+  if (!selectedMuscle && viewer.setGhostBones) viewer.setGhostBones(false);
   // v78：由清單／搜尋選擇時（不是直接在模型上點），自動轉到看得見的一面（後側肌肉轉到背面）
   if (anat3d.autoFace) { anat3d.autoFace = false; if (focusIds && viewer.faceParts) viewer.faceParts(focusIds); }
   // 肌群模式：所選肌肉不屬於該肌群時（例如從搜尋跳過來）就離開肌群模式
@@ -21263,11 +21345,11 @@ function showMuscleDetail(id) {
     '<span>' + m.latin + '</span>' +
     '<button onclick="window.speakMuscleName(' + JSON.stringify(m.latin).replace(/"/g, '&quot;') + ')" title="播放英文讀音" style="font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);color:var(--c-60a5fa,#60a5fa);cursor:pointer;display:inline-flex;align-items:center;gap:3px">🔊 讀音</button>' +
     '</span>' +
-    (m.layer ? ' &nbsp;<span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid '+layerColors[m.layer]+';color:'+layerColors[m.layer]+'">'+(layerNames[m.layer]||m.layer)+'</span>' : '');
+    (m.layer ? ' &nbsp;<span style="display:inline-block;white-space:nowrap;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid '+layerColors[m.layer]+';color:'+layerColors[m.layer]+'">'+(layerNames[m.layer]||m.layer)+'</span>' : '');
   if (el('anat-muscle-info'))  el('anat-muscle-info').innerHTML =
     '<div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;font-family:var(--mono);font-size:9.5px">'+
-      '<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:var(--c-fbbf24,#fbbf24);display:inline-block;box-shadow:0 0 4px var(--c-fbbf24,#fbbf24)"></span><span style="color:var(--c-fbbf24,#fbbf24)">起點 Origin</span></span>'+
-      '<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:var(--c-22d3ee,#22d3ee);display:inline-block;box-shadow:0 0 4px var(--c-22d3ee,#22d3ee)"></span><span style="color:var(--c-22d3ee,#22d3ee)">止點 Insertion</span></span>'+
+      '<span style="display:flex;align-items:center;gap:3px"><span class="k-att-dot" style="width:8px;height:8px;border-radius:50%;background:'+ANAT_TINT.origin+';display:inline-block;box-shadow:0 0 4px '+ANAT_TINT.origin+'"></span><span class="k-att-dot" style="color:'+ANAT_TINT.origin+'">起點 Origin</span></span>'+
+      '<span style="display:flex;align-items:center;gap:3px"><span class="k-att-dot" style="width:8px;height:8px;border-radius:50%;background:'+ANAT_TINT.insertion+';display:inline-block;box-shadow:0 0 4px '+ANAT_TINT.insertion+'"></span><span class="k-att-dot" style="color:'+ANAT_TINT.insertion+'">止點 Insertion</span></span>'+
       '<span style="color:var(--sub)">· 已標示於圖上 ↑</span>'+
     '</div>'+
     '<b style="color:var(--c-c5cede,#c5cede)">起點：</b>'+m.origin+
@@ -21277,8 +21359,7 @@ function showMuscleDetail(id) {
     (m.innervation ? '<b style="color:var(--c-818cf8,#818cf8)">神經：</b>'+m.innervation+(m.innervationEn ? '<div style="font-size:10px;color:var(--sub,#9aa3b5);margin:2px 0 6px;white-space:pre-line">'+escHtml(m.innervationEn)+'</div>' : '<br>') : '')+
     (m.note ? '<br><b style="color:var(--c-c5cede,#c5cede)">臨床意義：</b>'+m.note : '');
   if (el('anat-muscle-action')) el('anat-muscle-action').innerHTML =
-    '<b style="color:var(--c-c5cede,#c5cede)">主要動作：</b>'+m.action+
-    (m.actionEn ? '<div style="font-size:10px;color:var(--sub,#9aa3b5);margin:4px 0 0;white-space:pre-line">'+escHtml(m.actionEn)+'</div>' : '')+
+    '<b style="color:var(--c-c5cede,#c5cede)">主要動作：</b>'+kZhEnLines(m.action, m.actionEn)+
     (m.actionByPosition && m.actionByPosition.length ? (
       '<div style="margin-top:8px;padding:8px 10px;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:6px">'+
       '<div style="font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--c-c084fc,#c084fc);margin-bottom:6px">📐 依關節角度而變化 POSITION-DEPENDENT ACTION</div>'+
@@ -21846,7 +21927,17 @@ window.showBoneDetail = showBoneDetail;
 // draw()/selectedMuscle/selectedBone need an exposed setter too, otherwise
 // jumpToMuscle's own `typeof draw === 'function'` guard just silently
 // evaluates false and the 3D model never actually jumps to the result.
-window.anat3dSelectMuscle = function(id) { anat3dPush(); selectedMuscle = id; selectedBone = null; anat3d.zoomed = false; anat3d.autoFace = true; showMuscleDetail(id); draw(); };
+window.anat3dSelectMuscle = function(id) { anat3dPush(); selectedMuscle = id; selectedBone = null; anat3d.zoomed = false; anat3d.autoFace = true; showMuscleDetail(id); draw(); anat3dAutoPeel(id); };
+// v84：選了深層肌肉時，自動把外面幾層剝開（剝到該肌肉所在的層）；之後選回淺層肌肉就還原。按 Esc 可回到之前的剝層。
+function anat3dSetPeelUI(n) { var el = document.getElementById('anat-peel'); if (el) { if (+el.max < n) el.max = n; el.value = n; } window.setAnatPeel(n); }
+function anat3dAutoPeel(id) {
+  var viewer = anat3d.viewer, ids = window.MUSCLE_TO_ATLAS && window.MUSCLE_TO_ATLAS[id], m = MUSCLES[id], cur = anat3dPeelVal();
+  if (!viewer || !viewer.isReady || !viewer.isReady() || !ids || !ids.length) return;
+  if (viewer.setGhostBones) viewer.setGhostBones(false);
+  if (!viewer.getPeelInfo() && cur === 0 && m && m.layer === 'superficial') return;  // 淺層肌肉不必計算層次
+  var go = function() { var L = viewer.getPartLayer(ids); if (L == null) return; if (L !== anat3dPeelVal()) anat3dSetPeelUI(L); if (viewer.setGhostBones) viewer.setGhostBones(L > 0); if (L > 0 && viewer.facePeel) viewer.facePeel(ids); };
+  if (viewer.getPeelInfo()) go(); else setTimeout(function() { if (viewer.ensurePeel && viewer.ensurePeel()) go(); }, 30);
+}
 window.anat3dSelectBone = function(id) { selectedBone = id; selectedMuscle = null; anat3d.zoomed = false; showBoneDetail(id); draw(); };
 
 // ── Full-body muscle index (結構 → 肌肉): render + live search + jump ──
@@ -33119,7 +33210,7 @@ input[type="range"]:focus-visible { outline-offset: 4px; }
 })();
 </script>
 <script src="musclemap.js?v=79"></script>
-<script src="tracker.js"></script>
+<script src="tracker.js?v=84"></script>
 <nav id="mnav" aria-label="頁面切換">
   <button type="button" data-mv="input" class="active"><span>📝</span>輸入</button>
   <button type="button" data-mv="result"><span>📊</span>結果</button>
@@ -33740,7 +33831,8 @@ table.k-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-
     var name = it.querySelector('.pli-name');
     if (name && !name.children.length) {
       var mm = name.textContent.trim().match(ZH_EN);
-      if (mm && mm[2].length >= 2) name.innerHTML = esc(mm[1]) + '<span class="k-en">' + esc(mm[2]) + '</span>';
+      // 英文屬句子一部分（例如「無法做 Hip Hinge」）就不拆成淺色英文
+      if (mm && mm[2].length >= 2 && !/[做用練與和及的]\s*$/.test(mm[1])) name.innerHTML = esc(mm[1]) + '<span class="k-en">' + esc(mm[2]) + '</span>';
     }
     // 副標：用「·」分隔的短詞變成標籤；肌肉列的「拉丁名　🧩 肌群」拆開
     var sub = it.querySelector('.pli-sub');
@@ -34474,6 +34566,9 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 .krp-sec p { margin: 0; font-size: 15.5px; line-height: 1.7; }
 .krp-arrow { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
 .krp-arrow span { display: block; font-size: 13px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+.k-tag-go { font: inherit; font-size: 14px; color: var(--text); background: color-mix(in srgb, var(--green) 10%, transparent); border: 1px solid color-mix(in srgb, var(--green) 40%, transparent); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.k-tag-go:hover { background: color-mix(in srgb, var(--green) 20%, transparent); }
+.k-tag-go small { color: var(--sub); font-size: .8em; }
 .krp-go { margin-top: 18px; font-family: inherit; font-size: 14.5px; font-weight: 700; color: var(--green); background: none; border: 1px solid color-mix(in srgb, var(--green) 45%, transparent); border-radius: 10px; padding: 9px 14px; cursor: pointer; }
 /* v30 評估準確度 */
 .k-acc { display: flex; flex-direction: column; gap: 8px; }
@@ -34788,7 +34883,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     if (Q.caution) { blocks++; h += '<div><div class="k-q-h">' + ic('alert-triangle') + '常見錯誤</div><div class="k-caution">' + esc(Q.caution) + '</div></div>'; }
     if (Q.common && Q.common.length) h += '<div><div class="k-q-h">' + ic('users') + '常見族群</div><div class="k-chips2">' + Q.common.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div></div>';
     if (Q.pk && Q.posture && Q.posture.length) h += '<div><div class="k-q-h">' + ic('link') + '常伴隨問題' + (Q.plus && Q.plus.rel ? '<span class="k-hint">按一下了解和本問題如何互相影響</span>' : '') + '</div>' + window.renderRelList(Q.pk, Q.posture) + '</div>';
-    else if (Q.tags.length) h += '<div><div class="k-q-h">' + ic('link') + (Q.tagsTitle || '常見伴隨問題') + '</div><div class="k-chips2">' + Q.tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join('') + '</div></div>';
+    else if (Q.tags.length) h += '<div><div class="k-q-h">' + ic('link') + (Q.tagsTitle || '常見伴隨問題') + '<span class="k-hint">按一下看相關資料</span></div>' + window.kTagChips(Q.tags) + '</div>';
     if (Q.flags && Q.flags.length) h += '<button type="button" class="k-redflag" data-k="flags">' + ic('alert-triangle') + '<span><b>請先排除：</b>' + esc(shorten(Q.flags[0], 46)) + '</span><small>共 ' + Q.flags.length + ' 項紅旗 ›</small></button>';
     return { html: h, blocks: blocks };
   }
