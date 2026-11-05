@@ -68,6 +68,9 @@
 .k-cta2 { font: inherit; font-size: 14px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border2, var(--border)); background: none; color: var(--text); cursor: pointer; white-space: nowrap; }
 .k-cta2:hover { border-color: var(--sub); }
 #rail-traincalc, #rail-program-designer, #rail-nutrition-tdee { --mono: var(--sans); font-variant-numeric: tabular-nums; }
+/* v98：營養／動作庫——不用等寬字和字距（英文內容保留） */
+[id^="rail-nutrition-"], #rail-exlib, #nutrition-detail-overlay, #coaching-detail-overlay { --mono: var(--sans); font-variant-numeric: tabular-nums; }
+:is([id^="rail-nutrition-"], #rail-exlib, #nutrition-detail-overlay, #coaching-detail-overlay) [style*="letter-spacing"] { letter-spacing: 0 !important; }
 #rail-traincalc [style*="letter-spacing"], #rail-program-designer [style*="letter-spacing"], #rail-nutrition-tdee [style*="letter-spacing"] { letter-spacing: 0 !important; }
 /* v96：按鈕／輸入框繼承網站字體（之前會退回 Arial） */
 button, input, select, textarea { font-family: inherit; }
@@ -3939,7 +3942,6 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
     <div style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--sub);padding:2px 0 8px;border-bottom:1px solid var(--border);margin-bottom:2px">
       🍽️ 食物資料庫 FOOD DATABASE
     </div>
-<div style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--green);padding:2px 0 8px">🍽️ 食物資料庫 FOOD DATABASE</div>
     <div style="font-size:12px;color:var(--sub,#9aa3b5);line-height:1.6;padding:2px 2px 8px">點擊分類查看常見食物的 Macro（蛋白質/碳水/脂肪）與 Micro（關鍵維生素礦物質）營養素，以及訓練飲食中的優缺點。</div>
     <div class="pain-list-item" onclick="openFoodCategory('protein')"><span class="pli-emoji">🍗</span><div class="pli-text"><div class="pli-name">蛋白質類 Protein Sources</div><div class="pli-sub">雞胸、牛肉、魚、蛋、乳製品等</div></div><span class="pli-arrow">›</span></div>
     <div class="pain-list-item" onclick="openFoodCategory('carb')"><span class="pli-emoji">🍚</span><div class="pli-text"><div class="pli-name">碳水化合物類 Carb Sources</div><div class="pli-sub">米飯、麵吃、根莖類等主食</div></div><span class="pli-arrow">›</span></div>
@@ -36000,14 +36002,15 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 // v97：訓練計算器、課表設計、TDEE 由 JS 產生的結果同樣不用 emoji（保留 ✓✗★⚠→ 等有意義的符號）
 (function () {
   var KEEP = /[←-⇿✓-✘★☆⚠©®™▶◀•●]/;
-  var RE = /\p{Extended_Pictographic}[️‍⃣]*(?:\p{Extended_Pictographic}[️‍⃣]*)*\s?/gu;
+  var RE = /(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Extended_Pictographic}[\uFE0F\u200D\u20E3]*(?:\p{Extended_Pictographic}[\uFE0F\u200D\u20E3]*)*)\s?/gu;
   function clean(root) {
     var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, list = [];
     while ((n = w.nextNode())) if (RE.test(n.nodeValue)) list.push(n), RE.lastIndex = 0;
-    list.forEach(function (t) { var v = t.nodeValue.replace(RE, function (m) { return KEEP.test(m) ? m : ''; }); if (v !== t.nodeValue) t.nodeValue = v; });
+    list.forEach(function (t) { var v = t.nodeValue.replace(RE, function (m) { return KEEP.test(m) ? m : ''; }); if (v !== t.nodeValue) { t.nodeValue = v; var pe = t.parentElement; if (!v.trim() && pe && !pe.children.length && !pe.textContent.trim()) pe.style.display = 'none'; } });
   }
   function init() {
-    ['rail-traincalc', 'rail-program-designer', 'rail-nutrition-tdee'].forEach(function (id) {
+    // v98：營養各頁、動作庫及其詳情頁亦去 emoji（英文保留）
+    ['rail-traincalc', 'rail-program-designer', 'rail-nutrition-tdee', 'rail-nutrition-metabolism', 'rail-nutrition-micro', 'rail-nutrition-supp', 'rail-nutrition-food', 'rail-nutrition-apply', 'rail-exlib', 'nutrition-detail-overlay', 'coaching-detail-overlay'].forEach(function (id) {
       var p = document.getElementById(id); if (!p) return; clean(p);
       var busy = false; new MutationObserver(function () { if (busy) return; busy = true; setTimeout(function () { clean(p); busy = false; }, 0); }).observe(p, { childList: true, subtree: true });
     });
