@@ -62,6 +62,13 @@
 })();
 </script>
 <style id="kinesis-theme">
+/* v97：表單類頁面（訓練計算器／課表設計／TDEE）——一種主按鈕、一種次按鈕；不用等寬字和字距；去 emoji 由 kFormClean 處理 */
+.k-cta { width: 100%; font: inherit; font-size: 15px; font-weight: 600; padding: 11px 16px; border-radius: 10px; border: 0; background: var(--text); color: var(--bg); cursor: pointer; }
+.k-cta:hover { opacity: .9; } .k-cta:active { transform: translateY(1px); }
+.k-cta2 { font: inherit; font-size: 14px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border2, var(--border)); background: none; color: var(--text); cursor: pointer; white-space: nowrap; }
+.k-cta2:hover { border-color: var(--sub); }
+#rail-traincalc, #rail-program-designer, #rail-nutrition-tdee { --mono: var(--sans); font-variant-numeric: tabular-nums; }
+#rail-traincalc [style*="letter-spacing"], #rail-program-designer [style*="letter-spacing"], #rail-nutrition-tdee [style*="letter-spacing"] { letter-spacing: 0 !important; }
 /* v96：按鈕／輸入框繼承網站字體（之前會退回 Arial） */
 button, input, select, textarea { font-family: inherit; }
 /* :root 預設 = cobalt（Cobalt lab 深藍）。其餘主題用 html[data-theme] 覆蓋。
@@ -3592,14 +3599,11 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
   </div><!-- end rail-powerlifting -->
 
   <div class="rail-panel" id="rail-traincalc" style="flex-direction:column;gap:14px;padding:14px">
-    <div style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--sub);padding:2px 0 8px;border-bottom:1px solid var(--border)">
-      🧮 訓練計算器 TRAINING CALCULATORS
-    </div>
     <div style="font-size:12px;color:var(--sub,#9aa3b5);line-height:1.6">6個獨立小工具：1RM/RPE換算、健力相對強度、進階體組成（FFMI/皮脂卡尺）、訓練負荷監控（總量/噸數、A:C Ratio）。全部即時計算，不會儲存資料。</div>
 
     <!-- ═══════════ 1. 1RM 與 RPE/RIR 換算器 ═══════════ -->
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:14px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:4px">① 1RM 與 RPE/RIR 換算器</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">① 1RM 與 RPE/RIR 換算器</div>
       <div style="font-size:12px;color:var(--sub,#9aa3b5);margin-bottom:10px">結合RPE（自覺努力量表）與RIR（保留次數），根據當天疲勞程度推算訓練重量，或者透過多下的次數推算1RM。用Epley公式：1RM = W × (1 + R/30)。</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <div><label style="font-size:12px;color:var(--sub)">重量 W (kg)</label><input id="tc1-weight" type="number" placeholder="100" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
@@ -3607,39 +3611,39 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
         <div><label style="font-size:12px;color:var(--sub)">RPE（可選，1-10）</label><input id="tc1-rpe" type="number" step="0.5" placeholder="8" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
         <div><label style="font-size:12px;color:var(--sub)">目標訓練RPE（推算重量用）</label><input id="tc1-target-rpe" type="number" step="0.5" placeholder="7" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
       </div>
-      <button onclick="window.calcTC1()" style="width:100%;padding:8px;border-radius:6px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);color:var(--c-60a5fa,#60a5fa);font-family:var(--mono);font-size:12px;letter-spacing:.5px;cursor:pointer">計算 CALCULATE</button>
+      <button onclick="window.calcTC1()" class="k-cta">推算 1RM</button>
       <div id="tc1-result" style="margin-top:8px"></div>
     </div>
 
     <!-- ═══════════ 2. 健力相對強度點數計算機 ═══════════ -->
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:14px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:4px">② 健力相對強度點數計算機 DOTS / GL Points</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">② 健力相對強度（DOTS / GL）</div>
       <div style="font-size:12px;color:var(--sub,#9aa3b5);margin-bottom:10px">用來跨量級比較舉重者的相對力量，評估選手實力或者安排隊內測試時常用。目前主流賽事多採用GL Points（IPF官方）或DOTS取代舊版的Wilks。</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <div><label style="font-size:12px;color:var(--sub)">性別</label><select id="tc2-sex" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"><option value="m">男性</option><option value="f">女性</option></select></div>
         <div><label style="font-size:12px;color:var(--sub)">體重 (kg)</label><input id="tc2-bw" type="number" placeholder="80" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
         <div style="grid-column:1/-1"><label style="font-size:12px;color:var(--sub)">總成績 Total (kg，深蹲+臥推+硬舉，或單項)</label><input id="tc2-total" type="number" placeholder="500" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
       </div>
-      <button onclick="window.calcTC2()" style="width:100%;padding:8px;border-radius:6px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);color:var(--c-60a5fa,#60a5fa);font-family:var(--mono);font-size:12px;letter-spacing:.5px;cursor:pointer">計算 CALCULATE</button>
+      <button onclick="window.calcTC2()" class="k-cta">計算 DOTS／GL 分數</button>
       <div id="tc2-result" style="margin-top:8px"></div>
     </div>
 
     <!-- ═══════════ 3. FFMI 無脂質量指數計算器 ═══════════ -->
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:14px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:4px">③ FFMI 無脂質量指數計算器 Fat-Free Mass Index</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">③ FFMI 無脂質量指數</div>
       <div style="font-size:12px;color:var(--sub,#9aa3b5);margin-bottom:10px">評估肌肉量的發展相對水平，比單純BMI更能反映增肌減脂的真實成效。公式：FFMI = W×(1-BF%) / H²，再用身高標準化：Normalized FFMI = FFMI + 6.1×(1.8-H)。</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
         <div><label style="font-size:12px;color:var(--sub)">體重 (kg)</label><input id="tc3-weight" type="number" placeholder="80" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
         <div><label style="font-size:12px;color:var(--sub)">身高 (cm)</label><input id="tc3-height" type="number" placeholder="175" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
         <div><label style="font-size:12px;color:var(--sub)">體脂率 %</label><input id="tc3-bf" type="number" placeholder="15" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
       </div>
-      <button onclick="window.calcTC3()" style="width:100%;padding:8px;border-radius:6px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);color:var(--c-60a5fa,#60a5fa);font-family:var(--mono);font-size:12px;letter-spacing:.5px;cursor:pointer">計算 CALCULATE</button>
+      <button onclick="window.calcTC3()" class="k-cta">計算 FFMI</button>
       <div id="tc3-result" style="margin-top:8px"></div>
     </div>
 
     <!-- ═══════════ 4. 皮脂卡尺計算器 ═══════════ -->
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:14px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:4px">④ 皮脂卡尺計算器 Skinfold Caliper (Jackson-Pollock)</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">④ 皮脂卡尺（Jackson-Pollock）</div>
       <div style="font-size:12px;color:var(--sub,#9aa3b5);margin-bottom:10px">輸入Jackson-Pollock 3點或7點量測的皮下脂肪厚度（單位mm），推算體脂率——比一般家用體脂計更不受水分和進食影響。</div>
       <div style="display:flex;gap:6px;margin-bottom:8px">
         <button id="tc4-mode-3" class="musclelist-filter-btn active" onclick="window.setTC4Mode('3')" style="flex:1">3點量測</button>
@@ -3663,23 +3667,23 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
         <div><label style="font-size:12px;color:var(--sub)">髂上 Suprailiac</label><input id="tc4-s9" type="number" placeholder="15" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
         <div><label style="font-size:12px;color:var(--sub)">大腿 Thigh</label><input id="tc4-s10" type="number" placeholder="15" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
       </div>
-      <button onclick="window.calcTC4()" style="width:100%;padding:8px;border-radius:6px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);color:var(--c-60a5fa,#60a5fa);font-family:var(--mono);font-size:12px;letter-spacing:.5px;cursor:pointer">計算 CALCULATE</button>
+      <button onclick="window.calcTC4()" class="k-cta">計算體脂率</button>
       <div id="tc4-result" style="margin-top:8px"></div>
     </div>
 
     <!-- ═══════════ 5. 總訓練容量/噸數計算器 ═══════════ -->
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:14px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:4px">⑤ 總訓練容量／噸數計算器 Volume Load / Tonnage</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">⑤ 總訓練容量／噸數計算器 Volume Load / Tonnage</div>
       <div style="font-size:12px;color:var(--sub,#9aa3b5);margin-bottom:10px">自動加總 組數×次數×重量，用來監控微週期（Microcycle）和中週期（Mesocycle）之間的訓練量是否過載或者不足。</div>
       <div id="tc5-rows" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
-      <button onclick="window.addTC5Row()" style="width:100%;padding:6px;border-radius:6px;background:rgba(var(--ov,255,255,255),.04);border:1px solid var(--border);color:var(--sub);font-family:var(--mono);font-size:12px;letter-spacing:.5px;cursor:pointer;margin-bottom:8px">+ 加一組動作</button>
-      <button onclick="window.calcTC5()" style="width:100%;padding:8px;border-radius:6px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);color:var(--c-60a5fa,#60a5fa);font-family:var(--mono);font-size:12px;letter-spacing:.5px;cursor:pointer">計算總容量 CALCULATE</button>
+      <button onclick="window.addTC5Row()" class="k-cta2" style="width:100%;margin-bottom:8px">＋ 加一組動作</button>
+      <button onclick="window.calcTC5()" class="k-cta">計算總容量</button>
       <div id="tc5-result" style="margin-top:8px"></div>
     </div>
 
     <!-- ═══════════ 6. A:C Ratio 急性與慢性訓練負荷比 ═══════════ -->
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:14px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:4px">⑥ A:C Ratio 急性與慢性訓練負荷比</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">⑥ A:C Ratio 急性與慢性訓練負荷比</div>
       <div style="font-size:12px;color:var(--sub,#9aa3b5);margin-bottom:10px">用來預測受傷風險，將最近1週的「急性負荷」除以過去4週的「慢性負荷」平均值。公式：ACR = AcuteLoad / ChronicLoad。比例0.8-1.3通常視為安全區（Sweet Spot），大於1.5表示受傷風險急遽升高。</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <div style="grid-column:1/-1"><label style="font-size:12px;color:var(--c-60a5fa,#60a5fa)">本週急性負荷 Acute Load</label><input id="tc6-acute" type="number" placeholder="例如本週總噸數 5000" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(96,165,250,.04);border:1px solid rgba(96,165,250,.3);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
@@ -3689,7 +3693,7 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
         <div><label style="font-size:12px;color:var(--sub)">4週前負荷</label><input id="tc6-w4" type="number" placeholder="4200" style="width:100%;box-sizing:border-box;padding:7px 8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;margin-top:2px;outline:none"></div>
       </div>
       <div style="font-size:12px;color:var(--sub);margin-bottom:8px">「負荷」可以是總噸數（見⑤總容量計算器）、RPE×時間，或者任何一致的訓練量指標，最重要是全部週數再用同一種計算方式。</div>
-      <button onclick="window.calcTC6()" style="width:100%;padding:8px;border-radius:6px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.35);color:var(--c-60a5fa,#60a5fa);font-family:var(--mono);font-size:12px;letter-spacing:.5px;cursor:pointer">計算 CALCULATE</button>
+      <button onclick="window.calcTC6()" class="k-cta">計算 A:C 負荷比</button>
       <div id="tc6-result" style="margin-top:8px"></div>
     </div>
 
@@ -3725,21 +3729,20 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
 
   <!-- PANEL: 課表設計 Program Designer -->
   <div class="rail-panel" id="rail-program-designer" style="gap:10px">
-    <div style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--green);padding:2px 2px 4px">📋 課表設計 PROGRAM DESIGNER</div>
     <div style="font-size:12px;color:var(--sub,#9aa3b5);line-height:1.6;padding:2px 2px 8px">按目標、週期長度、每週訓練天數、訓練分化方式、訓練經驗和重點部位，自動生成一份包含完整分化、動作選擇、組數次數、休息時間、以及全期週期化安排的詳細課表。</div>
 
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">① 主要目標</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">① 主要目標</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-        <button id="pd-goal-hypertrophy" class="musclelist-filter-btn active" onclick="window.setPDGoal('hypertrophy')">💪 增肌 Hypertrophy</button>
-        <button id="pd-goal-strength" class="musclelist-filter-btn" onclick="window.setPDGoal('strength')">🏋️ 力量 Strength</button>
-        <button id="pd-goal-fatloss" class="musclelist-filter-btn" onclick="window.setPDGoal('fatloss')">🔥 減脂 Fat Loss</button>
-        <button id="pd-goal-posture" class="musclelist-filter-btn" onclick="window.setPDGoal('posture')">🧍 體態糾正 Posture</button>
+        <button id="pd-goal-hypertrophy" class="musclelist-filter-btn active" onclick="window.setPDGoal('hypertrophy')">增肌</button>
+        <button id="pd-goal-strength" class="musclelist-filter-btn" onclick="window.setPDGoal('strength')">力量</button>
+        <button id="pd-goal-fatloss" class="musclelist-filter-btn" onclick="window.setPDGoal('fatloss')">減脂</button>
+        <button id="pd-goal-posture" class="musclelist-filter-btn" onclick="window.setPDGoal('posture')">體態糾正</button>
       </div>
     </div>
 
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">② 週期長度</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">② 週期長度</div>
       <div style="display:flex;gap:4px" id="pd-duration-buttons">
         <button class="musclelist-filter-btn" onclick="window.setPDDuration(4)" style="flex:1">4週</button>
         <button class="musclelist-filter-btn" onclick="window.setPDDuration(6)" style="flex:1">6週</button>
@@ -3749,8 +3752,8 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
       </div>
     </div>
 
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">③ 每週訓練天數</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">③ 每週訓練天數</div>
       <div style="display:flex;gap:4px" id="pd-days-buttons">
         <button class="musclelist-filter-btn" onclick="window.setPDDays(2)" style="flex:1">2天</button>
         <button class="musclelist-filter-btn active" onclick="window.setPDDays(3)" style="flex:1">3天</button>
@@ -3760,23 +3763,23 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
       </div>
     </div>
 
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">④ 訓練分化方式 Split Style</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">④ 訓練分化方式</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px" id="pd-split-buttons"></div>
       <div id="pd-split-note" style="font-size:12px;color:var(--c-7d8698,#7d8698);margin-top:6px;line-height:1.5"></div>
     </div>
 
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">⑤ 訓練經驗</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">⑤ 訓練經驗</div>
       <div style="display:flex;gap:4px" id="pd-level-buttons">
-        <button class="musclelist-filter-btn active" onclick="window.setPDLevel('初階')" style="flex:1">初階 Beginner</button>
-        <button class="musclelist-filter-btn" onclick="window.setPDLevel('中階')" style="flex:1">中階 Intermediate</button>
-        <button class="musclelist-filter-btn" onclick="window.setPDLevel('進階')" style="flex:1">進階 Advanced</button>
+        <button class="musclelist-filter-btn active" onclick="window.setPDLevel('初階')" style="flex:1">初階</button>
+        <button class="musclelist-filter-btn" onclick="window.setPDLevel('中階')" style="flex:1">中階</button>
+        <button class="musclelist-filter-btn" onclick="window.setPDLevel('進階')" style="flex:1">進階</button>
       </div>
     </div>
 
-    <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px;display:none" id="pd-posture-picker-wrap">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">⑥ 體態糾正方向（選主要處理模式）</div>
+    <div style="padding:4px 0 22px;border-bottom:1px solid var(--border);display:none" id="pd-posture-picker-wrap">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">⑥ 體態糾正方向（選主要處理模式）</div>
       <select id="pd-posture-pattern" style="width:100%;box-sizing:border-box;padding:8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:12px;outline:none">
         <option value="apt">骨盆前傾 APT</option>
         <option value="lcs">下交叉 LCS</option>
@@ -3788,8 +3791,8 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
     </div>
 
     <div style="display:flex;gap:6px">
-      <button onclick="window.generateProgram()" style="flex:1;padding:12px;border-radius:10px;background:linear-gradient(135deg,rgba(var(--accent-rgb,0,229,160),.14),rgba(59,130,246,.12));border:1px solid rgba(var(--accent-rgb,0,229,160),.4);color:var(--green);cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:1px">🔧 生成完整課表 GENERATE PROGRAM</button>
-      <button onclick="window.renewProgram()" title="設定不變，只換一批不同的動作" style="flex:0 0 auto;padding:12px 14px;border-radius:10px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.4);color:var(--c-a78bfa,#a78bfa);cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:1px">🔄 換一批</button>
+      <button onclick="window.generateProgram()" class="k-cta">生成課表</button>
+      <button onclick="window.renewProgram()" title="設定不變，只換一批不同的動作" class="k-cta2">換一批動作</button>
     </div>
 
     <div id="pd-output"></div>
@@ -3985,16 +3988,15 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
   </div><!-- end rail-nutrition-apply -->
 
   <div class="rail-panel" id="rail-nutrition-tdee" style="flex-direction:column;gap:0;padding:0;overflow-y:auto">
-    <div style="padding:8px 10px 6px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--panel);position:sticky;top:0;z-index:2">
-      <div style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--sub)">🧮 TDEE 計算器 · CALORIE &amp; MACRO CALCULATOR</div>
-      <div style="font-size:12px;color:var(--sub,#9aa3b5);margin-top:3px;line-height:1.5">計算基礎代謝、每日總消耗、增肌/減脂目標熱量與三大營養素分配，並可生成參考餐單</div>
+    <div style="padding:8px 10px 4px;flex-shrink:0">
+      <div style="font-size:13px;color:var(--sub,#9aa3b5);line-height:1.6">計算基礎代謝、每日總消耗、增肌/減脂目標熱量與三大營養素分配，並可生成參考餐單</div>
     </div>
 
     <div style="padding:10px;display:flex;flex-direction:column;gap:10px">
 
       <!-- Step 1: BMR input -->
-      <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px">
-        <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">① 基礎代謝 BMR</div>
+      <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">① 基礎代謝（BMR）</div>
 
         <div id="tdee-calc-inputs" style="display:flex;flex-direction:column;gap:7px">
           <div style="display:flex;gap:6px">
@@ -4015,8 +4017,8 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
       </div>
 
       <!-- Step 2: Activity level -->
-      <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px">
-        <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">② 活動量 Activity Level</div>
+      <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">② 活動量</div>
         <select id="tdee-activity" style="width:100%;box-sizing:border-box;padding:8px;border-radius:6px;background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);color:var(--text);font-size:13px;outline:none">
           <option value="1.2">久坐 Sedentary（幾乎不運動，office工作）</option>
           <option value="1.375">輕度活動 Light（每週訓練1-3次）</option>
@@ -4027,15 +4029,15 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
       </div>
 
       <!-- Step 3: Goal -->
-      <div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px">
-        <div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">③ 目標 Goal</div>
+      <div style="padding:4px 0 22px;border-bottom:1px solid var(--border)">
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">③ 目標</div>
         <div style="display:flex;gap:4px;margin-bottom:8px">
           <button id="tdee-goal-cut" class="musclelist-filter-btn active" onclick="setTdeeGoal('cut')" style="flex:1">減脂</button>
           <button id="tdee-goal-maintain" class="musclelist-filter-btn" onclick="setTdeeGoal('maintain')" style="flex:1">維持</button>
           <button id="tdee-goal-bulk" class="musclelist-filter-btn" onclick="setTdeeGoal('bulk')" style="flex:1">增肌</button>
           <button id="tdee-goal-recomp" class="musclelist-filter-btn" onclick="setTdeeGoal('recomp')" style="flex:1">體態重組</button>
         </div>
-        <div id="tdee-recomp-note" style="display:none;font-size:12px;color:var(--sub,#9aa3b5);line-height:1.6;margin-bottom:8px;padding:7px 9px;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.2);border-radius:6px">💡 體態重組（同時減脂增肌）最適合訓練經驗少於12個月、剛剛回歸訓練，或者體脂偏高的學生——這類人身體對「新手紅利」反應最好，在輕微赤字之下都可以同時長肌肉甩脂肪。訓練經驗豐富、體脂已經很低的學生，通常再用分開的增肌/減脂週期會更有效率。</div>
+        <div id="tdee-recomp-note" style="display:none;font-size:12px;color:var(--sub,#9aa3b5);line-height:1.6;margin-bottom:8px;padding:7px 9px;background:rgba(96,165,250,.06);border:1px solid rgba(96,165,250,.2);border-radius:6px">體態重組（同時減脂增肌）最適合訓練經驗少於12個月、剛剛回歸訓練，或者體脂偏高的學生——這類人身體對「新手紅利」反應最好，在輕微赤字之下都可以同時長肌肉甩脂肪。訓練經驗豐富、體脂已經很低的學生，通常再用分開的增肌/減脂週期會更有效率。</div>
         <div id="tdee-intensity-wrap" style="display:flex;gap:4px">
           <button id="tdee-intensity-low" class="musclelist-filter-btn" onclick="setTdeeIntensity('low')" style="flex:1">保守</button>
           <button id="tdee-intensity-mid" class="musclelist-filter-btn active" onclick="setTdeeIntensity('mid')" style="flex:1">標準</button>
@@ -4043,7 +4045,7 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
         </div>
       </div>
 
-      <button onclick="window.calcTDEE()" style="width:100%;padding:10px;border-radius:6px;background:rgba(var(--accent-rgb,0,229,160),.12);border:1px solid rgba(var(--accent-rgb,0,229,160),.4);color:var(--green);font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer">⟳ 計算 CALCULATE</button>
+      <button onclick="window.calcTDEE()" class="k-cta">計算熱量</button>
 
       <!-- Output -->
       <div id="tdee-output"></div>
@@ -27334,7 +27336,7 @@ window.calcTDEE = function() {
     bwEstimated: !(parseFloat(document.getElementById('tdee-weight').value) > 0)
   };
 
-  var goalLabel = {cut:'減脂 Fat Loss', bulk:'增肌 Muscle Gain', maintain:'維持 Maintenance', recomp:'體態重組 Recomposition'}[st.goal];
+  var goalLabel = {cut:'減脂', bulk:'增肌', maintain:'維持', recomp:'體態重組'}[st.goal];
   var deltaLabel = st.goal === 'maintain' ? '= TDEE（無赤字/盈餘）'
     : ((st.goal === 'cut' || st.goal === 'recomp') ? '赤字 ' + Math.round(tdee - targetCal) + ' 大卡（TDEE的' + Math.round(adj*100) + '%）'
                           : '盈餘 ' + Math.round(targetCal - tdee) + ' 大卡（TDEE的' + Math.round(adj*100) + '%）');
@@ -27349,8 +27351,7 @@ window.calcTDEE = function() {
   var waterTotalML = waterBaseML + waterTrainingBumpML;
 
   document.getElementById('tdee-output').innerHTML =
-    '<div style="background:rgba(var(--accent-rgb,0,229,160),.05);border:1px solid rgba(var(--accent-rgb,0,229,160),.25);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px">'
-    + '<div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green)">📊 計算結果</div>'
+    '<div style="display:flex;flex-direction:column;gap:10px">'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
       + statBlock('BMR 基礎代謝', Math.round(bmr) + ' kcal', bmrMethod)
       + statBlock('TDEE 總消耗', Math.round(tdee) + ' kcal', '活動是數 ×' + activity)
@@ -27491,7 +27492,7 @@ function renderMealPlanSelectors() {
 
   document.getElementById('tdee-mealplan-section').innerHTML =
     '<div style="background:rgba(var(--ov,255,255,255),.02);border:1px solid var(--border);border-radius:10px;padding:10px;margin-top:4px">'
-    + '<div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">④ 生成參考餐單 Meal Plan</div>'
+    + '<div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">④ 生成參考餐單</div>'
     + modeRow
     + intro
     + (window._eatMode === 'eatout' ? eatoutSelectors : cookSelectors)
@@ -28380,11 +28381,11 @@ window.setPDLevel = function(lv) {
 // 個style本身的循環長度就只選頭幾日；多於循環長度就由頭再來一
 // 轉，並且在個label度標明「第N輪」，不會與上一輪重複名稱。
 var PD_SPLIT_STYLE_META = {
-  fullbody:   { label:'🔄 全身 Full Body' },
-  upperlower: { label:'⬆️⬇️ 上下肢 Upper/Lower' },
-  ppl:        { label:'🔺 推拉腿 Push/Pull/Legs' },
-  ppl_ul:     { label:'🔺 推拉腿+上下肢 PPL+UL' },
-  bro:        { label:'💪 分肌群 Bro Split' }
+  fullbody:   { label:'全身' },
+  upperlower: { label:'上下肢' },
+  ppl:        { label:'推拉腿' },
+  ppl_ul:     { label:'推拉腿＋上下肢' },
+  bro:        { label:'分肌群' }
 };
 var PD_SPLIT_STYLE_NOTE = {
   fullbody:   '每次訓練都刺激全身主要肌群，天然有較高的單一肌群訓練頻率，適合訓練日數少、或者想每組肌群每週都刺激多於一次的學生。',
@@ -28430,37 +28431,37 @@ window.refreshPDSplitOptions();
 // 標明「第N輪」）。
 var PD_SPLIT_CYCLES = {
   fullbody: [
-    {label:'全身 A Full Body A', cats:['Lower Bilateral Push','Upper Push','Upper Pull','Core']},
-    {label:'全身 B Full Body B', cats:['Lower Pull/Hinge','Upper Pull','Upper Push','Core']},
-    {label:'全身 C Full Body C', cats:['Lower Unilateral Push','Upper Push','Upper Pull','Core']},
-    {label:'全身 D Full Body D', cats:['Lower Bilateral Push','Upper Pull','Upper Push','Core']}
+    {label:'全身 A', cats:['Lower Bilateral Push','Upper Push','Upper Pull','Core']},
+    {label:'全身 B', cats:['Lower Pull/Hinge','Upper Pull','Upper Push','Core']},
+    {label:'全身 C', cats:['Lower Unilateral Push','Upper Push','Upper Pull','Core']},
+    {label:'全身 D', cats:['Lower Bilateral Push','Upper Pull','Upper Push','Core']}
   ],
   upperlower: [
-    {label:'上肢 A Upper A', cats:['Upper Push','Upper Pull','Upper Accessory','Core']},
-    {label:'下肢 A Lower A', cats:['Lower Bilateral Push','Lower Pull/Hinge','Core']},
-    {label:'上肢 B Upper B', cats:['Upper Pull','Upper Push','Upper Accessory','Core']},
-    {label:'下肢 B Lower B', cats:['Lower Unilateral Push','Lower Pull/Hinge','Core']},
-    {label:'上肢 C Upper C', cats:['Upper Push','Upper Pull','Upper Accessory','Upper Accessory']},
-    {label:'下肢 C Lower C', cats:['Lower Bilateral Push','Lower Unilateral Push','Lower Pull/Hinge','Core']}
+    {label:'上肢 A', cats:['Upper Push','Upper Pull','Upper Accessory','Core']},
+    {label:'下肢 A', cats:['Lower Bilateral Push','Lower Pull/Hinge','Core']},
+    {label:'上肢 B', cats:['Upper Pull','Upper Push','Upper Accessory','Core']},
+    {label:'下肢 B', cats:['Lower Unilateral Push','Lower Pull/Hinge','Core']},
+    {label:'上肢 C', cats:['Upper Push','Upper Pull','Upper Accessory','Upper Accessory']},
+    {label:'下肢 C', cats:['Lower Bilateral Push','Lower Unilateral Push','Lower Pull/Hinge','Core']}
   ],
   ppl: [
-    {label:'推 Push', cats:['Upper Push','Upper Push','Upper Accessory','Upper Accessory']},
-    {label:'拉 Pull', cats:['Upper Pull','Upper Pull','Upper Accessory','Core']},
-    {label:'腿 Legs', cats:['Lower Bilateral Push','Lower Unilateral Push','Lower Pull/Hinge','Core']}
+    {label:'推', cats:['Upper Push','Upper Push','Upper Accessory','Upper Accessory']},
+    {label:'拉', cats:['Upper Pull','Upper Pull','Upper Accessory','Core']},
+    {label:'腿', cats:['Lower Bilateral Push','Lower Unilateral Push','Lower Pull/Hinge','Core']}
   ],
   ppl_ul: [
-    {label:'推 Push', cats:['Upper Push','Upper Push','Upper Accessory','Upper Accessory']},
-    {label:'拉 Pull', cats:['Upper Pull','Upper Pull','Upper Accessory','Core']},
-    {label:'腿 Legs', cats:['Lower Bilateral Push','Lower Pull/Hinge','Lower Unilateral Push','Core']},
-    {label:'上肢 Upper', cats:['Upper Push','Upper Pull','Upper Accessory']},
-    {label:'下肢 Lower', cats:['Lower Unilateral Push','Lower Pull/Hinge','Core']}
+    {label:'推', cats:['Upper Push','Upper Push','Upper Accessory','Upper Accessory']},
+    {label:'拉', cats:['Upper Pull','Upper Pull','Upper Accessory','Core']},
+    {label:'腿', cats:['Lower Bilateral Push','Lower Pull/Hinge','Lower Unilateral Push','Core']},
+    {label:'上肢', cats:['Upper Push','Upper Pull','Upper Accessory']},
+    {label:'下肢', cats:['Lower Unilateral Push','Lower Pull/Hinge','Core']}
   ],
   bro: [
-    {label:'胸 Chest', cats:['Upper Push','Upper Push','Upper Accessory','Core']},
-    {label:'背 Back', cats:['Upper Pull','Upper Pull','Upper Accessory','Core']},
-    {label:'腿 Legs', cats:['Lower Bilateral Push','Lower Unilateral Push','Lower Pull/Hinge','Core']},
-    {label:'肩 Shoulders', cats:['Upper Push','Upper Accessory','Upper Accessory','Core']},
-    {label:'手臂 Arms', cats:['Upper Accessory','Upper Accessory','Upper Accessory','Core']}
+    {label:'胸', cats:['Upper Push','Upper Push','Upper Accessory','Core']},
+    {label:'背', cats:['Upper Pull','Upper Pull','Upper Accessory','Core']},
+    {label:'腿', cats:['Lower Bilateral Push','Lower Unilateral Push','Lower Pull/Hinge','Core']},
+    {label:'肩', cats:['Upper Push','Upper Accessory','Upper Accessory','Core']},
+    {label:'手臂', cats:['Upper Accessory','Upper Accessory','Upper Accessory','Core']}
   ]
 };
 // 將某個split style的cycle，按用戶選的日數展開做實際一週的日程表。
@@ -28482,13 +28483,13 @@ function buildSplitDays(styleKey, days) {
 // 的實證訓練量文獻（10-20組/肌群/週涵蓋大部分受訓者的有效反應範圍，
 // 新手取下限、進階者可以取上限）。
 var PD_GOAL_SCHEMES = {
-  hypertrophy: {label:'💪 增肌 Hypertrophy', compoundSets:4, compoundReps:'6-10', accessorySets:3, accessoryReps:'10-15', rest:'60-90秒',
+  hypertrophy: {label:'增肌', compoundSets:4, compoundReps:'6-10', accessorySets:3, accessoryReps:'10-15', rest:'60-90秒',
     weeklyVolume:'12-20組／肌群／週（新手取下限，進階者可以取上限）', note:'複合動作優先，孤立動作補後；每組留1-3下力（RIR 1-3），不需要每組都推到力竭。'},
-  strength: {label:'🏋️ 力量 Strength', compoundSets:5, compoundReps:'3-6', accessorySets:3, accessoryReps:'8-10', rest:'2-3分鐘',
+  strength: {label:'力量', compoundSets:5, compoundReps:'3-6', accessorySets:3, accessoryReps:'8-10', rest:'2-3分鐘',
     weeklyVolume:'10-15組／肌群／週', note:'複合動作用較高負荷、較低次數，休息時間要夠長才可以維持每組質量；輔助動作維持肌肉量和關節健康，非主角。'},
-  fatloss: {label:'🔥 減脂 Fat Loss', compoundSets:3, compoundReps:'10-12', accessorySets:3, accessoryReps:'12-15', rest:'45-60秒',
+  fatloss: {label:'減脂', compoundSets:3, compoundReps:'10-12', accessorySets:3, accessoryReps:'12-15', rest:'45-60秒',
     weeklyVolume:'10-16組／肌群／週', note:'休息時間縮短、可以配合Superset提升訓練密度，但複合動作的負重和技術要求不應該因為追求「心跳快」而犧牲；減脂的核心始終在飲食赤字，訓練是保留肌肉的手段。'},
-  posture: {label:'🧍 體態糾正 Posture Correction', compoundSets:3, compoundReps:'8-12', accessorySets:2, accessoryReps:'5-10次呼吸/重複', rest:'30-60秒',
+  posture: {label:'體態糾正', compoundSets:3, compoundReps:'8-12', accessorySets:2, accessoryReps:'5-10次呼吸/重複', rest:'30-60秒',
     weeklyVolume:'因應個別評估調整', note:'呼吸/體位訓練優先，建立正確的神經肌肉控制先加負重；可以配合「體態」分頁對應模式的完整評估和矯正練習使用，這裡提供的是訓練框架而非取代完整評估。'}
 };
 
@@ -28650,9 +28651,9 @@ window.generateProgram = function() {
       + '<div style="font-size:12px;color:var(--sub,#9aa3b5);line-height:1.6">建議每週訓練容量：'+scheme.weeklyVolume+'<br>'+scheme.note+'</div>'
       + goalBadgesHTML
     + '</div>'
-    + '<div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">📅 訓練分化範本 SPLIT TEMPLATE · '+splitLabel+'（動作會隨週數／變化版本輪換增加變化）</div>'
+    + '<div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin-bottom:8px">📅 訓練分化範本 · '+splitLabel+'（動作會隨週數／變化版本輪換增加變化）</div>'
     + daysHTML
-    + '<div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin:16px 0 8px">📈 全期週期化安排 PERIODIZATION</div>'
+    + '<div style="font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--green);margin:16px 0 8px">📈 全期週期化安排</div>'
     + periodizationHTML
     + '<div style="font-size:12px;color:var(--sub);margin-top:10px;line-height:1.6">💡 以上動作選擇來自「動作庫」303個動作的資料庫，可以在「動作庫」分頁找回這些動作查閱詳細操作方式；每個學生的實際負荷需要透過首1-2週的測試組數摸索，不應該一開始就用最大重量。如果對目前這批動作選擇不滿意，可以按「換一批」保持其他設定不變，只換一批不同的動作。此課表為框架範本，教練可以按個別學生的弱點、器材、時間彈性調整。</div>';
 };
@@ -33913,9 +33914,9 @@ table.k-table { width: 100%; border-collapse: collapse; font-size: 13px; line-he
 .k-tabs button { font-family: inherit; font-size: 13px; padding: 9px 12px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--sub); cursor: pointer; white-space: nowrap; }
 .k-tabs button.on { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
 .k-calc-card[hidden] { display: none !important; }
-.k-calc { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; margin-top: 10px; }
+.k-calc { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: start; margin-top: 10px; } /* v97：用戶要求計算器單欄一直往下 */
 .k-calc-in { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-.k-calc-out { position: sticky; top: 8px; min-width: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.k-calc-out { position: static; min-width: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
 .k-calc-out-h { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--sub); margin-bottom: 8px; }
 .k-calc-out-h .k-ico { width: 15px; height: 15px; color: var(--green); }
 .k-calc-out > div:empty::before, .k-calc-out .k-empty { content: '輸入數值，結果會即時在這裡出現。'; display: block; font-size: 13px; color: var(--sub); line-height: 1.6; }
@@ -35995,6 +35996,26 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 })();
 </script>
 
+<script id="kformclean-js">
+// v97：訓練計算器、課表設計、TDEE 由 JS 產生的結果同樣不用 emoji（保留 ✓✗★⚠→ 等有意義的符號）
+(function () {
+  var KEEP = /[←-⇿✓-✘★☆⚠©®™▶◀•●]/;
+  var RE = /\p{Extended_Pictographic}[️‍⃣]*(?:\p{Extended_Pictographic}[️‍⃣]*)*\s?/gu;
+  function clean(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, list = [];
+    while ((n = w.nextNode())) if (RE.test(n.nodeValue)) list.push(n), RE.lastIndex = 0;
+    list.forEach(function (t) { var v = t.nodeValue.replace(RE, function (m) { return KEEP.test(m) ? m : ''; }); if (v !== t.nodeValue) t.nodeValue = v; });
+  }
+  function init() {
+    ['rail-traincalc', 'rail-program-designer', 'rail-nutrition-tdee'].forEach(function (id) {
+      var p = document.getElementById(id); if (!p) return; clean(p);
+      var busy = false; new MutationObserver(function () { if (busy) return; busy = true; setTimeout(function () { clean(p); busy = false; }, 0); }).observe(p, { childList: true, subtree: true });
+    });
+  }
+  window.kFormClean = clean;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
 <script id="koverlay-js">
 // ── v24 詳情頁（彈出頁）管理 ──
 // 1. 切換到另一個分頁時，自動關閉仍然開著的詳情頁
