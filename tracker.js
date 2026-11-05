@@ -59,45 +59,45 @@
   var css = '' +
     '#rail-tlog.rail-panel,#rail-tbody.rail-panel,#rail-ttimer.rail-panel{max-width:560px}' +
     '.trk-wrap{display:flex;flex-direction:column;gap:10px;min-width:0}' +
-    '.trk-h{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--sub);padding:2px 0 6px;border-bottom:1px solid var(--border)}' +
+    '.trk-h{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--sub);padding:2px 0 6px;border-bottom:1px solid var(--border)}' +
     '.trk-card{background:rgba(var(--ov,255,255,255),.03);border:1px solid var(--border);border-radius:8px;padding:10px;min-width:0}' +
     '.trk-card.pr{border-color:rgba(251,191,36,.5)}' +
     '.trk-row{display:flex;gap:6px;align-items:center;min-width:0}' +
     '.trk-grow{flex:1;min-width:0}' +
     '.trk-in{width:100%;box-sizing:border-box;background:rgba(var(--ov,255,255,255),.05);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:16px;padding:7px 8px;outline:none;min-width:0}' +
     '.trk-in:focus{border-color:var(--green)}' +
-    '.trk-btn{font-family:var(--mono);font-size:11px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(var(--ov,255,255,255),.04);color:var(--text);cursor:pointer;white-space:nowrap;min-height:36px}' +
+    '.trk-btn{font-family:var(--mono);font-size:12px;padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(var(--ov,255,255,255),.04);color:var(--text);cursor:pointer;white-space:nowrap;min-height:36px}' +
     '.trk-btn.primary{background:rgba(var(--accent-rgb,0,229,160),.14);border-color:rgba(var(--accent-rgb,0,229,160),.45);color:var(--green)}' +
     '.trk-btn.warn{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.35);color:var(--c-f87171,#f87171)}' +
     '.trk-btn.blue{background:rgba(96,165,250,.1);border-color:rgba(96,165,250,.4);color:var(--c-60a5fa,#60a5fa)}' +
-    '.trk-btn.small{padding:4px 8px;font-size:10px;min-height:28px}' +
+    '.trk-btn.small{padding:4px 8px;font-size:12px;min-height:28px}' +
     '.trk-btn.on{background:rgba(var(--accent-rgb,0,229,160),.2);border-color:var(--green);color:var(--green)}' +
     '.trk-sets{display:grid;grid-template-columns:24px minmax(0,1.2fr) minmax(0,1fr) minmax(0,.8fr) 34px 26px;gap:5px;align-items:center;margin-top:6px}' +
-    '.trk-sets .hd{font-family:var(--mono);font-size:9px;color:var(--sub);text-align:center}' +
-    '.trk-sets .n{font-family:var(--mono);font-size:11px;color:var(--sub);text-align:center}' +
+    '.trk-sets .hd{font-family:var(--mono);font-size:12px;color:var(--sub);text-align:center}' +
+    '.trk-sets .n{font-family:var(--mono);font-size:12px;color:var(--sub);text-align:center}' +
     '.trk-sets .tick{height:34px;border-radius:6px;border:1px solid var(--border);background:rgba(var(--ov,255,255,255),.04);color:var(--sub);cursor:pointer;font-size:14px}' +
     '.trk-sets .tick.done{background:rgba(var(--accent-rgb,0,229,160),.2);border-color:var(--green);color:var(--green)}' +
     '.trk-sets .x{background:none;border:none;color:var(--sub);cursor:pointer;font-size:13px}' +
-    '.trk-hint{font-family:var(--mono);font-size:10px;color:var(--sub);line-height:1.6;margin-top:4px}' +
-    '.trk-pr{display:inline-block;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:9px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.5);color:var(--c-fbbf24,#fbbf24);margin-left:4px}' +
+    '.trk-hint{font-family:var(--mono);font-size:12px;color:var(--sub);line-height:1.6;margin-top:4px}' +
+    '.trk-pr{display:inline-block;font-family:var(--mono);font-size:12px;padding:1px 6px;border-radius:9px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.5);color:var(--c-fbbf24,#fbbf24);margin-left:4px}' +
     '.trk-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}' +
     '.trk-stat{text-align:center;padding:8px 4px;border:1px solid var(--border);border-radius:7px;background:rgba(var(--ov,255,255,255),.02)}' +
     '.trk-stat b{display:block;font-family:var(--mono);font-size:16px;color:var(--green)}' +
-    '.trk-stat span{font-family:var(--mono);font-size:9px;color:var(--sub)}' +
-    '.trk-empty{font-family:var(--mono);font-size:11px;color:var(--sub);text-align:center;padding:14px 6px;line-height:1.7}' +
+    '.trk-stat span{font-family:var(--mono);font-size:12px;color:var(--sub)}' +
+    '.trk-empty{font-family:var(--mono);font-size:12px;color:var(--sub);text-align:center;padding:14px 6px;line-height:1.7}' +
     '.trk-sess{border:1px solid var(--border);border-radius:7px;background:rgba(var(--ov,255,255,255),.02);overflow:hidden}' +
     '.trk-sess .top{display:flex;gap:8px;align-items:center;padding:8px 10px;cursor:pointer}' +
-    '.trk-sess .det{padding:0 10px 10px;font-size:12px;color:var(--sub,#9aa3b5);line-height:1.7}' +
+    '.trk-sess .det{padding:0 10px 10px;font-size:13px;color:var(--sub,#9aa3b5);line-height:1.7}' +
     '.trk-chips{display:flex;flex-wrap:wrap;gap:5px}' +
     '.trk-chart{width:100%;height:auto;display:block}' +
     '.trk-time{font-family:var(--mono);font-size:56px;text-align:center;color:var(--text);letter-spacing:2px;line-height:1.1;padding:10px 0}' +
     '.trk-time.work{color:var(--green)}.trk-time.rest{color:var(--c-60a5fa,#60a5fa)}.trk-time.done{color:var(--c-fbbf24,#fbbf24)}' +
-    '.trk-phase{font-family:var(--mono);font-size:12px;letter-spacing:2px;text-align:center;color:var(--sub);min-height:18px}' +
+    '.trk-phase{font-family:var(--mono);font-size:13px;letter-spacing:2px;text-align:center;color:var(--sub);min-height:18px}' +
     '.trk-seg{display:flex;gap:6px}.trk-seg .trk-btn{flex:1}' +
     '.trk-flash{animation:trkflash .5s 3}@keyframes trkflash{50%{background:rgba(251,191,36,.18)}}' +
     '#trk-chip{position:fixed;top:10px;right:10px;z-index:160;display:none;font-family:var(--mono);font-size:13px;padding:7px 12px;border-radius:18px;background:var(--panel);border:1px solid var(--green);color:var(--green);cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.5)}' +
     '#trk-chip.rest{border-color:var(--c-60a5fa,#60a5fa);color:var(--c-60a5fa,#60a5fa)}' +
-    '.trk-edition{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--sub);margin-top:4px}' +
+    '.trk-edition{font-family:var(--mono);font-size:12px;letter-spacing:1px;color:var(--sub);margin-top:4px}' +
     '.trk-edition a{color:var(--c-60a5fa,#60a5fa);text-decoration:none}' +
     '@media (max-width:900px){#trk-chip{top:auto;bottom:calc(64px + env(safe-area-inset-bottom));right:10px}.trk-time{font-size:64px}}';
   var st = document.createElement('style'); st.id = 'trk-css'; st.textContent = css; document.head.appendChild(st);
@@ -175,7 +175,7 @@
     var wrap = $('#rail-panels-wrap'); if (!wrap || $('#rail-' + id)) return;
     var d = document.createElement('div'); d.className = 'rail-panel'; d.id = 'rail-' + id;
     d.innerHTML = '<div class="trk-wrap"><div class="trk-h">' + title + '</div>' +
-      (sub ? '<div style="font-size:11px;color:var(--sub,#9aa3b5);line-height:1.6;margin-top:-2px">' + sub + '</div>' : '') +
+      (sub ? '<div style="font-size:12px;color:var(--sub,#9aa3b5);line-height:1.6;margin-top:-2px">' + sub + '</div>' : '') +
       '<div id="' + bodyId + '" class="trk-wrap"></div></div>';
     wrap.appendChild(d);
   }
@@ -189,7 +189,7 @@
   }
   function subjectBar(sub) {
     if (ED === 'fit') return '';
-    return '<div class="trk-row"><div class="trk-grow" style="font-family:var(--mono);font-size:11px;color:var(--sub)">客戶：<b style="color:var(--green)">' + esc(sub.name) + '</b></div>' +
+    return '<div class="trk-row"><div class="trk-grow" style="font-family:var(--mono);font-size:12px;color:var(--sub)">客戶：<b style="color:var(--green)">' + esc(sub.name) + '</b></div>' +
       '<button class="trk-btn small" data-a="goclients">切換客戶</button></div>';
   }
 
@@ -299,7 +299,7 @@
         '<button class="trk-btn small" data-a="share" data-id="' + s.id + '">💬 WhatsApp</button>' +
         '<button class="trk-btn small warn" data-a="delsess" data-id="' + s.id + '">刪除</button></div></div>' : '';
       return '<div class="trk-sess"><div class="top" data-a="toggle" data-id="' + s.id + '" role="button" tabindex="0">' +
-        '<div class="trk-grow"><b style="font-family:var(--mono);font-size:12px;color:var(--text)">' + esc(s.date) + (s.title ? ' · ' + esc(s.title) : '') + '</b>' +
+        '<div class="trk-grow"><b style="font-family:var(--mono);font-size:13px;color:var(--text)">' + esc(s.date) + (s.title ? ' · ' + esc(s.title) : '') + '</b>' +
         '<div class="trk-hint" style="margin:0">' + s.exercises.length + ' 個動作 · 總量 ' + Math.round(s.volume || 0).toLocaleString() + 'kg</div></div>' +
         (prc ? '<span class="trk-pr">🏆 ' + prc + '</span>' : '') + '<span style="color:var(--sub)">' + (open ? '▾' : '›') + '</span></div>' + det + '</div>';
     }).join('') + (L.sessions.length > 30 ? '<div class="trk-hint">只顯示最近30堂（全部資料都有保存／備份）</div>' : '');
@@ -329,7 +329,7 @@
   function onboardingHtml() {
     if (ED !== 'fit' || L.sessions.length) return '';
     return '<div class="trk-card" style="border-color:rgba(var(--accent-rgb,0,229,160),.35)"><b style="color:var(--green)">👋 歡迎使用 Kinesis Fit</b>' +
-      '<div class="trk-hint" style="font-size:11px">記錄訓練、追蹤 PR 和身體數據，再配合體態評估找出自己的弱項。</div>' +
+      '<div class="trk-hint" style="font-size:12px">記錄訓練、追蹤 PR 和身體數據，再配合體態評估找出自己的弱項。</div>' +
       '<div class="trk-row" style="flex-wrap:wrap;margin-top:8px">' +
       '<button class="trk-btn primary" data-a="goseq">📐 快速評估指南</button>' +
       '<button class="trk-btn" data-a="gobody">⚖️ 記身體數據</button>' +
@@ -357,9 +357,9 @@
       '<input class="trk-in trk-grow" placeholder="標題（例如 Push Day）" aria-label="訓練標題" data-f="title" value="' + esc(L.draft.title) + '"></div>' +
       '<div id="trk-draft" class="trk-wrap">' + draftHtml() + '</div>' +
       '<div class="trk-row"><button class="trk-btn trk-grow" data-a="addex">＋ 加動作</button></div>' +
-      '<div class="trk-card"><div class="trk-row"><div class="trk-grow" style="font-family:var(--mono);font-size:11px;color:var(--sub)">組間休息</div>' +
+      '<div class="trk-card"><div class="trk-row"><div class="trk-grow" style="font-family:var(--mono);font-size:12px;color:var(--sub)">組間休息</div>' +
       '<select class="trk-in" style="flex:0 0 96px" data-f="rest" aria-label="組間休息秒數">' + [30, 45, 60, 90, 120, 180, 240, 300].map(function (v) { return '<option value="' + v + '"' + (v === L.prefs.rest ? ' selected' : '') + '>' + v + ' 秒</option>'; }).join('') + '</select></div>' +
-      '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:var(--sub,#9aa3b5)"><input type="checkbox" data-f="auto"' + (L.prefs.auto ? ' checked' : '') + '> 勾選完成一組自動開始休息計時</label></div>' +
+      '<label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;color:var(--sub,#9aa3b5)"><input type="checkbox" data-f="auto"' + (L.prefs.auto ? ' checked' : '') + '> 勾選完成一組自動開始休息計時</label></div>' +
       '<div class="trk-row"><button class="trk-btn primary trk-grow" data-a="save">💾 儲存今日訓練</button><button class="trk-btn warn" data-a="clear">清空</button></div>' +
       fitToolsHtml() +
       '<div class="trk-h">動作進度 PROGRESS</div>' + (progressHtml() || '<div class="trk-empty">儲存訓練後，這裡會顯示每個動作的估算1RM趨勢。</div>') +
@@ -469,7 +469,7 @@
     var form = '<div class="trk-card"><div class="trk-row"><input class="trk-in" type="date" aria-label="日期" id="trk-b-date" value="' + todayISO() + '"></div>' +
       '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px">' +
       BODY_FIELDS.map(function (f) {
-        return '<label style="font-family:var(--mono);font-size:10px;color:var(--sub)">' + f.l + '（' + f.u + '）<input class="trk-in" type="number" inputmode="decimal" step="0.1" min="0" id="trk-b-' + f.k + '" value="' + esc(last[f.k] != null ? last[f.k] : '') + '" style="margin-top:3px"></label>';
+        return '<label style="font-family:var(--mono);font-size:12px;color:var(--sub)">' + f.l + '（' + f.u + '）<input class="trk-in" type="number" inputmode="decimal" step="0.1" min="0" id="trk-b-' + f.k + '" value="' + esc(last[f.k] != null ? last[f.k] : '') + '" style="margin-top:3px"></label>';
       }).join('') + '</div>' +
       '<input class="trk-in" id="trk-b-note" placeholder="備註（選填）" style="margin-top:8px">' +
       '<div class="trk-row" style="margin-top:8px"><button class="trk-btn primary trk-grow" data-a="bsave">💾 記錄</button></div>' +
@@ -481,7 +481,7 @@
       (pts.length > 1 ? '<div class="trk-hint">由 ' + fmt(pts[0].y) + ' → ' + fmt(pts[pts.length - 1].y) + fld.u + '（' + (pts[pts.length - 1].y - pts[0].y >= 0 ? '+' : '') + fmt(pts[pts.length - 1].y - pts[0].y) + '）· 共 ' + pts.length + ' 筆</div>' : '') + '</div>';
     var lean = last.weight && last.bf ? '<div class="trk-hint">最新去脂體重估算：約 ' + fmt(num(last.weight) * (1 - num(last.bf) / 100)) + 'kg · 脂肪量約 ' + fmt(num(last.weight) * num(last.bf) / 100) + 'kg</div>' : '';
     var list = rows.length ? rows.slice(0, 20).map(function (r) {
-      return '<div class="trk-sess"><div class="top" style="cursor:default"><div class="trk-grow"><b style="font-family:var(--mono);font-size:12px;color:var(--text)">' + esc(r.date) + '</b>' +
+      return '<div class="trk-sess"><div class="top" style="cursor:default"><div class="trk-grow"><b style="font-family:var(--mono);font-size:13px;color:var(--text)">' + esc(r.date) + '</b>' +
         '<div class="trk-hint" style="margin:0">' + BODY_FIELDS.filter(function (f) { return num(r[f.k]) > 0; }).map(function (f) { return f.l + ' ' + fmt(num(r[f.k])) + f.u; }).join(' · ') + (r.note ? ' · ' + esc(r.note) : '') + '</div></div>' +
         '<button class="trk-btn small warn" data-a="bdel" data-id="' + r.id + '" aria-label="刪除記錄">✕</button></div></div>';
     }).join('') : '<div class="trk-empty">尚未有記錄。</div>';
@@ -627,7 +627,7 @@
     } else {
       cfg = '<div class="trk-chips">' + IV_PRESETS.map(function (p, i) { return '<button class="trk-btn small" data-a="ivpreset" data-i="' + i + '">' + p.n + '</button>'; }).join('') + '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px">' +
-        [['prep', '準備秒'], ['work', '工作秒'], ['rest', '休息秒'], ['rounds', '輪數']].map(function (f) { return '<label style="font-family:var(--mono);font-size:10px;color:var(--sub)">' + f[1] + '<input class="trk-in" type="number" inputmode="numeric" min="0" max="3600" data-f="iv-' + f[0] + '" value="' + TM.iv[f[0]] + '" style="margin-top:3px"></label>'; }).join('') + '</div>';
+        [['prep', '準備秒'], ['work', '工作秒'], ['rest', '休息秒'], ['rounds', '輪數']].map(function (f) { return '<label style="font-family:var(--mono);font-size:12px;color:var(--sub)">' + f[1] + '<input class="trk-in" type="number" inputmode="numeric" min="0" max="3600" data-f="iv-' + f[0] + '" value="' + TM.iv[f[0]] + '" style="margin-top:3px"></label>'; }).join('') + '</div>';
     }
     return tabs + '<div class="trk-card"><div class="trk-phase" id="trk-phase"></div><div class="trk-time" id="trk-time">00:00</div>' +
       '<div class="trk-row"><button class="trk-btn primary trk-grow" id="trk-start" data-a="start">▶ 開始</button><button class="trk-btn trk-grow" id="trk-pause" data-a="pause">⏸ 暫停</button><button class="trk-btn warn" data-a="reset">重置</button></div></div>' +
