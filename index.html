@@ -710,6 +710,7 @@ html[data-theme="mono"] ::-webkit-scrollbar-thumb { background-color: #2A2A2A; }
   .sidebar.sidebar-expanded {
     width: auto;
     flex: 1;
+    min-width: 0; /* v95：內容不可把側欄撐闊過視窗 */
   }
 
   /* panels */
@@ -18428,8 +18429,8 @@ var MUSCLES = {
     poly:[[49,107.9],[48.6,132.9],[46.4,157.9],[45.8,182.9],[45.8,207.9],[45,232.9],[42.5,257.9],[49.5,258.1],[54,233.3],[58.9,208.4],[62.2,183.5],[62.2,158.5],[58.4,133.3],[55,108.1]],
     poly2:[[151,107.9],[151.4,132.9],[153.6,157.9],[154.2,182.9],[154.2,207.9],[155,232.9],[157.5,257.9],[150.5,258.1],[146,233.3],[141.1,208.4],[137.8,183.5],[137.8,158.5],[141.6,133.3],[145,108.1]],
     origin:'● 長頭：肩胛骨盂上結節\n● 短頭：肩胛骨喙突',
-    insertion:'● 橈骨粗隆\n● 肱二頭肌腱膜\n肩關節\n● 協助肩關節屈曲',
-    innervation:'肌皮神經（C5–C7）', action:'肘／前臂\n● 肘關節屈曲\n● 前臂旋後',originEn:"● Long head: Supraglenoid tubercle of scapula\n● Short head: Coracoid process of scapula",insertionEn:"● Radial tuberosity\n● Bicipital aponeurosis\nShoulder\n● Assists flexion of shoulder",actionEn:"Elbow/Forearm\n● Flexion of elbow\n● Supination of forearm",innervationEn:"Musculocutaneous nerve (C5-7)",
+    insertion:'● 橈骨粗隆\n● 肱二頭肌腱膜',
+    innervation:'肌皮神經（C5–C7）', action:'肘／前臂\n● 肘關節屈曲\n● 前臂旋後\n肩關節\n● 協助肩關節屈曲',originEn:"● Long head: Supraglenoid tubercle of scapula\n● Short head: Coracoid process of scapula",insertionEn:"● Radial tuberosity\n● Bicipital aponeurosis",actionEn:"Elbow/Forearm\n● Flexion of elbow\n● Supination of forearm\nShoulder\n● Assists flexion of shoulder",innervationEn:"Musculocutaneous nerve (C5-7)",
     note:'SFAL 站點。划船時二頭肌代償是最常見訓練問題。長頭腱在結節間溝容易發炎。',
     relatedPain:['impinge'], relatedTraining:['midback','benchElbowFlare']
   },
@@ -18707,8 +18708,8 @@ var MUSCLES = {
     region:'lower', view:'back', layer:'intermediate', color:'#163530',
     poly:[[62,246],[52,248],[42,260],[40,278],[48,288],[58,276],[64,258]],
     poly2:[[138,246],[148,248],[158,260],[160,278],[152,288],[142,276],[136,258]],
-    origin:'前、後臀線之間的髂骨外表面', insertion:'股骨大轉子\n全部纖維\n● 髖關節外展\n● 單腳站立時穩定骨盆',
-    innervation:'臀上神經（L4–S1）', action:'前部纖維\n● 協助髖關節屈曲\n● 協助內旋\n後部纖維\n● 協助髖關節伸展\n● 協助外旋',originEn:"External surface of ilium between anterior & posterior gluteal lines",insertionEn:"Greater trochanter of femur\nAll fibers\n● Abduction of hip\n● Stabilizes pelvis during single-leg stance",actionEn:"Anterior fibers\n● Assist hip flexion\n● Assist internal rotation\nPosterior fibers\n● Assist hip extension\n● Assist external rotation",innervationEn:"Superior gluteal nerve (L4–S1)",
+    origin:'前、後臀線之間的髂骨外表面', insertion:'股骨大轉子',
+    innervation:'臀上神經（L4–S1）', action:'全部纖維\n● 髖關節外展\n● 單腳站立時穩定骨盆\n前部纖維\n● 協助髖關節屈曲\n● 協助內旋\n後部纖維\n● 協助髖關節伸展\n● 協助外旋',originEn:"External surface of ilium between anterior & posterior gluteal lines",insertionEn:"Greater trochanter of femur",actionEn:"All fibers\n● Abduction of hip\n● Stabilizes pelvis during single-leg stance\nAnterior fibers\n● Assist hip flexion\n● Assist internal rotation\nPosterior fibers\n● Assist hip extension\n● Assist external rotation",innervationEn:"Superior gluteal nerve (L4–S1)",
     actionByPosition:[
       {position:'髖伸直/中立 0°',role:'前部纖維＝內旋；後部纖維＝外旋（兩者方向相反，淨效果視乎哪部分承重）'},
       {position:'髖屈曲 ~20°',role:'後部纖維力臂方向反轉，由外旋轉為內旋（Mansour & Pereira 1987）'},
@@ -18766,8 +18767,8 @@ var MUSCLES = {
     region:'lower', view:'back', layer:'intermediate', color:'#163528',
     poly:[[83,300.2],[85.5,315],[87.2,329.8],[89,344.6],[90.9,359.4],[92,374.2],[96,373.8],[95.9,358.8],[95.6,343.8],[93.8,329],[90.5,314.4],[87,299.8]],
     poly2:[[117,300.2],[114.5,315],[112.8,329.8],[111,344.6],[109.1,359.4],[108,374.2],[104,373.8],[104.1,358.8],[104.4,343.8],[106.2,329],[109.5,314.4],[113,299.8]],
-    origin:'坐骨粗隆', insertion:'脛骨內側髁後表面\n髖關節\n● 髖關節伸展',
-    innervation:'坐骨神經脛側分支（L5–S2）', action:'膝關節\n● 膝關節屈曲\n● 屈膝時膝關節內旋',originEn:"Ischial tuberosity",insertionEn:"Posterior surface of medial condyle of tibia\nHip joint\n● Extension of hip",actionEn:"Knee joint\n● Flexion of knee\n● Internal rotation of flexed knee",innervationEn:"Tibial division of sciatic nerve (L5–S2)",
+    origin:'坐骨粗隆', insertion:'脛骨內側髁後表面',
+    innervation:'坐骨神經脛側分支（L5–S2）', action:'髖關節\n● 髖關節伸展\n膝關節\n● 膝關節屈曲\n● 屈膝時膝關節內旋',originEn:"Ischial tuberosity",insertionEn:"Posterior surface of medial condyle of tibia",actionEn:"Hip joint\n● Extension of hip\nKnee joint\n● Flexion of knee\n● Internal rotation of flexed knee",innervationEn:"Tibial division of sciatic nerve (L5–S2)",
     note:'內側膕繩肌。慢性拉傷後坐骨結節是常見壓痛點。',
     relatedPain:['lbp','si'], relatedTraining:['hinge','hamCurlDom']
   },
@@ -18776,8 +18777,8 @@ var MUSCLES = {
     region:'lower', view:'back', layer:'superficial', color:'#143026',
     poly:[[79.5,300.3],[79.6,315],[80.2,329.6],[82.7,343.9],[86.3,358.1],[90,372.3],[94,371.7],[91.3,357.4],[89.6,343],[88.1,328.5],[86.1,314.1],[84.5,299.7]],
     poly2:[[120.5,300.3],[120.4,315],[119.8,329.6],[117.3,343.9],[113.7,358.1],[110,372.3],[106,371.7],[108.7,357.4],[110.4,343],[111.9,328.5],[113.9,314.1],[115.5,299.7]],
-    origin:'坐骨粗隆', insertion:'鵝足\n髖關節\n● 髖關節伸展',
-    innervation:'坐骨神經脛側分支（L5–S2）', action:'膝關節\n● 膝關節屈曲\n● 屈膝時膝關節內旋',originEn:"Ischial tuberosity",insertionEn:"Pes Anserinus\nHip joint\n● Extension of hip",actionEn:"Knee joint\n● Flexion of knee\n● Internal rotation of flexed knee",innervationEn:"Tibial division of sciatic nerve (L5–S2)",
+    origin:'坐骨粗隆', insertion:'鵝足',
+    innervation:'坐骨神經脛側分支（L5–S2）', action:'髖關節\n● 髖關節伸展\n膝關節\n● 膝關節屈曲\n● 屈膝時膝關節內旋',originEn:"Ischial tuberosity",insertionEn:"Pes Anserinus",actionEn:"Hip joint\n● Extension of hip\nKnee joint\n● Flexion of knee\n● Internal rotation of flexed knee",innervationEn:"Tibial division of sciatic nerve (L5–S2)",
     note:'ACL 重建的常用供腱來源（與股薄肌共同）。鵝足組成之一。',
     relatedPain:['lbp'], relatedTraining:['hinge','bridgeham']
   },
@@ -22242,7 +22243,7 @@ window.openMuscleDetail = function(id) {
   var atlasIds = (window.MUSCLE_TO_ATLAS || {})[id];
   var jumpBtnHTML = '<div class="pd-section pd-full" style="text-align:center;padding-top:2px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">'
     + '<button onclick="closePainDetail();jumpToMuscle(\''+id+'\')" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;padding:9px 16px;border-radius:6px;background:rgba(var(--accent-rgb,0,229,160),.1);color:var(--green);border:1px solid rgba(var(--accent-rgb,0,229,160),.3);cursor:pointer">🫀 人體圖上查看位置 →</button>'
-    + '<button onclick="openAtlas3D('+(atlasIds?JSON.stringify(atlasIds):'null')+','+JSON.stringify(m.name)+')" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;padding:9px 16px;border-radius:6px;background:rgba(129,140,248,.1);color:var(--c-a5b4fc,#a5b4fc);border:1px solid rgba(129,140,248,.3);cursor:pointer">🧊 真3D模型查看 →</button>'
+    + '<button onclick="openAtlas3D('+(atlasIds?JSON.stringify(atlasIds):'null').replace(/"/g,'&quot;')+','+JSON.stringify(m.name).replace(/"/g,'&quot;')+')" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;padding:9px 16px;border-radius:6px;background:rgba(129,140,248,.1);color:var(--c-a5b4fc,#a5b4fc);border:1px solid rgba(129,140,248,.3);cursor:pointer">🧊 真3D模型查看 →</button>'
     + '</div>';
 
   // 附著骨骼：這條肌肉的起點/止點分別在邊塊骨（由 MUSCLE_BONE_MAP 查表，
@@ -35264,6 +35265,61 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
       else if (b.getAttribute('data-k') === 'flags') show('assess', wrap.querySelector('.kc-flags'));
     });
   }
+  // ── v95 肌肉詳情頁設計 C：總結＋層次／神經，下面分「解剖／功能／臨床」分頁 ──
+  window.K_DESIGN_C_MUSCLE = window.K_DESIGN_C_MUSCLE || 'all';
+  function muscleKey(t) { var M = window.MUSCLES || {}; for (var k in M) if (M[k].name === t) return k; return null; }
+  // 「前部纖維／● …」→ 分組卡片；中英逐行配對
+  function mGroups(zh, en) {
+    var z = String(zh || '').split('\n').filter(function (x) { return x.trim(); }), e = String(en || '').split('\n').filter(function (x) { return x.trim(); }), same = e.length === z.length, G = [], cur = null;
+    z.forEach(function (l, i) {
+      var en1 = same ? e[i].replace(/^\s*●\s*/, '') : '';
+      if (/^\s*●/.test(l) || !cur && G.length === 0 && z.length === 1) { if (!cur) G.push(cur = { h: '', he: '', it: [] }); cur.it.push([l.replace(/^\s*●\s*/, ''), en1]); }
+      else G.push(cur = { h: l.replace(/[：:]\s*$/, ''), he: en1, it: [] });
+    });
+    if (!same && e.length) G.en = e.join('\n');
+    return G;
+  }
+  function mItems(it) { return it.length ? '<ul class="kc-mul">' + it.map(function (x) { return '<li>' + x[0] + (x[1] ? '<small>' + esc(x[1]) + '</small>' : '') + '</li>'; }).join('') + '</ul>' : ''; }
+  function mText(zh, en) { var G = mGroups(zh, en); return G.map(function (g) { return (g.h ? '<div class="kc-msub">' + g.h + (g.he ? '<small>' + esc(g.he) + '</small>' : '') + '</div>' : '') + mItems(g.it); }).join('') + (G.en ? '<div class="kc-men">' + esc(G.en) + '</div>' : ''); }
+  function buildMuscleC(body, detail, id, cfg) {
+    var m = MUSCLES[id], LN = { superficial: ['淺層', 'Superficial', 'var(--c-4ade80,#4ade80)'], intermediate: ['中層', 'Intermediate', 'var(--c-fb923c,#fb923c)'], deep: ['深層', 'Deep', 'var(--c-f87171,#f87171)'] }, RG = { trunk: '軀幹', upper: '上肢', lower: '下肢', head: '頭頸' };
+    var loc = null, btns = [];
+    $$('.pd-section', detail).forEach(function (sec) { if (/位置/.test(secTitle(sec))) loc = sec.querySelector('.kbm'); $$('button', sec).forEach(function (b) { if (/jumpToMuscle|openAtlas3D/.test(b.getAttribute('onclick') || '')) btns.push(b); }); });
+    var ba = (window.MUSCLE_BONE_MAP || {})[id] || { origin: [], insertion: [] };
+    var chips = function (ids, c) { return ids.map(function (b) { var bb = window.BONES && BONES[b]; return bb ? window.renderAttachChip('🦴 ' + bb.name, "drillPainDetail('openBoneDetail',['" + b + "'])", c) : ''; }).join(''); };
+    var att = function (lab, zh, en, ids, c) { return '<div class="kc-blk"><h4>' + lab + '</h4><div>' + mText(zh, en) + (ids && ids.length ? '<div class="kc-mchips">' + chips(ids, c) + '</div>' : '') + '</div></div>'; };
+    var lay = LN[m.layer];
+    var panes = { anat: '', func: '', clin: '' };
+    panes.anat = '<h2 class="kc-h2">位置與附著</h2><div class="kc-blocks">' + (loc ? '<div class="kc-blk kc-blk-fig" data-loc><h4>位置</h4></div>' : '')
+      + att('起點 Origin', m.origin, m.originEn, ba.origin, 'var(--c-fbbf24,#fbbf24)') + att('止點 Insertion', m.insertion, m.insertionEn, ba.insertion, 'var(--c-22d3ee,#22d3ee)') + '</div>';
+    var G = mGroups(m.action, m.actionEn);
+    panes.func = '<h2 class="kc-h2">主要動作</h2><div class="kc-blocks">' + G.map(function (g) { return '<div class="kc-blk' + (G.length === 1 ? ' wide' : '') + '"><h4>' + (g.h || '主要動作') + (g.he ? '<small>' + esc(g.he) + '</small>' : '') + '</h4><div>' + mItems(g.it) + '</div></div>'; }).join('') + '</div>' + (G.en ? '<div class="kc-men">' + esc(G.en) + '</div>' : '')
+      + ((m.actionByPosition || []).length ? '<h2 class="kc-h2">依關節角度而變化</h2><div class="kc-props">' + m.actionByPosition.map(function (x) { return '<div><span>' + x.position + '</span><div>' + x.role + '</div></div>'; }).join('') + '</div>' + (m.actionNote ? '<div class="kc-foot">' + m.actionNote + '</div>' : '') : '');
+    var rel = [];
+    (m.relatedPain || []).forEach(function (k) { var d = window.PAIN_DB && PAIN_DB[k]; if (d) rel.push(['openPainDetail', k, d, '痛症']); });
+    (m.relatedTraining || []).forEach(function (k) { var d = window.TRAINING_DB && TRAINING_DB[k]; if (d) rel.push(['openTrainingDetail', k, d, '訓練問題']); });
+    // 臨床意義已在頂部「臨床重點」，這裡只列相關痛症／訓練問題
+    panes.clin = (rel.length ? '<h2 class="kc-h2">相關痛症／訓練問題</h2><div class="kc-mrel">' + rel.map(function (r) { return '<button type="button" onclick="drillPainDetail(\'' + r[0] + '\',[\'' + r[1] + '\'])"><small>' + r[3] + '</small><b>' + (r[2].emoji ? r[2].emoji + ' ' : '') + esc(r[2].name) + '</b>' + (r[2].sub ? '<span>' + esc(r[2].sub) + '</span>' : '') + '<i>›</i></button>'; }).join('') + '</div>' : '');
+    var TABS = [['anat', '解剖'], ['func', '功能'], ['clin', '臨床']].filter(function (t) { return panes[t[0]]; });
+    var wrap = document.createElement('div'); wrap.className = 'k-c k-cm';
+    wrap.innerHTML = '<div class="kc-tools"></div>'
+      + '<div class="kc-sum"><div class="kc-card"><div class="kc-lab">臨床重點</div><div class="kc-big">' + (m.note || esc(m.name)) + '</div></div><div class="kc-stack">'
+      + (lay ? '<div class="kc-card"><div class="kc-lab">層次 · 區域</div><div class="kc-key"><span class="kc-mdot" style="background:' + lay[2] + '"></span>' + lay[0] + ' <small>' + lay[1] + '</small>' + (RG[m.region] ? '　·　' + RG[m.region] : '') + '</div></div>' : '')
+      + (m.innervation ? '<div class="kc-card"><div class="kc-lab">神經支配</div><div class="kc-key">' + esc(m.innervation) + (m.innervationEn ? '<small class="kc-msmall">' + esc(m.innervationEn) + '</small>' : '') + '</div></div>' : '')
+      + '</div></div>'
+      + '<div class="kc-tabs" role="tablist">' + TABS.map(function (t, i) { return '<button type="button" role="tab" data-p="' + t[0] + '"' + (i ? '' : ' class="on"') + '>' + t[1] + '</button>'; }).join('') + '</div>'
+      + TABS.map(function (t, i) { return '<div class="kc-pane" data-p="' + t[0] + '"' + (i ? ' hidden' : '') + '>' + panes[t[0]] + '</div>'; }).join('');
+    var tools = wrap.querySelector('.kc-tools'); btns.forEach(function (b) { b.removeAttribute('style'); b.className = 'k-present-btn'; tools.appendChild(b); });
+    if (loc) wrap.querySelector('[data-loc]').appendChild(loc);
+    detail.remove(); body.appendChild(wrap);
+    body.classList.add('k-has-quick', 'k-has-c');
+    body.__kdata = { Q: { lead: m.note || '' }, cfg: cfg, title: m.name };
+    wrap.addEventListener('click', function (e) {
+      var b = e.target.closest('.kc-tabs button'); if (!b) return; var k = b.getAttribute('data-p');
+      $$('.kc-tabs button', wrap).forEach(function (x) { x.classList.toggle('on', x === b); });
+      $$('.kc-pane', wrap).forEach(function (p) { p.hidden = p.getAttribute('data-p') !== k; });
+    });
+  }
   var PRES_ICON = "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" width=\"16\" height=\"16\"><path d=\"M3 4l18 0\"/><path d=\"M4 4v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-10\"/><path d=\"M12 16l0 4\"/><path d=\"M9 20l6 0\"/><path d=\"M8 12l3 -3l2 2l3 -3\"/></svg>";
   var BODIES = ['pd-body', 'gl-body', 'cc-body', 'jh-body', 'scr-body', 'nt-body'];
   function build(body) {
@@ -35293,6 +35349,8 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
       }
       var ov = body.closest('.pain-detail-overlay'), tEl = ov && ov.querySelector('[id$="-title"]');
       var cfg = tEl && window.kLookupItem ? window.kLookupItem(tEl.textContent.trim()) : null;
+      // v95：肌肉詳情頁設計 C（K_DESIGN_C_MUSCLE 列出已套用的肌肉；'all' 為全部）
+      if (body.id === 'pd-body' && tEl) { var mk = muscleKey(tEl.textContent.trim()), CM = window.K_DESIGN_C_MUSCLE; if (mk && (CM === 'all' || CM[mk])) { buildMuscleC(body, detail, mk, cfg); return; } }
       var isNut = body.id === 'nt-body';
       var Q = cfg && cfg.cluster ? extractCluster(cfg.cluster) : isNut ? extractNutrition(detail) : extract(detail);
       // 體態詳情：有加強資料（POSTURE_PLUS）時改用結構化的分型、進退階、相關問題及評估排序
@@ -35711,6 +35769,28 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 .kc-blocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; grid-auto-flow: dense; }
 .kc-blk { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; min-width: 0; }
 .kc-blk.wide { grid-column: 1 / -1; }
+/* v95 肌肉設計 C */
+.kc-mul { margin: 0; padding: 0; list-style: none; }
+.kc-mul li { position: relative; padding: 3px 0 3px 16px; }
+.kc-mul li::before { content: ''; position: absolute; left: 2px; top: 13px; width: 5px; height: 5px; border-radius: 50%; background: var(--sub); }
+.kc-mul small, .kc-msub small, .kc-blk h4 small { display: block; font-size: 12.5px; color: var(--sub); line-height: 1.5; font-weight: 400; }
+.kc-blk h4 small { display: inline; margin-left: 8px; }
+.kc-msub { font-weight: 600; color: var(--text); margin: 10px 0 2px; } .kc-msub:first-child { margin-top: 0; }
+.kc-men { font-size: 12.5px; color: var(--sub); white-space: pre-line; margin-top: 8px; line-height: 1.6; }
+.kc-mchips { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.kc-mdot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+.kc-key small { font-size: 13px; font-weight: 400; color: var(--sub); }
+.kc-msmall { display: block; margin-top: 2px; }
+.kc-mnote > div { font-size: 16px; color: var(--text); }
+.kc-mrel { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.kc-mrel button { position: relative; text-align: left; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 34px 12px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; }
+.kc-mrel button:hover { border-color: var(--sub); }
+.kc-mrel small { font-size: 11.5px; color: var(--sub); }
+.kc-mrel b { font-size: 14.5px; line-height: 1.45; }
+.kc-mrel span { font-size: 12.5px; color: var(--sub); line-height: 1.55; }
+.kc-mrel i { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-style: normal; color: var(--sub); font-size: 18px; }
+.k-cm .kc-blk-fig .kbm { max-width: 320px; margin: 0 auto; }
+.k-cm .kc-props > div { grid-template-columns: 160px 1fr; }
 .kc-blk-fig { grid-row: span 3; }
 .kc-blk h4 { margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--sub); letter-spacing: .03em; }
 .kc-blk > div { font-size: 15px; line-height: 1.75; color: var(--t2); }
@@ -35928,7 +36008,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     // v31：無論詳情頁有冇打開，都預先收窄到詳情頁左邊界——打開時左邊清單唔會再縮一下
     var ref = open[0] || OVS()[0];
     // 3D 人體面板自己用晒成個闊度放模型，未開詳情頁時唔可以預先收窄（v31 曾經令模型消失）
-    if (!open.length && panel && /^rail-(anatomy|breathingmech|gaitmech|kineticchain)$/.test(panel.id)) ref = null;
+    if (!open.length && panel && /^rail-(anatomy|breathingmech|gaitmech|kineticchain|nutrition-tdee|traincalc|program-designer)$/.test(panel.id)) ref = null;
     if (!panel || !ref || window.innerWidth < 900) { if (panel) { panel.style.removeProperty('max-width'); panel.removeAttribute('data-kfit'); } return; }
     // 詳情頁的左邊界（用 CSS 計算值；translateX 唔影響闊度，所以關閉狀態都量得到）
     var ovLeft = window.innerWidth - ref.getBoundingClientRect().width;
