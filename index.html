@@ -35095,9 +35095,9 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     if (!rest.length) return '';
     return '<h3 class="kc-h3">其他矯正動作<small>未列入上面進退階的動作</small></h3><div class="kc-exs">' + rest.map(function (d) {
       var mk = dMark(P, d), vids = mk && mk.vars ? mk.vars.filter(function (v) { return window.KVIDEO && KVIDEO[v[1]]; }) : [];
-      var own = vidFor(d.name), ids = (own ? [own] : []).concat(vids.map(function (v) { return v[1]; }).filter(function (id) { return id !== own; }));
-      var info = exInfo(d.name) || {}, vw = own ? pur(KVIDEO[own]) : '';
-      return exRow({ pk: PKC, lv: '補充', n: d.name, star: mk && mk.mark === 'star', common: mk && mk.mark === 'common', reps: d.reps, when: info.when, mus: (d.muscles || info.m || []).join('、'), cue: d.cue, why: vw || info.w || '', fix: d.why, vids: ids.slice(0, 2) });
+      var own = vidFor(d.name), ids = own ? [own] : []; // v92：只顯示同一個動作的影片（不借用其他變化式）
+      var info = exInfo(d.name) || {}, vw = own ? pur(KVIDEO[own]) : '', di = dInfo(d.name);
+      return exRow({ pk: PKC, lv: '補充', n: d.name, star: mk && mk.mark === 'star', common: mk && mk.mark === 'common', reps: d.reps, when: info.when, mus: (d.muscles || info.m || []).join('、'), cue: d.cue, why: vw || info.w || '', fix: d.why, yt: !own && di.vid && !vidOk(di.vid) ? di.vid : '', sim: di.sim, simCard: own && (di.sim && own === di.vid || !sameEn(splitName(d.name)[1] || enOf(d.name), KVIDEO[own].en)), vids: ids });
     }).join('') + '</div>';
   }
   // v90：統一的動作格式——名稱／級別／組數、何時用、肌肉、提示、原理、對本問題的幫助、影片示範
@@ -35108,30 +35108,39 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
       if (B.length && sh / B.length > 0.6) { var ov = (window.FIX_OVERRIDE || {})[o.pk + '|' + nm[0]]; if (ov) { o.fix = ov; o.fixCoach = true; } } }
     return '<div class="kc-ex"><div class="kc-ex-h">' + (o.lv ? '<span class="kc-lv l' + ({ '退階': 1, '標準': 2, '進階': 3 }[o.lv] || 0) + '">' + o.lv + '</span>' : '') + '<b>' + nm[0] + '</b>' + (o.star ? '<span class="kc-star">首選</span>' : '') + (o.common ? '<span class="kc-star alt">常用</span>' : '') + (o.reps ? '<em>' + o.reps + '</em>' : '') + (nm[1] ? '<i>' + nm[1] + '</i>' : '') + '</div>'
       + '<div class="kc-ex-g">' + f('何時用', o.when || '—') + f('肌肉', o.mus || '—') + f('提示', (o.pos ? o.pos + '：' : '') + (o.cue || '—')) + f('原理', o.why || '—') + f('對本問題', o.fix ? o.fix + (o.fixCoach ? '<small>教練整理</small>' : '') : '—', 'fix') + '</div>'
-      + (o.vids || []).map(function (id) { return window.kVideoCard(id); }).join('') + '</div>';
+      + (o.simCard ? '<small class="kc-sim">相近影片示範（非完全相同的動作）</small>' : '') + (o.vids || []).map(function (id) { return window.kVideoCard(id); }).join('')
+      + (o.yt ? '<a class="kc-yt" href="https://www.youtube.com/watch?v=' + o.yt + '" target="_blank" rel="noopener">▶ ' + (o.sim ? '相近影片示範' : '影片示範') + '（YouTube）</a>' : '')
+      + (o.img ? '<details class="kv"><summary><span class="kv-ico">▶</span>圖解示範：' + (o.imgEn || nm[0]) + '<small>動作庫</small></summary><div class="kv-body"><img src="data:image/jpeg;base64,' + o.img + '" alt="' + nm[0] + '" loading="lazy" style="width:100%;max-width:560px;border-radius:8px;border:1px solid var(--border);display:block"></div></details>' : '') + '</div>';
   }
   // 名稱統一為「中文」作標題、英文作副題
   function splitName(n, en) {
     n = String(n || ''); var m = /^([A-Za-z0-9][^（]*?)\s*（([^）]+)）\s*$/.exec(n);
     if (m) return [m[2], m[1]];
+    var r = /^([^A-Za-z（]+?)\s*（([A-Za-z][^）]+)）\s*$/.exec(n); if (r) return [r[1], r[2]];
+    var d = /^([A-Za-z][^—–]*?)\s*[—–]\s*(.+)$/.exec(n); if (d) return [d[2], d[1]];
     var info = exInfo(n); if (/^[A-Za-z0-9]/.test(n) && info && info.zh) return [info.zh, n];
-    return [n, en || ''];
+    return [n, en || dInfo(n).en || ''];
   }
   function exKey(n) { var en = enOf(n); return (en || String(n || '').split('（')[0]).toLowerCase().replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim(); }
   function exInfo(n) { var E = window.EX_INFO || {}, m = /（([A-Za-z][^）]*)）/.exec(n || ''); return E[exKey(n)] || (m ? E[exKey(m[1])] : null) || null; }
   // 影片筆記開頭常重複動作名稱（「XXX（…）。」），作原理時略去
   function pur(v) { if (!v || !v.purpose) return ''; var t = v.purpose, i = t.indexOf('。'); return i > 0 && i < 40 && t.slice(0, i).indexOf('，') === -1 && t.length > i + 1 ? t.slice(i + 1) : t; }
+  // 動作庫「呼吸／骨盆體位訓練 #N」：取英文名及圖解
+  function libItem(txt) { var m = /呼吸／骨盆體位訓練\s*#(\d+)/.exec(txt || ''); if (!m || !window.EXERCISE_LIBRARY) return null; var c = EXERCISE_LIBRARY.categories.filter(function (x) { return x.key === 'breathing'; })[0]; return c ? c.items.filter(function (x) { return x.i === +m[1]; })[0] || null : null; }
+  // 動作英文名與影片名稱的字詞重疊少於一半 → 視為「相近影片」
+  function sameEn(a, b) { var W = function (x) { return String(x || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function (w) { return w.length > 3 && !/^(with|optional|load|progression)$/.test(w); }); }, A = W(a), B = W(b); if (!A.length) return true; return A.filter(function (w) { return B.indexOf(w) !== -1; }).length / A.length >= 0.5; }
   function vidOk(id) { return id && window.KVIDEO && KVIDEO[id]; }
   function enOf(name) { var m = /^([A-Za-z0-9][^（(]*)/.exec(name || ''); return m ? m[1].trim() : ''; }
-  function vidFor(name) { var en = enOf(name); if (!en || !window.kVideoIdFor) return null; var id = window.kVideoIdFor(en); if (!id) { var low = en.toLowerCase(); for (var k in KVIDEO) if (KVIDEO[k].en && KVIDEO[k].en.toLowerCase().indexOf(low) === 0) { id = k; break; } } return vidOk(id) ? id : null; }
+  function dInfo(name) { return window.drillENInfo ? window.drillENInfo(name) : { en: enOf(name) }; }
+  function vidFor(name) { var di = dInfo(name); if (di.vid && vidOk(di.vid)) return di.vid; var en = di.en || enOf(name); if (!en || !window.kVideoIdFor) return null; var id = window.kVideoIdFor(en); if (!id) { var low = en.toLowerCase(); for (var k in KVIDEO) if (KVIDEO[k].en && KVIDEO[k].en.toLowerCase().indexOf(low) === 0) { id = k; break; } } return vidOk(id) ? id : null; }
   function cueOf(v) { return !v ? '' : v.cues && v.cues.length ? v.cues.join('；') : (v.steps || []).slice(0, 3).join('；'); }
   function cBreath(P, pk) {
     var B = (window.POSTURE_DB && POSTURE_DB[pk] && POSTURE_DB[pk].breath) || [], X = (P.breathX || []).slice(), used = {};
     var rows = B.map(function (b) {
       var id = vidFor(b.name); if (id) used[id] = 1;
       var bx = X.filter(function (x) { return x.id === id; })[0];
-      var info = exInfo(b.name) || {};
-      return exRow({ pk: PKC, lv: '呼吸', n: b.name, star: bx && bx.mark === 'star', common: bx && bx.mark === 'common', reps: b.sets, pos: b.pos, when: info.when, mus: (info.m || []).join('、'), cue: b.cue, why: (id ? pur(KVIDEO[id]) : '') || info.w || '', fix: b.why, vids: id ? [id] : [] });
+      var info = exInfo(b.name) || {}, li = libItem(b.sets), di = dInfo(b.name);
+      return exRow({ pk: PKC, lv: '呼吸', n: b.name, en: li ? li.en : '', yt: !id && di.vid && !vidOk(di.vid) ? di.vid : '', sim: di.sim, simCard: id && (di.sim && id === di.vid || !sameEn(splitName(b.name)[1] || enOf(b.name), KVIDEO[id].en)), img: !id && !di.vid && li ? li.img : '', imgEn: li ? li.en : '', star: bx && bx.mark === 'star', common: bx && bx.mark === 'common', reps: String(b.sets || '').replace(/[，,]?\s*配合體位緩慢進行/, '').replace(/（詳見「動作庫」[^）]*）/, ''), pos: b.pos, when: info.when, mus: (info.m || []).join('、'), cue: b.cue, why: (id ? pur(KVIDEO[id]) : '') || info.w || '', fix: b.why, vids: id ? [id] : [] });
     }).concat(X.filter(function (x) { return !used[x.id] && vidOk(x.id); }).map(function (x) {
       var v = KVIDEO[x.id], info = exInfo(v.en) || {}; return exRow({ pk: PKC, lv: '呼吸', n: v.en, star: x.mark === 'star', common: x.mark === 'common', when: info.when, mus: (info.m || []).join('、'), cue: cueOf(v), why: pur(v) || info.w || '', fix: x.why, vids: [x.id] });
     }));
@@ -35141,10 +35150,10 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     var MP = (window.MOVE_PLUS || {})[pk] || {};
     return P.moves.map(function (m) {
       return '<h3 class="kc-h3">' + m.pattern + '<small>' + m.goal + '</small></h3><div class="kc-exs">' + m.steps.map(function (st) {
-        var d = st._d, x = MP[st.n] || {}, v = vidOk(st.id) ? KVIDEO[st.id] : null;
+        var d = st._d, x = MP[st.n] || {}, vid0 = vidOk(st.id) ? st.id : (d ? vidFor(d.name) : null), v = vid0 ? KVIDEO[vid0] : null;
         var why = (v ? pur(v) : '') || x.w || (d && d.why) || '', own = d && d.why && d.why !== why;
         return exRow({ pk: PKC, lv: st.lv, n: st.n, en: v ? v.en : '', star: st.star, when: st.when, reps: d && d.reps, mus: d && d.muscles ? d.muscles.join('、') : (x.m || []).join('、'),
-          cue: d && d.cue ? d.cue : cueOf(v), why: why, fix: own ? d.why : x.f, fixCoach: !own, vids: v ? [st.id] : [] });
+          cue: d && d.cue ? d.cue : cueOf(v), why: why, fix: own ? d.why : x.f, fixCoach: !own, vids: v ? [vid0] : [] });
       }).join('') + '</div>';
     }).join('');
   }
@@ -35642,6 +35651,8 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 .kc-ex-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin-bottom: 10px; }
 .kc-ex-h b { font-size: 16px; font-weight: 700; line-height: 1.45; }
 .kc-ex-h em { font-style: normal; margin-left: auto; font-size: 13.5px; color: var(--sub); }
+.kc-yt { display: inline-block; margin-top: 8px; font-size: 14px; color: var(--text); text-decoration: none; border: 1px solid var(--border); border-radius: 10px; padding: 9px 14px; }
+.kc-yt:hover { border-color: var(--text); }
 .kc-ex-h i { flex-basis: 100%; font-style: normal; font-size: 13px; color: var(--sub); margin-top: -4px; }
 .kc-ex-h .kc-lv { font-size: 12px; padding: 1px 8px; border-radius: 6px; border: 1px solid var(--border); color: var(--sub); }
 .kc-ex-h .kc-lv.l2 { color: var(--text); border-color: var(--text); font-weight: 600; }
