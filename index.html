@@ -71,6 +71,9 @@
 /* v98：營養／動作庫——不用等寬字和字距（英文內容保留） */
 [id^="rail-nutrition-"], #rail-exlib, #nutrition-detail-overlay, #coaching-detail-overlay { --mono: var(--sans); font-variant-numeric: tabular-nums; }
 :is([id^="rail-nutrition-"], #rail-exlib, #nutrition-detail-overlay, #coaching-detail-overlay) [style*="letter-spacing"] { letter-spacing: 0 !important; }
+/* v99：其餘頁面同樣不用等寬字和字距（英文保留） */
+#rail-cardio, #rail-powerlifting, #rail-bodybuilding, #rail-lower-body, #rail-upper-body, #rail-analysis, #rail-screen, #rail-wedge, #rail-pain, #rail-rehab, #rail-training, #rail-coaching, #rail-tlog, #rail-tbody, #rail-ttimer, #rail-clients, .main, #pain-detail-overlay, #screen-detail-overlay, #seqguide-overlay, #session-overlay, #wizard-overlay, #equip-gallery-overlay { --mono: var(--sans); font-variant-numeric: tabular-nums; }
+:is(#rail-cardio, #rail-powerlifting, #rail-bodybuilding, #rail-lower-body, #rail-upper-body, #rail-analysis, #rail-screen, #rail-wedge, #rail-pain, #rail-rehab, #rail-training, #rail-coaching, #rail-tlog, #rail-tbody, #rail-ttimer, #rail-clients, .main, #pain-detail-overlay, #screen-detail-overlay, #seqguide-overlay, #session-overlay, #wizard-overlay, #equip-gallery-overlay) [style*="letter-spacing"] { letter-spacing: 0 !important; }
 #rail-traincalc [style*="letter-spacing"], #rail-program-designer [style*="letter-spacing"], #rail-nutrition-tdee [style*="letter-spacing"] { letter-spacing: 0 !important; }
 /* v96：按鈕／輸入框繼承網站字體（之前會退回 Arial） */
 button, input, select, textarea { font-family: inherit; }
@@ -36001,7 +36004,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 <script id="kformclean-js">
 // v97：訓練計算器、課表設計、TDEE 由 JS 產生的結果同樣不用 emoji（保留 ✓✗★⚠→ 等有意義的符號）
 (function () {
-  var KEEP = /[←-⇿✓-✘★☆⚠©®™▶◀•●]/;
+  var KEEP = /^[\u2190-\u21FF\u2713-\u2718\u2605\u2606\u26A0\u00A9\u00AE\u2122\u25B6\u25C0\u2022\u25CF\u2705\u23EF\u23ED\u23EE\u23F8-\u23FA\u2640\u2642\u{1F534}\u{1F535}\u{1F7E0}-\u{1F7EB}\u{1F6A9}]/u;
   var RE = /(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Extended_Pictographic}[\uFE0F\u200D\u20E3]*(?:\p{Extended_Pictographic}[\uFE0F\u200D\u20E3]*)*)\s?/gu;
   function clean(root) {
     var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, list = [];
@@ -36010,9 +36013,12 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
   }
   function init() {
     // v98：營養各頁、動作庫及其詳情頁亦去 emoji（英文保留）
-    ['rail-traincalc', 'rail-program-designer', 'rail-nutrition-tdee', 'rail-nutrition-metabolism', 'rail-nutrition-micro', 'rail-nutrition-supp', 'rail-nutrition-food', 'rail-nutrition-apply', 'rail-exlib', 'nutrition-detail-overlay', 'coaching-detail-overlay'].forEach(function (id) {
-      var p = document.getElementById(id); if (!p) return; clean(p);
-      var busy = false; new MutationObserver(function () { if (busy) return; busy = true; setTimeout(function () { clean(p); busy = false; }, 0); }).observe(p, { childList: true, subtree: true });
+    // v99：有氧、健力、健美、評估各頁、痛症／體態／訓練清單、追蹤、客戶及其詳情頁（英文保留；狀態色點、🚩、✅、計時器按鍵保留）
+    ['rail-traincalc', 'rail-program-designer', 'rail-nutrition-tdee', 'rail-nutrition-metabolism', 'rail-nutrition-micro', 'rail-nutrition-supp', 'rail-nutrition-food', 'rail-nutrition-apply', 'rail-exlib', 'nutrition-detail-overlay', 'coaching-detail-overlay',
+     'rail-cardio', 'rail-powerlifting', 'rail-bodybuilding', 'rail-lower-body', 'rail-upper-body', 'rail-analysis', 'rail-screen', 'rail-wedge', 'rail-pain', 'rail-rehab', 'rail-training', 'rail-coaching', 'rail-tlog', 'rail-tbody', 'rail-ttimer', 'rail-clients',
+     'pain-detail-overlay', 'screen-detail-overlay', 'seqguide-overlay', 'session-overlay', 'wizard-overlay', 'equip-gallery-overlay'].map(function (id) { return document.getElementById(id); }).concat([document.querySelector('.main')]).forEach(function (p) {
+      if (!p) return; clean(p);
+      var t = 0; new MutationObserver(function () { clearTimeout(t); t = setTimeout(function () { clean(p); }, 80); }).observe(p, { childList: true, subtree: true });
     });
   }
   window.kFormClean = clean;
