@@ -35050,7 +35050,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 
 
   // ── v87 設計 C：一句總結＋關鍵數字＋先排除，下面分成「機制／評估／分型／處理／動作」分頁 ──
-  window.K_DESIGN_C = window.K_DESIGN_C || { apt: 1 };
+  window.K_DESIGN_C = window.K_DESIGN_C || 'all';
   function useC(body, Q) { var C = window.K_DESIGN_C; return body.id === 'pd-body' && Q.pk && (C === 'all' || C[Q.pk]); }
   var ACC_N = { 3: '準確度高', 2: '準確度中', 1: '旁證' };
   function cAssess(P) {
@@ -35075,12 +35075,42 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     });
     return h;
   }
+  // v89：把原有「矯正訓練」的組數／提示／原理併入進退階中相同的動作；配對不到的放到「其他矯正動作」
+  function dNorm(x) { return String(x || '').toLowerCase().replace(/[\s—\-–（）()·、,，:：\/＋+]/g, ''); }
+  function dMark(P, d) { var M = P.drillMarks || {}; for (var k in M) if (d.name.toLowerCase().indexOf(k.toLowerCase()) !== -1) return M[k]; return null; }
+  function matchDrills(P, drills) {
+    var used = {};
+    (drills || []).forEach(function (d, di) {
+      var toks = d.name.split(/\s*[—–]\s*|（|\(/).map(dNorm).filter(function (t) { return t.length >= 4; }), mk = dMark(P, d), ids = mk && mk.vars ? mk.vars.map(function (v) { return v[1]; }) : [], best = null;
+      P.moves.forEach(function (m) { m.steps.forEach(function (st) {
+        if (st._d) return;
+        var sn = dNorm(st.n), en = dNorm(st.id && window.KVIDEO && KVIDEO[st.id] ? KVIDEO[st.id].en : '');
+        var hit = (st.id && ids.indexOf(st.id) !== -1) || toks.some(function (t) { return sn.indexOf(t) !== -1 || (sn.length >= 4 && t.indexOf(sn) !== -1) || (en && en.indexOf(t) !== -1); });
+        if (hit && (!best || (st.lv === '標準' && best.lv !== '標準'))) best = st;
+      }); });
+      if (best) { best._d = d; best._mk = mk; used[di] = 1; }
+    });
+    return (drills || []).filter(function (d, i) { return !used[i]; });
+  }
+  function drillHow(d) {
+    return '<details class="kc-more"><summary>做法 · 組數 · 原理' + (d.reps ? '<span>' + d.reps + '</span>' : '') + '</summary><div class="kc-dr">'
+      + (d.reps ? '<div><span>組數</span><p>' + d.reps + '</p></div>' : '') + (d.muscles && d.muscles.length ? '<div><span>肌肉</span><p>' + d.muscles.join('、') + '</p></div>' : '')
+      + (d.cue ? '<div><span>提示</span><p>' + d.cue + '</p></div>' : '') + (d.why ? '<div><span>原理</span><p>' + d.why + '</p></div>' : '') + '</div></details>';
+  }
+  function cOtherDrills(P, rest) {
+    if (!rest.length) return '';
+    return '<h3 class="kc-h3">其他矯正動作<small>未列入上面進退階的動作</small></h3><div class="kc-ladder">' + rest.map(function (d) {
+      var mk = dMark(P, d), vids = mk && mk.vars ? mk.vars.filter(function (v) { return window.KVIDEO && KVIDEO[v[1]]; }) : [];
+      return '<div class="kc-step l2"><span class="kc-lv">' + (mk && mk.mark === 'star' ? '首選' : mk && mk.mark === 'common' ? '常用' : '動作') + '</span><div><b>' + d.name + '</b>' + (d.reps ? '<p>' + d.reps + '</p>' : '') + drillHow(d)
+        + vids.map(function (v) { return window.kVideoCard(v[1]); }).join('') + '</div></div>';
+    }).join('') + '</div>';
+  }
   function cMoves(P) {
     return P.moves.map(function (m) {
       return '<h3 class="kc-h3">' + m.pattern + '<small>' + m.goal + '</small></h3><div class="kc-ladder">' + m.steps.map(function (st) {
         var lv = { '退階': 1, '標準': 2, '進階': 3 }[st.lv] || 2;
         return '<div class="kc-step l' + lv + '"><span class="kc-lv">' + st.lv + '</span><div><b>' + st.n + (st.star ? '<span class="kc-star">首選</span>' : '') + '</b><p>' + st.when + '</p>'
-          + (st.id && window.KVIDEO && KVIDEO[st.id] ? window.kVideoCard(st.id) : '') + '</div></div>';
+          + (st._d ? drillHow(st._d) : '') + (st.id && window.KVIDEO && KVIDEO[st.id] ? window.kVideoCard(st.id) : '') + '</div></div>';
       }).join('') + '</div>';
     }).join('');
   }
@@ -35100,6 +35130,7 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
       if (k === 'assess' && P.assess && /評估重點|準確度/.test(t)) return;
       if (k === 'types' && P.types) return;
       if (k === 'moves' && P.moves && /進退階/.test(t)) return;
+      if (k === 'moves' && P.moves && /矯正訓練|Corrective/i.test(t) && Q.pk && window.POSTURE_DB && POSTURE_DB[Q.pk] && POSTURE_DB[Q.pk].drills) return;
       if (!descSec && /描述|機制|概述|定義/.test(t)) {
         descSec = sec;
         // v88：描述按空行分成區塊卡片（每段開頭的粗體字作卡片標題），原理圖作第一張卡
@@ -35129,7 +35160,12 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
     if (fig && !figUsed) panes.mech.unshift('<h2 class="kc-h2">原理圖</h2><div class="kc-fig">' + fig + '</div>');
     if (P.assess) panes.assess.splice(panes.assess.length && panes.assess[0].classList && panes.assess[0].classList.contains('kc-flags') ? 1 : 0, 0, '<h2 class="kc-h2">評估重點（按準確度排序）</h2>' + cAssess(P));
     if (P.types) panes.types.unshift(cTypes(P));
-    if (P.moves) panes.moves.unshift(cMoves(P));
+    if (P.moves) {
+      var drills = Q.pk && window.POSTURE_DB && POSTURE_DB[Q.pk] ? POSTURE_DB[Q.pk].drills : null;
+      P.moves.forEach(function (m) { m.steps.forEach(function (st) { delete st._d; delete st._mk; }); });
+      var rest = drills ? matchDrills(P, drills) : [];
+      panes.moves.unshift(cMoves(P) + (drills ? cOtherDrills(P, rest) : ''));
+    }
     // 關鍵數字：描述中「正常範圍」之類的一行
     if (descSec) { var tx2 = descSec.querySelector('.pd-text'); (tx2 ? lines(tx2) : []).some(function (l) { if (/正常|範圍|標準/.test(l.label)) { key = l.text.replace(/^[^：:]*[：:]\s*/, ''); keyLab = l.label; return true; } }); }
     var lead = cfg && cfg.lead ? cfg.lead : esc(Q.lead || '');
@@ -35563,6 +35599,16 @@ html[data-theme="cobalt"], html:not([data-theme]) { --bg-rgb: 11,18,32; } html[d
 .k-c .kc-step .kv:not([open]) summary small { display: none; }
 .k-c .kc-step .kv:not([open]) summary:hover { color: var(--text); }
 .kc-fig { max-width: 440px; }
+.kc-more { margin-top: 6px; }
+.kc-more summary { list-style: none; cursor: pointer; font-size: 12.5px; color: var(--sub); padding: 2px 0; }
+.kc-more summary::-webkit-details-marker { display: none; }
+.kc-more summary::before { content: '▸ '; } .kc-more[open] summary::before { content: '▾ '; }
+.kc-more summary span { margin-left: 8px; color: var(--t2); }
+.kc-more summary:hover { color: var(--text); }
+.kc-dr { margin: 6px 0 4px; padding: 10px 14px; border-radius: 10px; background: rgba(var(--ov,255,255,255),.04); border: 1px solid var(--border); }
+.kc-dr > div { display: grid; grid-template-columns: 44px 1fr; gap: 10px; padding: 4px 0; }
+.kc-dr span { font-size: 12.5px; color: var(--sub); padding-top: 2px; }
+.kc-dr p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--t2); }
 .kc-blocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; grid-auto-flow: dense; }
 .kc-blk { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; min-width: 0; }
 .kc-blk.wide { grid-column: 1 / -1; }
